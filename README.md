@@ -1,2 +1,2 @@
 # petro
-PETRO – a pet care e-commerce mobile app built with React Native, Node.js, MongoDB &amp; Cloudinary
+PETRO – a pet care e-commerce web apllication built with React, Node.js, MongoDB &amp; Cloudinary
