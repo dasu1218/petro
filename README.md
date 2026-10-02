@@ -48,7 +48,7 @@ A responsive e-commerce web application for premium pet care: medicated shampoos
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, Tailwind CSS, React Router, Axios, Zustand / Context |
+| Frontend | React 19, Vite, Tailwind CSS, React Router, Axios, Zustand / Context |
 | Backend | Node.js, Express, JWT, bcrypt, multer, cors |
 | Database | MongoDB Atlas, Mongoose |
 | Media | Cloudinary (product images) |
@@ -82,30 +82,26 @@ Derived from `DESIGN.md` (Epilogue + Plus Jakarta Sans, warm linen surfaces, cri
 
 ```
 petro/
+├── .gitignore
 ├── petro-api/
-│   ├── src/
-│   │   ├── config/        # db.js, cloudinary.js
-│   │   ├── models/        # User, Product, Category, Bundle, Cart, Order
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   └── middleware/    # auth.js, error.js, upload.js
+│   ├── package.json
+│   ├── package-lock.json
 │   ├── server.js
 │   └── .env.example
 │
 └── petro-web/
-    ├── public/
-    ├── src/
-    │   ├── assets/
-    │   ├── components/    # Header, Footer, ProductCard, CartDrawer, Badge...
-    │   ├── pages/         # Home, Shop, ProductDetail, Cart, Checkout, Orders, Profile, Admin
-    │   ├── routes/        # AppRoutes, ProtectedRoute, AdminRoute
-    │   ├── store/         # cart and auth state
-    │   ├── services/      # api.js (Axios instance)
-    │   ├── App.jsx
-    │   └── main.jsx
-    ├── tailwind.config.js
+  ├── .env.example
+  ├── .oxlintrc.json
+    ├── index.html
+    ├── package.json
+    ├── package-lock.json
     ├── vite.config.js
-    └── .env.example
+    ├── public/
+    └── src/
+        ├── App.jsx
+        ├── App.css
+        ├── index.css
+        └── main.jsx
 ```
 
 ---
@@ -113,7 +109,7 @@ petro/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20.19+ (required by Vite 8)
 - npm or yarn
 - MongoDB Atlas account
 - Cloudinary account
@@ -129,7 +125,7 @@ cd petro
 cd petro-api
 npm install
 cp .env.example .env     # fill in your values
-npm run dev              # http://localhost:5000
+npm run dev              # http://localhost:5001
 ```
 
 ### 3. Frontend
@@ -154,7 +150,7 @@ npm run seed
 
 **`petro-api/.env`**
 ```env
-PORT=5000
+PORT=5001
 CLIENT_URL=http://localhost:5173
 MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/petro
 JWT_SECRET=change_this_secret
@@ -167,7 +163,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 **`petro-web/.env`**
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5001/api
 ```
 
 ⚠️ Never commit `.env` files. Commit only `.env.example`.
@@ -202,6 +198,7 @@ Base URL: `/api`
 | POST | `/auth/login` | Login, returns JWT | – |
 | GET | `/auth/me` | Current user | ✅ |
 | GET | `/products` | List (search, filter, sort, page) | – |
+| GET | `/health` | API health check | – |
 | GET | `/products/:id` | Product details | – |
 | POST | `/products` | Create product | 🔑 Admin |
 | PUT | `/products/:id` | Update product | 🔑 Admin |
@@ -218,11 +215,11 @@ Base URL: `/api`
 
 ## 🌿 Feature Branches
 
-Every feature lives in its own branch, created from `dev` and merged back through a Pull Request. Never commit directly to `main` or `dev`.
+Every feature lives in its own branch, created from `develop` and merged back through a Pull Request. Never commit directly to `main` or `develop`.
 
 | # | Branch | Scope | Days | Status |
 |---|---|---|---|---|
-| 1 | `feature/project-setup` | Repos, Vite + React and Express init, `.env`, MongoDB Atlas, Cloudinary account | 1–2 | ⬜ |
+| 1 | `feature/project-setup` | Repos, Vite + React and Express init, `.env`, MongoDB Atlas, Cloudinary account | 1–2 | 🟡 |
 | 2 | `feature/design-system` | Tailwind tokens from `DESIGN.md`, Google Fonts, Button, Badge, Input, Card | 3–4 | ⬜ |
 | 3 | `feature/backend-core` | Folder structure, DB connection, error handler, Mongoose models | 5–6 | ⬜ |
 | 4 | `feature/product-api` | Product and Category CRUD, search, filter, sort, pagination | 8, 10 | ⬜ |
@@ -248,18 +245,18 @@ Status key: ⬜ not started · 🟡 in progress · ✅ merged
 
 ### Create a feature branch
 ```bash
-git checkout dev
-git pull origin dev
+git checkout develop
+git pull origin develop
 git checkout -b feature/product-api
 # ...work and commit...
 git push -u origin feature/product-api
-# open a Pull Request: feature/product-api → dev
+# open a Pull Request: feature/product-api → develop
 ```
 
 ### Merge and clean up
 ```bash
-git checkout dev
-git pull origin dev
+git checkout develop
+git pull origin develop
 git branch -d feature/product-api
 git push origin --delete feature/product-api
 ```
@@ -271,13 +268,13 @@ git push origin --delete feature/product-api
 Tick items off as you finish them. The branch for each task is shown in brackets.
 
 ### Week 1 – Setup and Foundation
-- [ ] **Day 1:** GitHub repo, branches, README, Vite + React and Express projects `[feature/project-setup]`
+- [x] **Day 1:** GitHub repo, branches, README, Vite + React and Express projects `[feature/project-setup]`
 - [ ] **Day 2:** MongoDB Atlas, Cloudinary, `.env` setup `[feature/project-setup]`
 - [ ] **Day 3:** Tailwind config from `DESIGN.md`, Google Fonts `[feature/design-system]`
 - [ ] **Day 4:** Reusable components (Button, Badge, Input, Card) `[feature/design-system]`
 - [ ] **Day 5:** Backend structure, DB connection, error handler `[feature/backend-core]`
 - [ ] **Day 6:** Mongoose models `[feature/backend-core]`
-- [ ] **Day 7:** Review, fixes, merge `dev` into `main`
+- [ ] **Day 7:** Review, fixes, merge `develop` into `main`
 
 ### Week 2 – Products and Home
 - [ ] **Day 8:** Product CRUD API `[feature/product-api]`
@@ -308,7 +305,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [ ] **Day 29:** Deploy API (Render) and frontend (Vercel) `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
-**Overall progress:** `0 / 30 days`
+**Overall progress:** `1 / 30 days`
 
 ---
 
@@ -316,7 +313,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 
 ```
 main                      ← stable releases only (tagged)
- └─ dev                   ← integration branch
+ └─ develop               ← integration branch
      ├─ feature/project-setup
      ├─ feature/design-system
      ├─ feature/backend-core
@@ -338,7 +335,7 @@ main                      ← stable releases only (tagged)
      ├─ feature/wishlist-reviews
      ├─ feature/testing
      └─ fix/<short-description>      ← bug fixes
-release/v1.0.0            ← created from dev, then merged into main
+release/v1.0.0            ← created from develop, then merged into main
 ```
 
 **Branch naming**
@@ -361,16 +358,16 @@ test: add auth route tests
 ```
 
 **Daily routine**
-1. `git checkout dev && git pull`
+1. `git checkout develop && git pull`
 2. `git checkout -b feature/<name>` (or continue your current feature branch)
 3. Code, then commit in small steps
-4. Push and open a PR into `dev`
+4. Push and open a PR into `develop`
 5. Review, merge, and delete the branch
-6. At the end of each week, merge `dev` into `main`
+6. At the end of each week, merge `develop` into `main`
 
 **Release (Day 29–30)**
 ```bash
-git checkout dev
+git checkout develop
 git checkout -b release/v1.0.0
 # final fixes, version bump, README screenshots
 git checkout main
@@ -379,7 +376,7 @@ git tag v1.0.0
 git push origin main --tags
 ```
 
-**Tip:** Turn on branch protection for `main` and `dev` in GitHub (Settings → Branches) so changes only go in through Pull Requests.
+**Tip:** Turn on branch protection for `main` and `develop` in GitHub (Settings → Branches) so changes only go in through Pull Requests.
 
 ---
 
