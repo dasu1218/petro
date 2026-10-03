@@ -55,14 +55,14 @@
   align-items: center;
 }
 
-.main-nav a {
+.nav-link {
   position: relative;
   color: #475569;
   text-decoration: none;
   font-weight: 600;
 }
 
-.main-nav a::after {
+.nav-link::after {
   content: '';
   position: absolute;
   left: 0;
@@ -76,8 +76,15 @@
   transition: transform 0.2s ease;
 }
 
-.main-nav a:hover::after,
-.main-nav a:focus-visible::after {
+.nav-link.active,
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #1e293b;
+}
+
+.nav-link.active::after,
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
   transform: scaleX(1);
 }
 
@@ -154,7 +161,9 @@
   color: #0f766e;
 }
 
-.hero-copy h1 {
+.hero-copy h1,
+.page-header h1,
+.page-panel h1 {
   margin: 18px 0 16px;
   font-size: clamp(3rem, 5vw, 5rem);
   line-height: 0.95;
@@ -162,7 +171,8 @@
   color: #1e293b;
 }
 
-.hero-copy p {
+.hero-copy p,
+.page-panel p {
   max-width: 620px;
   font-size: 1.1rem;
   color: #536176;
@@ -443,6 +453,81 @@
   line-height: 1.7;
 }
 
+.page-panel {
+  padding: 24px 8px 16px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.placeholder-card,
+.cart-summary,
+.cart-item,
+.cart-total {
+  background: #fff;
+  border: 1px solid #e2dcd5;
+  border-radius: 18px;
+}
+
+.placeholder-card {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cart-summary {
+  max-width: 520px;
+  padding: 20px;
+}
+
+.cart-item,
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.cart-total {
+  margin-bottom: 0;
+  background: #fffaf4;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e2dcd5;
+  color: #475569;
+}
+
+.site-footer div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.site-footer strong {
+  color: #1e293b;
+}
+
+.page-center {
+  text-align: center;
+  padding-top: 80px;
+}
+
 @media (max-width: 900px) {
   .app-shell {
     padding: 18px 18px 32px;
@@ -451,7 +536,8 @@
   .topbar,
   .hero-section,
   .section-heading,
-  .feature-section {
+  .feature-section,
+  .site-footer {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: flex-start;
@@ -471,12 +557,14 @@
 
   .hero-section,
   .product-grid,
-  .feature-section {
+  .feature-section,
+  .placeholder-grid {
     display: grid;
   }
 
   .product-grid,
-  .feature-section {
+  .feature-section,
+  .placeholder-grid {
     grid-template-columns: 1fr;
   }
 
