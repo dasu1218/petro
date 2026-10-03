@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
 
 const products = [
@@ -6,18 +8,21 @@ const products = [
     price: 'LKR 2,450',
     tag: 'Vet Formulated',
     accent: 'rose',
+    category: 'Skin Care',
   },
   {
     name: 'Omega Bites Plus',
     price: 'LKR 3,180',
     tag: 'Best Seller',
     accent: 'gold',
+    category: 'Nutrition',
   },
   {
     name: 'Calm Coat Tonic',
     price: 'LKR 2,980',
     tag: 'New',
     accent: 'teal',
+    category: 'Skin Care',
   },
 ]
 
@@ -37,9 +42,14 @@ const features = [
 ]
 
 function HomePage() {
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const visibleProducts = products.filter(
+    (product) => selectedCategory === 'All' || product.category === selectedCategory,
+  )
+
   return (
     <>
-      <section className="hero-section">
+      <section className="hero-section" id="home">
         <div className="hero-copy">
           <span className="eyebrow">Vet-approved wellness</span>
           <h1>Healthy routines for happier pets.</h1>
@@ -49,12 +59,12 @@ function HomePage() {
           </p>
 
           <div className="cta-row">
-            <button type="button" className="btn btn-primary btn-large">
+              <a href="#shop" className="btn btn-primary btn-large">
               Shop best sellers
-            </button>
-            <button type="button" className="btn btn-secondary btn-large">
+              </a>
+              <a href="#bundles" className="btn btn-secondary btn-large">
               Explore bundles
-            </button>
+              </a>
           </div>
 
           <div className="mini-stats" aria-label="Store metrics">
@@ -75,7 +85,7 @@ function HomePage() {
 
         <div className="hero-visual" aria-label="Featured pet care products">
           <div className="floating-badge">Free shipping over LKR 4,500</div>
-          <div className="product-showcase card-primary">
+            <div className="product-showcase card-primary" id="bundles">
             <div className="product-image product-rose">
               <span>🐾</span>
             </div>
@@ -105,8 +115,22 @@ function HomePage() {
       </section>
 
       <section className="category-strip" aria-label="Categories">
+        <button
+          type="button"
+          className="category-pill"
+          aria-pressed={selectedCategory === 'All'}
+          onClick={() => setSelectedCategory('All')}
+        >
+          All
+        </button>
         {categories.map((category) => (
-          <button type="button" key={category} className="category-pill">
+          <button
+            type="button"
+            key={category}
+            className="category-pill"
+            aria-pressed={selectedCategory === category}
+            onClick={() => setSelectedCategory(category)}
+          >
             {category}
           </button>
         ))}
@@ -118,13 +142,13 @@ function HomePage() {
             <span className="eyebrow eyebrow-muted">Featured picks</span>
             <h2>Care essentials for every routine.</h2>
           </div>
-          <button type="button" className="btn btn-secondary">
+            <a href="#shop" className="btn btn-secondary">
             View all products
-          </button>
+            </a>
         </div>
 
-        <div className="product-grid">
-          {products.map((product) => (
+          <div className="product-grid">
+          {visibleProducts.map((product) => (
             <article key={product.name} className={`product-card product-${product.accent}`}>
               <div className="product-art">
                 <span>{product.accent === 'rose' ? '🐶' : product.accent === 'gold' ? '🐱' : '✨'}</span>
@@ -142,6 +166,9 @@ function HomePage() {
             </article>
           ))}
         </div>
+          {visibleProducts.length === 0 && (
+            <p className="empty-products">No featured products in this category yet.</p>
+          )}
       </section>
 
       <section className="feature-section" id="wellness">
