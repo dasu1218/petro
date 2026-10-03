@@ -1,121 +1,189 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
+const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
+
+const products = [
+  {
+    name: 'Petal Cleanse Shampoo',
+    price: 'LKR 2,450',
+    tag: 'Vet Formulated',
+    accent: 'rose',
+  },
+  {
+    name: 'Omega Bites Plus',
+    price: 'LKR 3,180',
+    tag: 'Best Seller',
+    accent: 'gold',
+  },
+  {
+    name: 'Calm Coat Tonic',
+    price: 'LKR 2,980',
+    tag: 'New',
+    accent: 'teal',
+  },
+]
+
+const features = [
+  {
+    title: 'Clinically guided',
+    text: 'Every formula is built around daily pet wellness and long-term skin support.',
+  },
+  {
+    title: 'Fast local delivery',
+    text: 'Order before 6PM and get trusted essentials to your doorstep in as little as 24 hours.',
+  },
+  {
+    title: 'Pet-first care',
+    text: 'We only stock products designed to support comfort, immunity, and healthy routines.',
+  },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand-block">
+          <div className="brand-mark">P</div>
+          <div>
+            <div className="brand-name">PETRO</div>
+            <div className="brand-tag">pet care essentials</div>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+        <nav className="main-nav" aria-label="Main navigation">
+          <a href="#shop">Shop</a>
+          <a href="#bundles">Bundles</a>
+          <a href="#wellness">Wellness</a>
+          <a href="#reviews">Reviews</a>
+        </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="topbar-actions">
+          <button type="button" className="btn btn-secondary">
+            Login
+          </button>
+          <button type="button" className="btn btn-primary">
+            Cart (2)
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <main className="page-content">
+        <section className="hero-section">
+          <div className="hero-copy">
+            <span className="eyebrow">Vet-approved wellness</span>
+            <h1>Healthy routines for happier pets.</h1>
+            <p>
+              Care kits, nutrition, and grooming essentials designed to keep your dog or cat
+              comfy, active, and thriving every day.
+            </p>
+
+            <div className="cta-row">
+              <button type="button" className="btn btn-primary btn-large">
+                Shop best sellers
+              </button>
+              <button type="button" className="btn btn-secondary btn-large">
+                Explore bundles
+              </button>
+            </div>
+
+            <div className="mini-stats" aria-label="Store metrics">
+              <div>
+                <strong>4.9/5</strong>
+                <span>Average rating</span>
+              </div>
+              <div>
+                <strong>12k+</strong>
+                <span>Happy pets</span>
+              </div>
+              <div>
+                <strong>2-day</strong>
+                <span>Delivery</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-visual" aria-label="Featured pet care products">
+            <div className="floating-badge badge-top">Free shipping over LKR 4,500</div>
+            <div className="product-showcase card-primary">
+              <div className="product-image product-rose">
+                <span>🐾</span>
+              </div>
+              <div className="product-meta">
+                <span className="chip">Best Seller</span>
+                <h2>Anti-Dermatitis Duo</h2>
+                <div className="product-row">
+                  <strong>LKR 4,990</strong>
+                  <button type="button" className="btn btn-primary btn-small">
+                    Add to cart
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="info-row">
+              <div className="mini-card">
+                <span>98%</span>
+                <small>Pet parent satisfaction</small>
+              </div>
+              <div className="mini-card accent-card">
+                <span>New</span>
+                <small>Glow + gut bundle</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="category-strip" aria-label="Categories">
+          {categories.map((category) => (
+            <button type="button" key={category} className="category-pill">
+              {category}
+            </button>
+          ))}
+        </section>
+
+        <section className="showcase-section" id="shop">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow eyebrow-muted">Featured picks</span>
+              <h2>Care essentials for every routine.</h2>
+            </div>
+            <button type="button" className="btn btn-secondary">
+              View all products
+            </button>
+          </div>
+
+          <div className="product-grid">
+            {products.map((product) => (
+              <article key={product.name} className={`product-card product-${product.accent}`}>
+                <div className="product-art">
+                  <span>{product.accent === 'rose' ? '🐶' : product.accent === 'gold' ? '🐱' : '✨'}</span>
+                </div>
+                <div className="product-info">
+                  <span className="chip">{product.tag}</span>
+                  <h3>{product.name}</h3>
+                  <div className="product-bottom">
+                    <strong>{product.price}</strong>
+                    <button type="button" className="icon-btn" aria-label={`Add ${product.name} to cart`}>
+                      +
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="feature-section" id="wellness">
+          {features.map((feature) => (
+            <article key={feature.title} className="feature-card">
+              <div className="feature-icon">✓</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.text}</p>
+            </article>
+          ))}
+        </section>
+      </main>
+    </div>
   )
 }
 
