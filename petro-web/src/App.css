@@ -96,11 +96,15 @@
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 999px;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -340,6 +344,18 @@
   cursor: pointer;
 }
 
+.category-pill[aria-pressed='true'] {
+  border-color: #0f766e;
+  background: #0f766e;
+  color: #fff;
+}
+
+.category-pill:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid rgba(13, 148, 136, 0.35);
+  outline-offset: 3px;
+}
+
 .showcase-section {
   padding-top: 34px;
 }
@@ -361,6 +377,11 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
+}
+
+.empty-products {
+  padding: 1.5rem 0;
+  color: #64748b;
 }
 
 .product-card {

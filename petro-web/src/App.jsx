@@ -1,25 +1,39 @@
 import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
-import ShopPage from './pages/ShopPage'
-import CartPage from './pages/CartPage'
-import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/bundles" element={<ShopPage />} />
-          <Route path="/wellness" element={<HomePage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand-block">
+          <div className="brand-mark">P</div>
+          <div>
+            <div className="brand-name">PETRO</div>
+            <div className="brand-tag">pet care essentials</div>
+          </div>
+        </div>
+
+        <nav className="main-nav" aria-label="Main navigation">
+          <a href="#home">Home</a>
+          <a href="#shop">Shop</a>
+          <a href="#bundles">Bundles</a>
+          <a href="#wellness">Wellness</a>
+        </nav>
+
+        <div className="topbar-actions">
+          <button type="button" className="btn btn-secondary">
+            Login
+          </button>
+          <button type="button" className="btn btn-primary">
+            Cart (2)
+          </button>
+        </div>
+      </header>
+
+      <main className="page-content">
+        <HomePage />
+      </main>
+    </div>
   )
 }
 
