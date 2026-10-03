@@ -1,30 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import products from '../data/products'
 
 const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
-
-const products = [
-  {
-    name: 'Petal Cleanse Shampoo',
-    price: 'LKR 2,450',
-    tag: 'Vet Formulated',
-    accent: 'rose',
-    category: 'Skin Care',
-  },
-  {
-    name: 'Omega Bites Plus',
-    price: 'LKR 3,180',
-    tag: 'Best Seller',
-    accent: 'gold',
-    category: 'Nutrition',
-  },
-  {
-    name: 'Calm Coat Tonic',
-    price: 'LKR 2,980',
-    tag: 'New',
-    accent: 'teal',
-    category: 'Skin Care',
-  },
-]
 
 const features = [
   {
@@ -151,13 +129,23 @@ function HomePage() {
           {visibleProducts.map((product) => (
             <article key={product.name} className={`product-card product-${product.accent}`}>
               <div className="product-art">
-                <span>{product.accent === 'rose' ? '🐶' : product.accent === 'gold' ? '🐱' : '✨'}</span>
+                <Link
+                  to={`/products/${product.slug}`}
+                  className="product-card-link"
+                  aria-label={`View ${product.name}`}
+                >
+                  <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>
+                </Link>
               </div>
               <div className="product-info">
-                <span className="chip">{product.tag}</span>
-                <h3>{product.name}</h3>
+                <span className="chip">{product.badges[0]}</span>
+                <h3>
+                  <Link to={`/products/${product.slug}`} className="product-name-link">
+                    {product.name}
+                  </Link>
+                </h3>
                 <div className="product-bottom">
-                  <strong>{product.price}</strong>
+                  <strong>LKR {product.variants[0].price.toLocaleString('en-LK')}</strong>
                   <button type="button" className="icon-btn" aria-label={`Add ${product.name} to cart`}>
                     +
                   </button>
