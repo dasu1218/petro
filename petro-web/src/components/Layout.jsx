@@ -1,4 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useAuth } from '../context/authContext'
+import { useCart } from '../context/cartContext'
 
 const navItems = [
   { label: 'Home', path: '/' },
@@ -9,6 +11,9 @@ const navItems = [
 ]
 
 function Layout() {
+  const { user } = useAuth()
+  const { itemCount } = useCart()
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -34,12 +39,18 @@ function Layout() {
         </nav>
 
         <div className="topbar-actions">
-          <button type="button" className="btn btn-secondary">
-            Login
-          </button>
-          <button type="button" className="btn btn-primary">
-            Cart (2)
-          </button>
+          {user ? (
+            <Link to="/account" className="btn btn-secondary">
+              {user.name.split(' ')[0]}
+            </Link>
+          ) : (
+            <Link to="/login" className="btn btn-secondary">
+              Login
+            </Link>
+          )}
+          <Link to="/cart" className="btn btn-primary" aria-label={`Cart, ${itemCount} items`}>
+            Cart ({itemCount})
+          </Link>
         </div>
       </header>
 
