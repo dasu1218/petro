@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useCart } from '../context/cartContext'
 import products from '../data/products'
 
 const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
@@ -21,6 +22,28 @@ const features = [
 
 function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [justAddedSlug, setJustAddedSlug] = useState(null)
+  const { addItem } = useCart()
+
+  useEffect(() => {
+    if (!justAddedSlug) {
+      return
+    }
+
+    const timer = setTimeout(() => setJustAddedSlug(null), 1500)
+    return () => clearTimeout(timer)
+  }, [justAddedSlug])
+
+  const handleQuickAdd = (product) => {
+    const variant = product.variants.find((item) => item.stock > 0)
+
+    if (!variant) {
+      return
+    }
+
+    addItem(product, variant)
+    setJustAddedSlug(product.slug)
+  }
   const visibleProducts = products.filter(
     (product) => selectedCategory === 'All' || product.category === selectedCategory,
   )
@@ -72,9 +95,9 @@ function HomePage() {
               <h2>Anti-Dermatitis Duo</h2>
               <div className="product-row">
                 <strong>LKR 4,990</strong>
-                <button type="button" className="btn btn-primary btn-small">
-                  Add to cart
-                </button>
+                <Link to="/bundles" className="btn btn-primary btn-small">
+                  View bundle
+                </Link>
               </div>
             </div>
           </div>
@@ -146,8 +169,13 @@ function HomePage() {
                 </h3>
                 <div className="product-bottom">
                   <strong>LKR {product.variants[0].price.toLocaleString('en-LK')}</strong>
-                  <button type="button" className="icon-btn" aria-label={`Add ${product.name} to cart`}>
-                    +
+                  <button
+                    type="button"
+                    className={`icon-btn${justAddedSlug === product.slug ? ' is-added' : ''}`}
+                    aria-label={`Add ${product.name} to cart`}
+                    onClick={() => handleQuickAdd(product)}
+                  >
+                    {justAddedSlug === product.slug ? '✓' : '+'}
                   </button>
                 </div>
               </div>

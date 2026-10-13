@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import QuantityStepper from '../components/QuantityStepper'
+import { useCart } from '../context/cartContext'
 import products from '../data/products'
 
 const galleryViews = [
@@ -13,7 +15,9 @@ function ProductDetailPage() {
   const product = products.find((item) => item.slug === slug)
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0)
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
+  const [quantity, setQuantity] = useState(1)
   const [addedToCart, setAddedToCart] = useState(false)
+  const { addItem } = useCart()
 
   if (!product) {
     return (
@@ -109,6 +113,7 @@ function ProductDetailPage() {
                   aria-pressed={selectedVariantIndex === index}
                   onClick={() => {
                     setSelectedVariantIndex(index)
+                    setQuantity(1)
                     setAddedToCart(false)
                   }}
                 >
@@ -129,16 +134,36 @@ function ProductDetailPage() {
             </span>
           </div>
 
-          <button
-            type="button"
-            className="btn btn-primary btn-large detail-add-button"
-            disabled={selectedVariant.stock === 0}
-            onClick={() => setAddedToCart(true)}
-          >
-            {addedToCart ? 'Added to cart' : 'Add to cart'}
-          </button>
+          <div className="detail-add-row">
+            {selectedVariant.stock > 0 && (
+              <QuantityStepper
+                value={quantity}
+                max={selectedVariant.stock}
+                onChange={(nextQuantity) => {
+                  setQuantity(nextQuantity)
+                  setAddedToCart(false)
+                }}
+              />
+            )}
+            <button
+              type="button"
+              className="btn btn-primary btn-large detail-add-button"
+              disabled={selectedVariant.stock === 0}
+              onClick={() => {
+                addItem(product, selectedVariant, quantity)
+                setAddedToCart(true)
+              }}
+            >
+              {addedToCart ? 'Added to cart' : 'Add to cart'}
+            </button>
+          </div>
           <p className="detail-cart-feedback" aria-live="polite">
-            {addedToCart ? `${product.name} (${selectedVariant.label}) added to your cart.` : ''}
+            {addedToCart && (
+              <>
+                {quantity} × {product.name} ({selectedVariant.label}) added.{' '}
+                <Link to="/cart">View cart</Link>
+              </>
+            )}
           </p>
 
           <div className="detail-delivery">
