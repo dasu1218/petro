@@ -3,6 +3,10 @@ import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
 import { uploadToCloudinary } from './config/cloudinary.js';
+import { connectDB } from './config/db.js';
+import { admin, protect } from './middleware/auth.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -23,7 +27,9 @@ app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' });
 });
 
-app.post('/api/upload', upload.single('image'), async (request, response) => {
+app.use('/api/auth', authRoutes);
+
+app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {
     if (!request.file) {
       return response.status(400).json({ message: 'Image file is required' });
@@ -46,6 +52,14 @@ app.use((request, response) => {
   response.status(404).json({ message: `Route not found: ${request.originalUrl}` });
 });
 
-app.listen(port, () => {
-  console.log(`PETRO API listening on http://localhost:${port}`);
-});
+app.use(errorHandler);
+
+try {
+  await connectDB();
+  app.listen(port, () => {
+    console.log(`PETRO API listening on http://localhost:${port}`);
+  });
+} catch (error) {
+  console.error(`Failed to start API: ${error.message}`);
+  process.exit(1);
+}
