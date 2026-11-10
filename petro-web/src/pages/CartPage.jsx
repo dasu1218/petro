@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
+import DeliveryProgress from '../components/DeliveryProgress'
 import { FREE_DELIVERY_THRESHOLD, useCart } from '../context/cartContext'
 import { formatLKR } from '../lib/format'
 
@@ -81,11 +82,7 @@ function CartPage() {
             <span>Delivery</span>
             <strong>{remainingForFreeDelivery === 0 ? 'Free' : 'Calculated at checkout'}</strong>
           </div>
-          <p className="cart-delivery-note">
-            {remainingForFreeDelivery === 0
-              ? 'Your order qualifies for free delivery.'
-              : `Add ${formatLKR(remainingForFreeDelivery)} more for free delivery.`}
-          </p>
+          <DeliveryProgress subtotal={subtotal} />
           <div className="cart-total">
             <span>Total</span>
             <strong>{formatLKR(subtotal)}</strong>

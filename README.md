@@ -290,7 +290,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [ ] **Day 16:** Auth API (JWT and bcrypt) `[feature/auth]`
 - [ ] **Day 17:** Login and Register pages, protected routes `[feature/auth]`
 - [ ] **Day 18:** Cart state (add, remove, stepper, subtotal) `[feature/cart]`
-- [ ] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
+- [x] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
 - [ ] **Day 20:** Cart API sync `[feature/cart-api]`
 - [ ] **Day 21:** Bundles section and API `[feature/bundles]`
 
@@ -386,6 +386,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 19 | 2026-11-10 | Header cart drawer, quantity controls, removal, and shared free-delivery progress bar | Frontend build and lint passed; checkout remains a later roadmap item |
 | 1 | | | |
 | 2 | | | |
 | 3 | | | |
