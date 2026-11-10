@@ -6,7 +6,16 @@ export function validateProductSettings(body, product) {
     let url;
     try { url = new URL(image.url); } catch { throw productError('Invalid product photo URL'); }
     if (url.protocol !== 'https:') throw productError('Product photo URLs must use HTTPS');
-    return { url: image.url, publicId: image.publicId };
+    const photo = { url: image.url, publicId: image.publicId };
+    for (const key of ['originalUrl', 'enhancedUrl']) {
+      if (image[key] !== undefined) {
+        let extra;
+        try { extra = new URL(image[key]); } catch { throw productError('Invalid photo preview URL'); }
+        if (typeof image[key] !== 'string' || image[key].length > 2000 || extra.protocol !== 'https:') throw productError('Photo preview URLs must use HTTPS');
+        photo[key] = image[key];
+      }
+    }
+    return photo;
   });
   if (!Array.isArray(body.prices) || body.prices.length !== product.variants.length) throw productError('Set a price for every size');
   const prices = product.variants.map((variant) => {

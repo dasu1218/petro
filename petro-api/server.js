@@ -1,5 +1,5 @@
 import cors from 'cors';
-import 'dotenv/config';
+import './config/env.js';
 import express from 'express';
 import multer from 'multer';
 import { uploadToCloudinary } from './config/cloudinary.js';
@@ -16,6 +16,7 @@ import Inventory from './models/Inventory.js';
 import productRoutes from './routes/productRoutes.js';
 import ProductSettings from './models/ProductSettings.js';
 import { isProductImage } from './services/imageUpload.js';
+import { uploadedPhoto } from './services/photoEnhancement.js';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -51,12 +52,10 @@ app.post('/api/upload', protect, admin, upload.single('image'), async (request, 
 
     if (!isProductImage(request.file.buffer)) return response.status(400).json({ message: 'Choose a JPG, PNG, or WebP image' });
 
-    const result = await uploadToCloudinary(request.file.buffer, 'petro');
-
-    return response.status(201).json({
-      url: result.secure_url || result.url,
-      publicId: result.public_id,
-    });
+    const enhance = request.body?.enhance !== 'false';
+    if (request.body?.enhance !== undefined && !['true', 'false'].includes(request.body.enhance)) return response.status(400).json({ message: 'Invalid photo enhancement option' });
+    const result = await uploadToCloudinary(request.file.buffer, 'petro', enhance);
+    return response.status(201).json(uploadedPhoto(result, enhance));
   } catch (error) {
     return response.status(500).json({
       message: error.message || 'Image upload failed',

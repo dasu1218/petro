@@ -33,3 +33,13 @@ Bundle savings use current individual-product prices, while the bundle selling p
 ## Verification
 
 API tests mock persistence and cover authorization, validation, image signatures, promotion boundaries, and canonical cart prices. Frontend tests cover refreshing cart prices and quantities. Build and lint checks also run. Real Cloudinary uploads, MongoDB persistence, and browser interactions require a configured running environment.
+
+## Automatic photo enhancement
+
+New uploads are enhanced by default. `POST /api/upload` accepts a multipart `enhance` field (`true` or `false`, default `true`). Cloudinary keeps the original and eagerly generates an improved copy before reporting success: automatic colour/contrast/brightness adjustment, full-image fitting within 1200 × 1200, white padding to a square canvas, and an optimized JPEG output. This does not remove the original scene/background or invent product details.
+
+The response includes `url`, `publicId`, `originalUrl`, and (when enhanced) `enhancedUrl`. The admin photo controls let you compare by switching to the original, return to the enhanced version, and save the selected version. Both references survive a saved product edit. Existing photos are unchanged. Turn off Automatically enhance new photos to upload an original without generating a copy.
+
+Enhancement failures leave the product unchanged and show an error. Retry or disable enhancement for another upload. The original asset may already exist in Cloudinary after a failed transformation. Cloudinary transformation usage applies to generated copies. See the official transformation reference: https://cloudinary.com/documentation/transformation_reference#improve
+
+Enhancement tests mock Cloudinary and check eager upload options, result selection, preserved originals, validation, and error propagation. A real upload still needs verification against the configured Cloudinary account.

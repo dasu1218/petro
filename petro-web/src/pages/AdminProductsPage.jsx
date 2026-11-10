@@ -10,27 +10,32 @@ const localDate = (value) => {
 }
 function ProductEditor({ product, onSaved }) {
   const { token } = useAuth()
+  const [enhance, setEnhance] = useState(true)
   const [images, setImages] = useState(product.settings?.images || [])
   const [prices, setPrices] = useState(product.variants.map((variant) => ({ label: variant.label, price: product.settings?.prices.find((entry) => entry.label === variant.label)?.price ?? variant.price })))
   const storedPromo = product.settings?.promotion
   const [promotion, setPromotion] = useState({ enabled: storedPromo?.enabled || false, label: storedPromo?.label || '', percent: storedPromo?.percent || 10, startsAt: localDate(storedPromo?.startsAt), endsAt: localDate(storedPromo?.endsAt) })
   const [busy, setBusy] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const upload = async (event) => {
     const files = [...event.target.files]
     event.target.value = ''
+    if (!files.length) return
+    setUploadProgress('')
     if (files.length + images.length > 6) { setError('Choose up to six photos in total.'); return }
     if (files.some((file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024)) { setError('Choose JPG, PNG, or WebP photos up to 5 MB each.'); return }
     setBusy(true); setError(''); setMessage('')
     try {
-      for (const file of files) {
-        const body = new FormData(); body.append('image', file)
-        const image = await apiRequest('/upload', { method: 'POST', token, body })
+      for (const [index, file] of files.entries()) {
+        setUploadProgress(`Uploading ${index + 1} of ${files.length}: ${file.name}${enhance ? ' — preparing enhanced photo…' : '…'}`)
+        const body = new FormData(); body.append('image', file); body.append('enhance', String(enhance))
+        const image = await apiRequest('/upload', { method: 'POST', token, body, timeoutMs: 120000 })
         setImages((current) => [...current, image])
       }
-      setMessage('Photos uploaded. Save the product to publish your changes.')
-    } catch (failure) { setError(failure.message) } finally { setBusy(false) }
+      setMessage(enhance ? 'Photos enhanced. Compare with the originals below, then save to publish.' : 'Original photos uploaded. Save to publish.')
+    } catch (failure) { setError(failure.message) } finally { setBusy(false); setUploadProgress('') }
   }
   const save = async (event) => {
     event.preventDefault()
@@ -43,17 +48,27 @@ function ProductEditor({ product, onSaved }) {
       onSaved(); setMessage('Product saved. Photos, prices, and promotions are now published.')
     } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
-  return <form onSubmit={save} className="checkout-form">
+  return <form onSubmit={save} className="checkout-form" onInvalidCapture={(event) => {
+    const input = event.target
+    const label = input.closest('label')?.querySelector('span')?.textContent || 'Product details'
+    setError(`${label}: ${input.validationMessage || 'Please check this field.'}`)
+    setMessage('')
+  }}>
     {error && <p className="form-error" role="alert">{error}</p>}
-    <p role="status">{busy ? 'Saving or uploading…' : message}</p>
+    <p role="status">{busy ? 'Uploading and preparing your photos, or saving changes…' : message}</p>
     <fieldset disabled={busy} className="checkout-panel"><legend>{product.name}</legend>
-      <h2>Product photos</h2><p>The first photo is used on product cards. Upload up to six JPG, PNG, or WebP photos, up to 5 MB each.</p>
-      <div className="admin-photos">{images.map((photo, index) => <div key={`${photo.publicId}-${index}`}><img src={photo.url} alt={`Product photo ${index + 1}`} /><div>{index > 0 && <button type="button" onClick={() => setImages((current) => [current[index], ...current.filter((_item, i) => i !== index)])}>Make main photo</button>}<button type="button" onClick={() => setImages((current) => current.filter((_item, i) => i !== index))}>Remove photo {index + 1}</button></div></div>)}</div>
-      <label className="form-field"><span>Add product photos</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={images.length >= 6} onChange={upload} /></label>
+      <h2>Product photos</h2><label className="default-address-toggle"><input type="checkbox" checked={enhance} onChange={(event) => setEnhance(event.target.checked)} />Automatically enhance new photos</label><p>Improve colour, contrast, and brightness, then fit the full photo onto a white square canvas. Your original photo is kept so you can compare and choose. This keeps the existing background inside the photo.</p><p>The first photo is used on product cards. Upload up to six JPG, PNG, or WebP photos, up to 5 MB each.</p>
+      <div className="admin-photos">{images.map((photo, index) => <div key={`${photo.publicId}-${index}`}><img src={photo.url} alt={`Product photo ${index + 1}`} /><div>{photo.enhancedUrl && photo.originalUrl && <button type="button" onClick={() => setImages((current) => current.map((entry, i) => i === index ? { ...entry, url: entry.url === entry.enhancedUrl ? entry.originalUrl : entry.enhancedUrl } : entry))}>{photo.url === photo.enhancedUrl ? 'Compare: show original' : 'Use enhanced photo'}</button>}{photo.enhancedUrl && <small>{photo.url === photo.enhancedUrl ? 'Enhanced photo selected' : 'Original photo selected'}</small>}{index > 0 && <button type="button" onClick={() => setImages((current) => [current[index], ...current.filter((_item, i) => i !== index)])}>Make main photo</button>}<button type="button" onClick={() => setImages((current) => current.filter((_item, i) => i !== index))}>Remove photo {index + 1}</button></div></div>)}</div>
+      <div className="upload-feedback" aria-live="polite">{error && <p className="form-error" role="alert">{error}</p>}{uploadProgress && <p role="status">{uploadProgress}</p>}{!busy && message && <p role="status">{message}</p>}</div><label className="form-field"><span>Add product photos</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={images.length >= 6} onChange={upload} /></label>
       <h2>Prices (LKR)</h2><div className="checkout-fields">{prices.map((variant, index) => <label className="form-field" key={variant.label}><span>{variant.label}</span><input type="number" min="1" max="10000000" step="1" required value={variant.price} onChange={(event) => setPrices((current) => current.map((entry, i) => i === index ? { ...entry, price: event.target.value } : entry))} /></label>)}</div>
       <h2>Promotion</h2><label className="default-address-toggle"><input type="checkbox" checked={promotion.enabled} onChange={(event) => setPromotion((current) => ({ ...current, enabled: event.target.checked }))} />Enable a percentage discount</label>
       {promotion.enabled && <div className="checkout-fields"><label className="form-field"><span>Promotion label</span><input required maxLength={60} value={promotion.label} onChange={(event) => setPromotion((current) => ({ ...current, label: event.target.value }))} /></label><label className="form-field"><span>Discount (%)</span><input type="number" min="1" max="90" step="1" required value={promotion.percent} onChange={(event) => setPromotion((current) => ({ ...current, percent: event.target.value }))} /></label>{['startsAt', 'endsAt'].map((key) => <label key={key} className="form-field"><span>{key === 'startsAt' ? 'Start time (optional)' : 'End time (optional)'}</span><input type="datetime-local" value={promotion[key]} onChange={(event) => setPromotion((current) => ({ ...current, [key]: event.target.value }))} /></label>)}<p className="checkout-note checkout-field-wide">Times use your device’s local timezone. Leave both times empty to start immediately and run until disabled. Discounts apply to individual products; bundle prices stay fixed.</p></div>}
-      <button type="submit" className="btn btn-primary btn-large">Save product</button>
+      <div className="product-save-feedback" aria-live="polite">
+        {error && <p className="form-error" role="alert">{error}</p>}
+        {busy && <p role="status">{uploadProgress || 'Saving your product… Please wait.'}</p>}
+        {!busy && message && <p role="status">{message}</p>}
+      </div>
+      <button type="submit" className="btn btn-primary btn-large" disabled={busy}>{busy ? 'Please wait…' : 'Save product'}</button>
     </fieldset>
   </form>
 }

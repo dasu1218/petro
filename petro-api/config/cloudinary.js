@@ -1,4 +1,6 @@
+import './env.js';
 import { v2 as cloudinary } from 'cloudinary';
+import { uploadPhotoOptions } from '../services/photoEnhancement.js';
 
 const ensureCloudinaryConfig = () => {
   const missing = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET']
@@ -16,7 +18,7 @@ cloudinary.config({
   secure: true,
 });
 
-export const uploadToCloudinary = async (buffer, folder = 'petro') => {
+export const uploadToCloudinary = async (buffer, folder = 'petro', enhance = true) => {
   ensureCloudinaryConfig();
 
   return new Promise((resolve, reject) => {
@@ -24,6 +26,7 @@ export const uploadToCloudinary = async (buffer, folder = 'petro') => {
       {
         folder,
         resource_type: 'image',
+        ...uploadPhotoOptions(enhance),
       },
       (error, result) => {
         if (error) {
