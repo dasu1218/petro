@@ -7,6 +7,7 @@ import { connectDB } from './config/db.js';
 import { admin, protect } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -28,6 +29,7 @@ app.get('/api/health', (_request, response) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {

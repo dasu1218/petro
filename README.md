@@ -206,7 +206,9 @@ Base URL: `/api`
 | POST | `/upload` | Upload image to Cloudinary | 🔑 Admin |
 | GET | `/categories` | List categories | – |
 | GET | `/bundles` | List bundles | – |
-| GET / POST / PUT / DELETE | `/cart` | Manage cart | ✅ |
+| GET | `/cart` | Load the authenticated user's cart | ✅ |
+| PUT | `/cart` | Replace cart items (also handles add, quantity changes, and removal) | ✅ |
+| DELETE | `/cart` | Clear the authenticated user's cart | ✅ |
 | POST | `/orders` | Place order | ✅ |
 | GET | `/orders/my` | My orders | ✅ |
 | PUT | `/orders/:id/status` | Update status | 🔑 Admin |
@@ -291,7 +293,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [ ] **Day 17:** Login and Register pages, protected routes `[feature/auth]`
 - [ ] **Day 18:** Cart state (add, remove, stepper, subtotal) `[feature/cart]`
 - [x] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
-- [ ] **Day 20:** Cart API sync `[feature/cart-api]`
+- [x] **Day 20:** Cart API sync `[feature/cart-api]`
 - [ ] **Day 21:** Bundles section and API `[feature/bundles]`
 
 ### Week 4 – Checkout, Admin, Release
@@ -386,6 +388,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 20 | 2026-11-10 | Authenticated cart API, guest merge, account isolation, ordered saves, local recovery and retry | Seven tests pass with mocked database operations; live MongoDB persistence needs verification |
 | 19 | 2026-11-10 | Header cart drawer, quantity controls, removal, and shared free-delivery progress bar | Frontend build and lint passed; checkout remains a later roadmap item |
 | 1 | | | |
 | 2 | | | |

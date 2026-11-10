@@ -1499,3 +1499,18 @@
 .cart-drawer-footer .cart-clear { display: block; margin: 16px auto 0; }
 @keyframes cart-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @media (prefers-reduced-motion: reduce) { .cart-drawer[open] { animation: none; } }
+
+.cart-sync-notice {
+  padding: 12px 24px;
+  background: #fff7ed;
+  color: #1e293b;
+  font-size: .9rem;
+}
+.cart-sync-notice button {
+  margin-left: 12px;
+  padding: 8px 12px;
+  border: 1px solid #e2dcd5;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
