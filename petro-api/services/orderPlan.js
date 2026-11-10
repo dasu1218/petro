@@ -3,6 +3,20 @@ import { normalizeCartItems } from './cartItems.js';
 
 export const orderError = (message, status = 400) => Object.assign(new Error(message), { status });
 const fields = { fullName: 80, email: 254, phone: 24, addressLine1: 160, addressLine2: 160, city: 80, postalCode: 10 };
+export function validateShippingAddress(input) {
+  const address = { country: 'Sri Lanka' };
+  for (const [field, max] of Object.entries(fields)) {
+    const value = input?.[field];
+    address[field] = typeof value === 'string' ? value.trim() : '';
+    if ((field !== 'addressLine2' && !address[field]) || address[field].length > max) throw orderError(`Invalid shipping address: ${field}`);
+  }
+  if (input?.country !== 'Sri Lanka') throw orderError('Delivery is available within Sri Lanka');
+  if (!/^\S+@\S+\.\S+$/.test(address.email)) throw orderError('Enter a valid email address');
+  const digits = address.phone.replace(/\D/g, '');
+  if (!/^\+?[\d\s()-]+$/.test(address.phone) || digits.length < 9 || digits.length > 15) throw orderError('Enter a valid phone number');
+  return address;
+}
+
 export function validateOrderRequest(body = {}) {
   if (!body || typeof body !== 'object') throw orderError('Order details are required');
   const { items, deliveryMethod, expectedTotal, requestId } = body;
@@ -15,16 +29,7 @@ export function validateOrderRequest(body = {}) {
   });
   if (!['standard', 'express'].includes(deliveryMethod)) throw orderError('Choose a delivery method');
   if (!Number.isSafeInteger(expectedTotal) || expectedTotal < 0) throw orderError('A valid reviewed total is required');
-  const address = { country: 'Sri Lanka' };
-  for (const [field, max] of Object.entries(fields)) {
-    const value = body.shippingAddress?.[field];
-    address[field] = typeof value === 'string' ? value.trim() : '';
-    if ((field !== 'addressLine2' && !address[field]) || address[field].length > max) throw orderError(`Invalid shipping address: ${field}`);
-  }
-  if (body.shippingAddress?.country !== 'Sri Lanka') throw orderError('Delivery is available within Sri Lanka');
-  if (!/^\S+@\S+\.\S+$/.test(address.email)) throw orderError('Enter a valid email address');
-  const digits = address.phone.replace(/\D/g, '');
-  if (!/^\+?[\d\s()-]+$/.test(address.phone) || digits.length < 9 || digits.length > 15) throw orderError('Enter a valid phone number');
+  const address = validateShippingAddress(body.shippingAddress);
   const request = { items: lines, shippingAddress: address, deliveryMethod, expectedTotal, requestId };
   // Preserve old request hashes so already-saved orders can still be replayed.
   if (body.paymentMethod !== undefined) request.paymentMethod = body.paymentMethod;

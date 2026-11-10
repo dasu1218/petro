@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { apiRequest } from '../lib/api'
 import { AuthContext } from './authContext'
 
@@ -25,6 +25,7 @@ const storeToken = (token) => {
 }
 
 function AuthProvider({ children }) {
+  const sessionVersion = useRef(0)
   const [token, setToken] = useState(readStoredToken)
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(Boolean(token))
@@ -57,6 +58,7 @@ function AuthProvider({ children }) {
   }, [token, user])
 
   const startSession = useCallback((data) => {
+    sessionVersion.current += 1
     storeToken(data.token)
     setToken(data.token)
     setUser(data.user)
@@ -85,14 +87,29 @@ function AuthProvider({ children }) {
   )
 
   const logout = useCallback(() => {
+    sessionVersion.current += 1
     storeToken(null)
     setToken(null)
     setUser(null)
   }, [])
 
+  const updateAccount = useCallback(async (path, method, body) => {
+    const version = sessionVersion.current
+    const data = await apiRequest(path, { token, method, body })
+    if (version !== sessionVersion.current) throw new Error('Your session changed. Please try again.')
+    setUser((current) => current?.id === data.user.id ? data.user : current)
+    return data.user
+  }, [token])
+
   const value = useMemo(
-    () => ({ user, token, isLoading, isAuthenticated: Boolean(user), login, register, logout }),
-    [user, token, isLoading, login, register, logout],
+    () => ({
+      user, token, isLoading, isAuthenticated: Boolean(user), login, register, logout,
+      updateProfile: (body) => updateAccount('/profile', 'PUT', body),
+      saveAddress: (id, body) => updateAccount(id ? `/profile/addresses/${id}` : '/profile/addresses', id ? 'PUT' : 'POST', body),
+      deleteAddress: (id) => updateAccount(`/profile/addresses/${id}`, 'DELETE'),
+      setDefaultAddress: (id) => updateAccount(`/profile/addresses/${id}/default`, 'PATCH'),
+    }),
+    [user, token, isLoading, login, register, logout, updateAccount],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

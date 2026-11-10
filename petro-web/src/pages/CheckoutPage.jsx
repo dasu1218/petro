@@ -2,10 +2,12 @@ import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../lib/api'
 import DeliveryProgress from '../components/DeliveryProgress'
+import AddressFields from '../components/AddressFields'
+import { checkoutAddress, defaultSavedAddress } from '../lib/addresses.js'
 import { useAuth } from '../context/authContext'
 import { useCart } from '../context/cartContext'
 import { getCartItemPath } from '../lib/cart.js'
-import { ADDRESS_FIELDS, DELIVERY_METHODS, getCheckoutFingerprint, getCheckoutTotals, validateCheckout } from '../lib/checkout.js'
+import { DELIVERY_METHODS, getCheckoutFingerprint, getCheckoutTotals, validateCheckout } from '../lib/checkout.js'
 import { formatLKR } from '../lib/format'
 import { COD_LABEL, COD_METHOD } from '../lib/payment.js'
 
@@ -17,7 +19,8 @@ function CheckoutPage() {
   const [pendingOrder, setPendingOrder] = useState(null)
   const submitting = useRef(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [address, setAddress] = useState(() => Object.fromEntries(ADDRESS_FIELDS.map(({ name }) => [name, name === 'fullName' ? user.name : name === 'email' ? user.email : ''])))
+  const [address, setAddress] = useState(() => checkoutAddress(defaultSavedAddress(user), user))
+  const [savedAddressId, setSavedAddressId] = useState(() => defaultSavedAddress(user)?._id || '')
   const [deliveryMethod, setDeliveryMethod] = useState('standard')
   const [paymentMethod, setPaymentMethod] = useState(COD_METHOD)
   const [errors, setErrors] = useState({})
@@ -97,22 +100,19 @@ function CheckoutPage() {
             {Object.values(errors).some(Boolean) && <p className="form-error" role="alert">Check the highlighted delivery details before continuing.</p>}
             <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery address</legend>
-              <div className="checkout-fields">
-                {ADDRESS_FIELDS.map((field) => (
-                  <label key={field.name} className={`form-field${field.wide ? ' checkout-field-wide' : ''}`}>
-                    <span>{field.label}</span>
-                    <input name={field.name} type={field.type || 'text'} autoComplete={field.autoComplete}
-                      value={address[field.name]} required={!field.optional} maxLength={field.maxLength}
-                      aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `${field.name}-error` : undefined}
-                      onChange={(event) => {
-                        setAddress((current) => ({ ...current, [field.name]: event.target.value }))
-                        setErrors((current) => ({ ...current, [field.name]: undefined }))
-                      }} />
-                    {errors[field.name] && <small id={`${field.name}-error`} className="checkout-field-error">{errors[field.name]}</small>}
-                  </label>
-                ))}
-                <p className="checkout-country">Country: <strong>Sri Lanka</strong></p>
-              </div>
+              {user.addresses?.length > 0 && <label className="form-field saved-address-picker"><span>Use a saved address</span><select value={savedAddressId} onChange={(event) => {
+                const id = event.target.value
+                const saved = user.addresses.find((entry) => entry._id === id)
+                setSavedAddressId(id)
+                setAddress(checkoutAddress(saved, user))
+                setErrors({})
+                setReviewFingerprint(null)
+              }}><option value="">Enter a new address</option>{user.addresses.map((entry) => <option key={entry._id} value={entry._id}>{entry.label} — {entry.city}{String(entry._id) === String(user.defaultAddressId) ? ' (Default)' : ''}</option>)}</select></label>}
+              <AddressFields address={address} errors={errors} idPrefix="checkout" onChange={(name, value) => {
+                setAddress((current) => ({ ...current, [name]: value }))
+                setSavedAddressId('')
+                setErrors((current) => ({ ...current, [name]: undefined }))
+              }} />
             </fieldset>
             <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery method</legend>

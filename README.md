@@ -197,6 +197,10 @@ Base URL: `/api`
 | POST | `/auth/register` | Create account | – |
 | POST | `/auth/login` | Login, returns JWT | – |
 | GET | `/auth/me` | Current user | ✅ |
+| PUT | `/profile` | Edit name and email (current password required for email changes) | ✅ |
+| POST | `/profile/addresses` | Save a delivery address | ✅ |
+| PUT / DELETE | `/profile/addresses/:id` | Edit or delete an owned address | ✅ |
+| PATCH | `/profile/addresses/:id/default` | Set the default delivery address | ✅ |
 | GET | `/products` | List (search, filter, sort, page) | – |
 | GET | `/health` | API health check | – |
 | GET | `/products/:id` | Product details | – |
@@ -301,7 +305,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 22:** Checkout page `[feature/checkout]`
 - [x] **Day 23:** Order API and stock check `[feature/orders]`
 - [x] **Day 24:** Cash on Delivery checkout and order payment details `[feature/payments]` — PayHere/Stripe integration remains a follow-up.
-- [ ] **Day 25:** Orders and Profile pages `[feature/orders]` `[feature/profile]`
+- [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
 - [ ] **Day 26:** Admin dashboard: product and order management `[feature/admin-dashboard]`
 - [ ] **Day 27:** Wishlist and reviews (optional) `[feature/wishlist-reviews]`
 - [ ] **Day 28:** Testing (Jest, Supertest, Vitest, responsive checks) `[feature/testing]`
@@ -389,6 +393,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 25 | 2026-11-10 | Profile editing, password-confirmed email changes, saved address management, default address and checkout selection; existing order history retained | 31 API/service and 14 frontend tests pass; live MongoDB and browser checks remain; admin status updates pending |
 | 24 | 2026-11-10 | Cash on Delivery selection, server validation, saved payment method, amount due in confirmations, legacy order handling | 24 API/service and 12 frontend tests, build and lint pass; online payments and recording cash collection remain future work; live checks remain |
 | 23 | 2026-11-10 | Transactional orders, shared component stock, canonical totals, idempotent retries, confirmation and recent orders | Mocked API/service and checkout tests pass; live replica-set transaction and browser checks remain; orders start unpaid |
 | 22 | 2026-11-10 | Protected checkout, address validation, delivery selection, estimated totals, review step, cart entry links | Seven checkout tests, build and lint pass; order placement is Day 23; browser verification remains |

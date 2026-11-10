@@ -2,7 +2,7 @@
 
 The cart page and cart drawer link to `/checkout`. Authentication is required; login and registration preserve the return destination. An empty cart shows a browse-products link.
 
-The address form starts with the account name and email. It collects phone number, street address, an optional second address line, city, and postal code for delivery within Sri Lanka. Required fields, field lengths, email format, and phone format are validated before review. Invalid submissions focus the first invalid field and show field errors.
+The address form starts with the account's default saved address, or the account name and email when no default exists. A selector offers other saved addresses or a new address. Editing the copied checkout address does not change the saved address book. The form collects phone number, street address, an optional second address line, city, and postal code for delivery within Sri Lanka. Required fields, field lengths, email format, and phone format are validated before review. Invalid submissions focus the first invalid field and show field errors.
 
 Delivery settings live in `src/lib/checkout.js`. The initial estimated fees are LKR 350 for standard delivery and LKR 650 for express delivery. Standard delivery is free at a subtotal of LKR 4,500 or more. Express retains its fee above that threshold. These are configurable estimates, not carrier quotes; confirm the store's actual rates before enabling order placement. The cart progress bar and checkout share the same free-delivery threshold.
 
