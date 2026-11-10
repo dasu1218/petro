@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
-import products from '../data/products'
+import { useProducts } from '../context/productContext'
+import ProductStatus from '../components/ProductStatus'
 import BundlesSection from '../components/BundlesSection'
 
 const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
@@ -22,6 +23,7 @@ const features = [
 ]
 
 function HomePage() {
+  const { products } = useProducts()
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [justAddedSlug, setJustAddedSlug] = useState(null)
   const { addItem } = useCart()
@@ -149,6 +151,7 @@ function HomePage() {
             </a>
         </div>
 
+          <ProductStatus />
           <div className="product-grid">
           {visibleProducts.map((product) => (
             <article key={product.name} className={`product-card product-${product.accent}`}>
@@ -158,18 +161,18 @@ function HomePage() {
                   className="product-card-link"
                   aria-label={`View ${product.name}`}
                 >
-                  <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>
+                  {product.images?.[0] ? <img src={product.images[0].url} alt={product.name} className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
                 </Link>
               </div>
               <div className="product-info">
-                <span className="chip">{product.badges[0]}</span>
+                <span className="chip">{product.promotion?.label || product.badges[0]}</span>
                 <h3>
                   <Link to={`/products/${product.slug}`} className="product-name-link">
                     {product.name}
                   </Link>
                 </h3>
                 <div className="product-bottom">
-                  <strong>LKR {product.variants[0].price.toLocaleString('en-LK')}</strong>
+                  <div>{product.variants[0].regularPrice > product.variants[0].price && <del>LKR {product.variants[0].regularPrice.toLocaleString('en-LK')}</del>}<strong>LKR {product.variants[0].price.toLocaleString('en-LK')}</strong></div>
                   <button
                     type="button"
                     className={`icon-btn${justAddedSlug === product.slug ? ' is-added' : ''}`}

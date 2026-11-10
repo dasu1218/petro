@@ -1,5 +1,6 @@
 // Express 5 forwards rejected promises from async handlers here automatically.
 export const errorHandler = (error, _request, response, _next) => {
+  if (error.code === 'LIMIT_FILE_SIZE') return response.status(400).json({ message: 'Photos must be 5 MB or smaller' });
   if (error.name === 'VersionError') return response.status(409).json({ message: 'Your account changed in another session. Refresh and try again.' });
   if (error.name === 'ValidationError') {
     const message = Object.values(error.errors).map((item) => item.message).join(', ');

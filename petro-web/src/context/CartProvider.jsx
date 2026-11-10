@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useAuth } from './authContext'
 import { apiRequest } from '../lib/api'
-import { mergeCartItems, readCart } from '../lib/cart.js'
+import { mergeCartItems, readCart, refreshCartProducts } from '../lib/cart.js'
+import { useProducts } from './productContext'
 import { CartContext, getCartItemKey } from './cartContext'
 
 const CART_KEY = 'petro_cart'
@@ -47,6 +48,7 @@ function cartReducer(items, action) {
 }
 
 function CartSession({ children, token, userId }) {
+  const { products } = useProducts()
   const { logout } = useAuth()
   const pendingKey = userId ? `petro_cart_pending_${userId}` : CART_KEY
   const [items, dispatch] = useReducer(cartReducer, undefined, () => readCart(pendingKey))
@@ -128,6 +130,12 @@ function CartSession({ children, token, userId }) {
     latestRevision.current += 1
     setRevision(latestRevision.current)
   }, [ready])
+
+  useEffect(() => {
+    if (!ready || orderLock.current) return
+    const refreshed = refreshCartProducts(items, products)
+    if (refreshed !== items) change({ type: 'replace', items: refreshed })
+  }, [items, products, ready, change])
 
   const addItem = useCallback((product, variant, quantity = 1) => {
     if (variant.stock <= 0) {

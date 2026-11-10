@@ -2,8 +2,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
 export async function apiRequest(path, { method = 'GET', body, token } = {}) {
   const headers = {}
+  const isFormData = body instanceof FormData
 
-  if (body !== undefined) {
+  if (body !== undefined && !isFormData) {
     headers['Content-Type'] = 'application/json'
   }
 
@@ -17,7 +18,7 @@ export async function apiRequest(path, { method = 'GET', body, token } = {}) {
     response = await fetch(`${API_URL}${path}`, {
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
     throw new Error('Cannot reach the PETRO API. Is the server running?')
