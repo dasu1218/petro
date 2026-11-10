@@ -14,7 +14,9 @@ Replace a cart with `PUT /api/cart`:
 
 Responses contain `{ "items": [...] }` with product names, prices, stock, and cart keys. The API validates variants and positive integer quantities, combines duplicate variants, caps quantities to stock, and accepts at most 100 input lines. Empty arrays clear the cart. Client-supplied prices and stock are ignored.
 
-The current product catalog source is `seed-data.json`. Replace this lookup with the Product model when product CRUD is implemented; MongoDB product edits do not yet affect cart prices or stock. Bundle definitions use the MongoDB Bundle model, with curated defaults when the collection is empty. Both the public bundles API and cart validation use the same definitions. Bundle lines use the `Care bundle` variant label; the server supplies their price and availability from the included products. Stock limits currently apply per cart line; shared component stock across separate lines must be checked when orders are implemented.
+The current product catalog source is `seed-data.json`. Replace this lookup with the Product model when product CRUD is implemented; MongoDB product edits do not yet affect cart prices or stock. Bundle definitions use the MongoDB Bundle model, with curated defaults when the collection is empty. Both the public bundles API and cart validation use the same definitions. Bundle lines use the `Care bundle` variant label; the server supplies their price and availability from the included products. Cart quantity limits apply per line; order placement also checks combined component demand across all lines.
+
+Order placement now overlays remaining Inventory stock when carts and bundle offers load, and performs a final shared-component stock check in a transaction. See `ORDERS.md`. The seed catalog still supplies prices and initial stock.
 
 Guest carts stay in browser storage. On login, guest and account items merge using the larger quantity for matching variants, capped to stock. This prevents retries from adding the same guest quantities again. The guest cart is cleared only after a successful save. Logout returns to a separate guest cart.
 

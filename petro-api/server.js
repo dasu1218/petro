@@ -9,6 +9,9 @@ import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import bundleRoutes from './routes/bundleRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import Order from './models/Order.js';
+import Inventory from './models/Inventory.js';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -32,6 +35,7 @@ app.get('/api/health', (_request, response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/bundles', bundleRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {
@@ -60,6 +64,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
+  await Promise.all([Order.init(), Inventory.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });

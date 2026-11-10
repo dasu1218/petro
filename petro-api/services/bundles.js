@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import Bundle from '../models/Bundle.js';
 import { defaultBundles } from '../data/bundles.js';
+import { getCatalog } from './catalog.js';
 
 const { products } = JSON.parse(readFileSync(new URL('../seed-data.json', import.meta.url), 'utf8'));
 export const BUNDLE_VARIANT = 'Care bundle';
@@ -31,8 +32,9 @@ export function buildBundleOffer(bundle, catalog = products) {
   };
 }
 
-export async function getBundleOffers() {
-  const stored = await Bundle.find({}).sort({ createdAt: 1, slug: 1 }).lean();
+export async function getBundleOffers(catalog, session = null) {
+  const products = catalog || await getCatalog(session);
+  const stored = await Bundle.find({}).sort({ createdAt: 1, slug: 1 }).session(session).lean();
   // Curated defaults keep new installations usable before the optional seed step.
-  return (stored.length ? stored : defaultBundles).map((bundle) => buildBundleOffer(bundle)).filter(Boolean);
+  return (stored.length ? stored : defaultBundles).map((bundle) => buildBundleOffer(bundle, products)).filter(Boolean);
 }

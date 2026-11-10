@@ -8,6 +8,8 @@ import AccountPage from './pages/AccountPage'
 import CartPage from './pages/CartPage'
 import BundlesPage from './pages/BundlesPage'
 import CheckoutPage from './pages/CheckoutPage'
+import OrderPage from './pages/OrderPage'
+import OrdersPage from './pages/OrdersPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -32,6 +34,8 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/orders/:id" element={<OrderPage />} />
                 <Route path="/account" element={<AccountPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />

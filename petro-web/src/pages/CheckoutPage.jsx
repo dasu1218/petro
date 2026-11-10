@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { apiRequest } from '../lib/api'
 import DeliveryProgress from '../components/DeliveryProgress'
 import { useAuth } from '../context/authContext'
 import { useCart } from '../context/cartContext'
@@ -8,8 +9,13 @@ import { ADDRESS_FIELDS, DELIVERY_METHODS, getCheckoutFingerprint, getCheckoutTo
 import { formatLKR } from '../lib/format'
 
 function CheckoutPage() {
-  const { user } = useAuth()
-  const { items } = useCart()
+  const { user, token } = useAuth()
+  const navigate = useNavigate()
+  const { items, clearCart, beginOrder, endOrder } = useCart()
+  const [orderError, setOrderError] = useState('')
+  const [pendingOrder, setPendingOrder] = useState(null)
+  const submitting = useRef(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [address, setAddress] = useState(() => Object.fromEntries(ADDRESS_FIELDS.map(({ name }) => [name, name === 'fullName' ? user.name : name === 'email' ? user.email : ''])))
   const [deliveryMethod, setDeliveryMethod] = useState('standard')
   const [errors, setErrors] = useState({})
@@ -21,7 +27,7 @@ function CheckoutPage() {
   const totals = getCheckoutTotals(items, deliveryMethod)
   const method = DELIVERY_METHODS.find((entry) => entry.id === deliveryMethod)
 
-  if (items.length === 0) return (
+  if (items.length === 0 && !pendingOrder) return (
     <section className="page-panel page-center">
       <span className="eyebrow eyebrow-muted">Checkout</span>
       <h1>Your cart is empty</h1>
@@ -43,6 +49,37 @@ function CheckoutPage() {
     requestAnimationFrame(() => reviewRef.current?.focus())
   }
 
+  const submitOrder = async () => {
+    if (submitting.current || (!isReviewed && !pendingOrder)) return
+    if (!beginOrder()) return
+    submitting.current = true
+    setIsSubmitting(true)
+    setOrderError('')
+    const payload = pendingOrder || {
+      requestId: crypto.randomUUID(),
+      items: items.map(({ slug, variantLabel, quantity }) => ({ slug, variantLabel, quantity })),
+      shippingAddress: address, deliveryMethod, expectedTotal: totals.total,
+    }
+    setPendingOrder(payload)
+    try {
+      const data = await apiRequest('/orders', { method: 'POST', token, body: payload })
+      endOrder()
+      clearCart()
+      navigate(`/orders/${data.order._id}`, { replace: true })
+    } catch (error) {
+      setOrderError(error.message)
+      // An uncertain response must retry the same request ID and payload.
+      if (error.status && error.status < 500) {
+        setPendingOrder(null)
+        setReviewFingerprint(null)
+      }
+    } finally {
+      endOrder()
+      submitting.current = false
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <section className="page-panel checkout-page">
       <div className="page-header">
@@ -53,9 +90,10 @@ function CheckoutPage() {
       </div>
       <div className="checkout-layout">
         <div>
+          {orderError && <p className="form-error" role="alert">{orderError}</p>}
           <form ref={formRef} className="checkout-form" onSubmit={reviewCheckout} noValidate>
             {Object.values(errors).some(Boolean) && <p className="form-error" role="alert">Check the highlighted delivery details before continuing.</p>}
-            <fieldset className="checkout-panel">
+            <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery address</legend>
               <div className="checkout-fields">
                 {ADDRESS_FIELDS.map((field) => (
@@ -74,7 +112,7 @@ function CheckoutPage() {
                 <p className="checkout-country">Country: <strong>Sri Lanka</strong></p>
               </div>
             </fieldset>
-            <fieldset className="checkout-panel">
+            <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery method</legend>
               <p className="checkout-note">Delivery fees are estimates and will be confirmed before an order is placed.</p>
               {DELIVERY_METHODS.map((option) => (
@@ -86,7 +124,7 @@ function CheckoutPage() {
               ))}
               {errors.deliveryMethod && <p role="alert" className="form-error">{errors.deliveryMethod}</p>}
             </fieldset>
-            <button type="submit" className="btn btn-primary btn-large">Review checkout</button>
+            <button type="submit" className="btn btn-primary btn-large" disabled={Boolean(pendingOrder)}>Review checkout</button>
           </form>
           {isReviewed && (
             <section className="checkout-panel checkout-review" aria-labelledby="review-heading">
@@ -99,11 +137,18 @@ function CheckoutPage() {
               </address>
               <p>{address.email}<br />{address.phone}</p>
               <p>{method.name} · Estimated total: <strong>{formatLKR(totals.total)}</strong></p>
-              <button type="button" className="btn btn-secondary" onClick={() => {
+              <button type="button" className="btn btn-secondary" disabled={Boolean(pendingOrder)} onClick={() => {
                 setReviewFingerprint(null)
                 formRef.current?.elements.namedItem('fullName')?.focus()
               }}>Edit delivery details</button>
-              <p className="checkout-note" role="status">Your details are ready for review. Order placement is coming soon; no order has been placed.</p>
+              <p className="checkout-note">Payment will be arranged separately. No payment is collected here.</p>
+            </section>
+          )}
+          {(isReviewed || pendingOrder) && (
+            <section className="checkout-panel checkout-submit" aria-label="Place order">
+              {pendingOrder && orderError && <p className="checkout-note">Retry the original order for {formatLKR(pendingOrder.expectedTotal)} to confirm its result. You can also <Link to="/orders">check your orders</Link> before retrying.</p>}
+              <button type="button" className="btn btn-primary btn-large" disabled={isSubmitting} onClick={submitOrder}>{isSubmitting ? 'Placing order…' : pendingOrder ? 'Retry original order' : 'Place order'}</button>
+              {!pendingOrder && <p className="checkout-note">Your order is saved when the confirmation page appears.</p>}
             </section>
           )}
         </div>

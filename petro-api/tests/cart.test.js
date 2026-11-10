@@ -6,6 +6,9 @@ import Cart from '../models/Cart.js';
 import cartRoutes from '../routes/cartRoutes.js';
 import bundleRoutes from '../routes/bundleRoutes.js';
 import Bundle from '../models/Bundle.js';
+import Inventory from '../models/Inventory.js';
+import Order from '../models/Order.js';
+import orderRoutes from '../routes/orderRoutes.js';
 import { defaultBundles } from '../data/bundles.js';
 import { buildBundleOffer } from '../services/bundles.js';
 import { signToken } from '../utils/token.js';
@@ -49,10 +52,17 @@ let base;
 const carts = new Map();
 let storedBundles = [];
 const originalBundleFind = Bundle.find;
+const originalInventoryFind = Inventory.find;
+const originalOrderFind = Order.find;
+const originalOrderFindOne = Order.findOne;
+const savedOrder = { _id: '507f1f77bcf86cd799439011', user: 'alice', requestId: 'private-id', requestHash: 'private-hash', totals: { total: 2800 } };
 const original = { findUser: User.findById, find: Cart.findOne, update: Cart.findOneAndUpdate, delete: Cart.deleteOne };
 before(async () => {
   process.env.JWT_SECRET = 'cart-tests-only-secret';
-  Bundle.find = () => ({ sort: () => ({ lean: async () => storedBundles }) });
+  Bundle.find = () => ({ sort: () => ({ session: () => ({ lean: async () => storedBundles }) }) });
+  Inventory.find = () => ({ session: () => ({ lean: async () => [] }) });
+  Order.find = ({ user }) => ({ sort: () => ({ limit: async () => user === savedOrder.user ? [savedOrder] : [] }) });
+  Order.findOne = async ({ user, _id }) => user === savedOrder.user && _id === savedOrder._id ? savedOrder : null;
   User.findById = async (id) => ({ _id: id });
   Cart.findOne = async ({ user }) => carts.has(user) ? { items: carts.get(user) } : null;
   Cart.findOneAndUpdate = async ({ user }, { $set }) => { carts.set(user, $set.items); };
@@ -61,6 +71,7 @@ before(async () => {
   app.use(express.json());
   app.use('/api/cart', cartRoutes);
   app.use('/api/bundles', bundleRoutes);
+  app.use('/api/orders', orderRoutes);
   app.use(errorHandler);
   server = await new Promise((resolve, reject) => {
     const listener = app.listen(0, '127.0.0.1', (error) => error ? reject(error) : resolve(listener));
@@ -74,6 +85,9 @@ after(async () => {
   Cart.findOneAndUpdate = original.update;
   Cart.deleteOne = original.delete;
   Bundle.find = originalBundleFind;
+  Inventory.find = originalInventoryFind;
+  Order.find = originalOrderFind;
+  Order.findOne = originalOrderFindOne;
   if (server) await new Promise((resolve) => server.close(resolve));
 });
 const request = (user, method = 'GET', body) => fetch(base, {
@@ -152,4 +166,20 @@ test('stored bundle definitions drive both listing and cart pricing', async () =
     storedBundles = [{ ...defaultBundles[0], isActive: false }];
     assert.deepEqual((await (await fetch(base.replace('/cart', '/bundles'))).json()).bundles, []);
   } finally { storedBundles = []; }
+});
+
+test('order routes require authentication and scope reads to the current user', async () => {
+  const ordersUrl = base.replace('/cart', '/orders');
+  for (const [path, method] of [['', 'POST'], ['/my', 'GET'], [`/${savedOrder._id}`, 'GET']]) {
+    assert.equal((await fetch(`${ordersUrl}${path}`, { method })).status, 401);
+  }
+  const auth = (user) => ({ headers: { Authorization: `Bearer ${signToken(user)}` } });
+  const aliceOrders = await (await fetch(`${ordersUrl}/my?user=bob`, auth('alice'))).json();
+  assert.equal(aliceOrders.orders.length, 1);
+  assert.equal(aliceOrders.orders[0].requestHash, undefined);
+  assert.equal(aliceOrders.orders[0].requestId, undefined);
+  assert.deepEqual((await (await fetch(`${ordersUrl}/my`, auth('bob'))).json()).orders, []);
+  assert.equal((await fetch(`${ordersUrl}/${savedOrder._id}`, auth('alice'))).status, 200);
+  assert.equal((await fetch(`${ordersUrl}/${savedOrder._id}`, auth('bob'))).status, 404);
+  assert.equal((await fetch(`${ordersUrl}/invalid-id`, auth('alice'))).status, 404);
 });
