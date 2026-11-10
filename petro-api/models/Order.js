@@ -13,6 +13,7 @@ const schema = new mongoose.Schema({
     addressLine2: String, city: String, postalCode: String, country: String,
   },
   deliveryMethod: { type: String, enum: ['standard', 'express'], required: true },
+  paymentMethod: { type: String, enum: ['cod'], required: true },
   totals: { subtotal: Number, delivery: Number, total: Number },
   status: { type: String, enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'placed' },
   paymentStatus: { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' },

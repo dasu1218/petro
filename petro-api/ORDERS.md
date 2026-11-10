@@ -4,7 +4,7 @@
 - `GET /api/orders/my` returns that user's latest 50 orders.
 - `GET /api/orders/:id` returns an order only to its owner. Other owners and invalid IDs receive 404.
 
-The create payload contains `requestId`, `items` (`slug`, `variantLabel`, `quantity`), `shippingAddress`, `deliveryMethod`, and `expectedTotal`. The API ignores supplied ownership and item prices. It validates address/contact details, resolves canonical prices, calculates delivery, and rejects changed totals with 409 so the customer can review again. Initial rates remain standard LKR 350, free from LKR 4,500, or express LKR 650. Confirm these store rates before release.
+The create payload contains `requestId`, `items` (`slug`, `variantLabel`, `quantity`), `shippingAddress`, `deliveryMethod`, `paymentMethod: "cod"`, and `expectedTotal`. The API ignores supplied ownership and item prices. It validates address/contact details, resolves canonical prices, calculates delivery, and rejects changed totals with 409 so the customer can review again. Initial rates remain standard LKR 350, free from LKR 4,500, or express LKR 650. Confirm these store rates before release.
 
 ## Transactions and inventory
 
@@ -20,7 +20,9 @@ The unique `(user, requestId)` index prevents repeated requests with the same ID
 
 Checkout locks cart edits during submission, clears the cart only after the API acknowledges a saved order, and loads the confirmation from the owner-protected endpoint. On an uncertain network/server response, the same mounted checkout retains the original payload and ID for retry. That retry state is memory-only: after leaving or refreshing the page, check My Orders before submitting again. New request IDs represent new orders.
 
-Orders start with status `placed` and payment status `unpaid`. Checkout collects no payment. Payment selection, admin status updates, cancellation, and email notifications are future work.
+New orders require Cash on Delivery (`paymentMethod: "cod"`) and start with status `placed` and payment status `unpaid`. Client-supplied payment confirmations, amounts paid, or paid timestamps are ignored. Confirmation and history show the payment method; unpaid COD confirmations show the full order total due on delivery. Checkout collects no online payment and adds no COD surcharge. Unsupported methods are rejected before inventory is reserved.
+
+Existing orders with no payment method retain that historical value and display "Payment method not recorded". Exact retries of those saved orders still use their original request hash. A missing method cannot create a new order, and a retry cannot change a saved order's method. Online payment providers, recording cash collection, admin status updates, cancellation, and email notifications are future work.
 
 ## Verification
 

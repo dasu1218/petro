@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import bundleRoutes from './routes/bundleRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 import Order from './models/Order.js';
 import Inventory from './models/Inventory.js';
 
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/bundles', bundleRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {

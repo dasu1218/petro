@@ -2,11 +2,14 @@ import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../lib/api'
 import DeliveryProgress from '../components/DeliveryProgress'
+import AddressFields from '../components/AddressFields'
+import { checkoutAddress, defaultSavedAddress } from '../lib/addresses.js'
 import { useAuth } from '../context/authContext'
 import { useCart } from '../context/cartContext'
 import { getCartItemPath } from '../lib/cart.js'
-import { ADDRESS_FIELDS, DELIVERY_METHODS, getCheckoutFingerprint, getCheckoutTotals, validateCheckout } from '../lib/checkout.js'
+import { DELIVERY_METHODS, getCheckoutFingerprint, getCheckoutTotals, validateCheckout } from '../lib/checkout.js'
 import { formatLKR } from '../lib/format'
+import { COD_LABEL, COD_METHOD } from '../lib/payment.js'
 
 function CheckoutPage() {
   const { user, token } = useAuth()
@@ -16,13 +19,15 @@ function CheckoutPage() {
   const [pendingOrder, setPendingOrder] = useState(null)
   const submitting = useRef(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [address, setAddress] = useState(() => Object.fromEntries(ADDRESS_FIELDS.map(({ name }) => [name, name === 'fullName' ? user.name : name === 'email' ? user.email : ''])))
+  const [address, setAddress] = useState(() => checkoutAddress(defaultSavedAddress(user), user))
+  const [savedAddressId, setSavedAddressId] = useState(() => defaultSavedAddress(user)?._id || '')
   const [deliveryMethod, setDeliveryMethod] = useState('standard')
+  const [paymentMethod, setPaymentMethod] = useState(COD_METHOD)
   const [errors, setErrors] = useState({})
   const [reviewFingerprint, setReviewFingerprint] = useState(null)
   const formRef = useRef(null)
   const reviewRef = useRef(null)
-  const fingerprint = getCheckoutFingerprint(items, address, deliveryMethod)
+  const fingerprint = getCheckoutFingerprint(items, address, deliveryMethod, paymentMethod)
   const isReviewed = reviewFingerprint === fingerprint
   const totals = getCheckoutTotals(items, deliveryMethod)
   const method = DELIVERY_METHODS.find((entry) => entry.id === deliveryMethod)
@@ -38,14 +43,14 @@ function CheckoutPage() {
 
   const reviewCheckout = (event) => {
     event.preventDefault()
-    const validation = validateCheckout(address, deliveryMethod)
+    const validation = validateCheckout(address, deliveryMethod, paymentMethod)
     setErrors(validation.errors)
     if (Object.keys(validation.errors).length) {
       formRef.current?.elements.namedItem(Object.keys(validation.errors)[0])?.focus()
       return
     }
     setAddress(validation.address)
-    setReviewFingerprint(getCheckoutFingerprint(items, validation.address, deliveryMethod))
+    setReviewFingerprint(getCheckoutFingerprint(items, validation.address, deliveryMethod, paymentMethod))
     requestAnimationFrame(() => reviewRef.current?.focus())
   }
 
@@ -58,7 +63,7 @@ function CheckoutPage() {
     const payload = pendingOrder || {
       requestId: crypto.randomUUID(),
       items: items.map(({ slug, variantLabel, quantity }) => ({ slug, variantLabel, quantity })),
-      shippingAddress: address, deliveryMethod, expectedTotal: totals.total,
+      shippingAddress: address, deliveryMethod, paymentMethod, expectedTotal: totals.total,
     }
     setPendingOrder(payload)
     try {
@@ -95,22 +100,19 @@ function CheckoutPage() {
             {Object.values(errors).some(Boolean) && <p className="form-error" role="alert">Check the highlighted delivery details before continuing.</p>}
             <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery address</legend>
-              <div className="checkout-fields">
-                {ADDRESS_FIELDS.map((field) => (
-                  <label key={field.name} className={`form-field${field.wide ? ' checkout-field-wide' : ''}`}>
-                    <span>{field.label}</span>
-                    <input name={field.name} type={field.type || 'text'} autoComplete={field.autoComplete}
-                      value={address[field.name]} required={!field.optional} maxLength={field.maxLength}
-                      aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `${field.name}-error` : undefined}
-                      onChange={(event) => {
-                        setAddress((current) => ({ ...current, [field.name]: event.target.value }))
-                        setErrors((current) => ({ ...current, [field.name]: undefined }))
-                      }} />
-                    {errors[field.name] && <small id={`${field.name}-error`} className="checkout-field-error">{errors[field.name]}</small>}
-                  </label>
-                ))}
-                <p className="checkout-country">Country: <strong>Sri Lanka</strong></p>
-              </div>
+              {user.addresses?.length > 0 && <label className="form-field saved-address-picker"><span>Use a saved address</span><select value={savedAddressId} onChange={(event) => {
+                const id = event.target.value
+                const saved = user.addresses.find((entry) => entry._id === id)
+                setSavedAddressId(id)
+                setAddress(checkoutAddress(saved, user))
+                setErrors({})
+                setReviewFingerprint(null)
+              }}><option value="">Enter a new address</option>{user.addresses.map((entry) => <option key={entry._id} value={entry._id}>{entry.label} — {entry.city}{String(entry._id) === String(user.defaultAddressId) ? ' (Default)' : ''}</option>)}</select></label>}
+              <AddressFields address={address} errors={errors} idPrefix="checkout" onChange={(name, value) => {
+                setAddress((current) => ({ ...current, [name]: value }))
+                setSavedAddressId('')
+                setErrors((current) => ({ ...current, [name]: undefined }))
+              }} />
             </fieldset>
             <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
               <legend>Delivery method</legend>
@@ -123,6 +125,14 @@ function CheckoutPage() {
                 </label>
               ))}
               {errors.deliveryMethod && <p role="alert" className="form-error">{errors.deliveryMethod}</p>}
+            </fieldset>
+            <fieldset className="checkout-panel" disabled={Boolean(pendingOrder)}>
+              <legend>Payment method</legend>
+              <label className="delivery-option is-selected">
+                <input type="radio" name="paymentMethod" value={COD_METHOD} checked={paymentMethod === COD_METHOD} onChange={() => setPaymentMethod(COD_METHOD)} aria-describedby="cod-description" />
+                <span><strong>{COD_LABEL}</strong><small id="cod-description">Pay the full order total in cash when your order is delivered. No online payment is required.</small></span>
+              </label>
+              {errors.paymentMethod && <p role="alert" className="form-error">{errors.paymentMethod}</p>}
             </fieldset>
             <button type="submit" className="btn btn-primary btn-large" disabled={Boolean(pendingOrder)}>Review checkout</button>
           </form>
@@ -141,13 +151,13 @@ function CheckoutPage() {
                 setReviewFingerprint(null)
                 formRef.current?.elements.namedItem('fullName')?.focus()
               }}>Edit delivery details</button>
-              <p className="checkout-note">Payment will be arranged separately. No payment is collected here.</p>
+              <p className="checkout-payment-review"><strong>{COD_LABEL}</strong> · {formatLKR(totals.total)} due on delivery.</p>
             </section>
           )}
           {(isReviewed || pendingOrder) && (
             <section className="checkout-panel checkout-submit" aria-label="Place order">
               {pendingOrder && orderError && <p className="checkout-note">Retry the original order for {formatLKR(pendingOrder.expectedTotal)} to confirm its result. You can also <Link to="/orders">check your orders</Link> before retrying.</p>}
-              <button type="button" className="btn btn-primary btn-large" disabled={isSubmitting} onClick={submitOrder}>{isSubmitting ? 'Placing order…' : pendingOrder ? 'Retry original order' : 'Place order'}</button>
+              <button type="button" className="btn btn-primary btn-large" disabled={isSubmitting} onClick={submitOrder}>{isSubmitting ? 'Placing order…' : pendingOrder ? 'Retry original order' : 'Place Cash on Delivery order'}</button>
               {!pendingOrder && <p className="checkout-note">Your order is saved when the confirmation page appears.</p>}
             </section>
           )}
@@ -168,7 +178,7 @@ function CheckoutPage() {
             <div><dt>Estimated delivery</dt><dd>{totals.delivery === 0 ? 'Free' : formatLKR(totals.delivery)}</dd></div>
             <div className="checkout-grand-total"><dt>Estimated total</dt><dd>{formatLKR(totals.total)}</dd></div>
           </dl>
-          <p className="checkout-note">Prices and availability will be confirmed when placing an order.</p>
+          <p className="checkout-note">{COD_LABEL}: pay the confirmed total on delivery. Prices and availability will be confirmed when placing your order.</p>
         </aside>
       </div>
     </section>

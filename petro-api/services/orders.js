@@ -18,6 +18,7 @@ export async function placeOrder(userId, body, dependencies = orderDependencies)
     if (existing.requestHash !== request.requestHash) throw orderError('This request ID belongs to different order details.', 409);
     return { order: existing, replayed: true };
   }
+  if (request.paymentMethod !== 'cod') throw orderError('Choose Cash on Delivery before placing your order');
   const session = await dependencies.startSession();
   let order;
   try {
@@ -35,7 +36,7 @@ export async function placeOrder(userId, body, dependencies = orderDependencies)
       [order] = await Order.create([{
         user: userId, requestId: request.requestId, requestHash: request.requestHash,
         items: plan.items, shippingAddress: plan.shippingAddress, deliveryMethod: plan.deliveryMethod,
-        totals: plan.totals, status: 'placed', paymentStatus: 'unpaid',
+        totals: plan.totals, status: 'placed', paymentMethod: request.paymentMethod, paymentStatus: 'unpaid',
       }], { session });
     });
     return { order, replayed: false };

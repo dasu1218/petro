@@ -1,6 +1,13 @@
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
+const addressSchema = new mongoose.Schema({
+  label: { type: String, required: true, maxlength: 40 },
+  fullName: String, email: String, phone: String, addressLine1: String,
+  addressLine2: String, city: String, postalCode: String,
+  country: { type: String, enum: ['Sri Lanka'], default: 'Sri Lanka' },
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -28,8 +35,10 @@ const userSchema = new mongoose.Schema(
       enum: ['customer', 'admin'],
       default: 'customer',
     },
+    addresses: { type: [addressSchema], default: [] },
+    defaultAddressId: { type: mongoose.Schema.Types.ObjectId, default: null },
   },
-  { timestamps: true },
+  { timestamps: true, optimisticConcurrency: true },
 );
 
 userSchema.pre('save', async function hashPassword() {
@@ -46,7 +55,7 @@ userSchema.methods.matchPassword = function matchPassword(candidate) {
 
 userSchema.methods.toJSON = function toJSON() {
   const { _id, name, email, role, createdAt } = this;
-  return { id: _id, name, email, role, createdAt };
+  return { id: _id, name, email, role, createdAt, addresses: this.addresses.map((address) => address.toObject()), defaultAddressId: this.defaultAddressId };
 };
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);

@@ -7,7 +7,7 @@ import { buildBundleOffer } from '../services/bundles.js';
 import { defaultBundles } from '../data/bundles.js';
 
 const body = () => ({
-  requestId: 'test-request-1234', deliveryMethod: 'standard', expectedTotal: 2800,
+  requestId: 'test-request-1234', deliveryMethod: 'standard', paymentMethod: 'cod', expectedTotal: 2800,
   shippingAddress: { fullName: ' Dasun Perera ', email: 'dasun@example.com', phone: '0771234567', addressLine1: '12 Flower Road', addressLine2: '', city: 'Colombo', postalCode: '00700', country: 'Sri Lanka' },
   items: [{ slug: 'petal-cleanse-shampoo', variantLabel: '250ml', quantity: 1, price: 1 }],
 });
@@ -113,4 +113,42 @@ test('a failed conditional stock update aborts without saving an order', async (
   await assert.rejects(placeOrder('alice', body(), dependencies), { status: 409 });
   assert.equal(state.orders.length, 0);
   assert.equal(state.stock.size, 0);
+});
+
+test('COD is saved unpaid even when a client forges payment confirmation', async () => {
+  const { state, dependencies } = fakeDatabase();
+  const result = await placeOrder('alice', {
+    ...body(), paymentStatus: 'paid', paidAt: new Date().toISOString(), amountPaid: 2800,
+  }, dependencies);
+  assert.equal(result.order.paymentMethod, 'cod');
+  assert.equal(result.order.paymentStatus, 'unpaid');
+  assert.equal(result.order.paidAt, undefined);
+  assert.equal(result.order.amountPaid, undefined);
+  assert.equal(publicOrder(result.order).paymentMethod, 'cod');
+  const retry = await placeOrder('alice', body(), dependencies);
+  assert.equal(retry.replayed, true);
+  assert.equal(state.stock.get('petal-cleanse-shampoo:250ml'), 39);
+});
+
+test('new orders require COD and reject unsupported payment methods before reserving stock', async () => {
+  for (const method of [undefined, null, '', 'stripe', 'payhere', 'card', { type: 'cod' }]) {
+    const { state, dependencies } = fakeDatabase();
+    await assert.rejects(placeOrder('alice', { ...body(), paymentMethod: method }, dependencies), { status: 400 });
+    assert.equal(state.stock.size, 0);
+    assert.equal(state.orders.length, 0);
+    assert.equal(state.ended, 0);
+  }
+});
+
+test('saved legacy orders replay without adding COD or reserving stock again', async () => {
+  const { state, dependencies } = fakeDatabase();
+  const legacyBody = body();
+  delete legacyBody.paymentMethod;
+  const legacyRequest = validateOrderRequest(legacyBody);
+  state.orders.push({ ...legacyRequest, _id: 'legacy-order', user: 'alice', paymentStatus: 'unpaid' });
+  const result = await placeOrder('alice', legacyBody, dependencies);
+  assert.equal(result.replayed, true);
+  assert.equal(result.order.paymentMethod, undefined);
+  assert.equal(state.stock.size, 0);
+  await assert.rejects(placeOrder('alice', body(), dependencies), { status: 409 });
 });
