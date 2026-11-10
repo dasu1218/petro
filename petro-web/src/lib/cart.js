@@ -23,3 +23,18 @@ export function mergeCartItems(account, guest) {
 export function getCartItemPath(item) {
   return item.kind === 'bundle' ? `/bundles#${item.slug}` : `/products/${item.slug}`
 }
+
+export function refreshCartProducts(items, products) {
+  let changed = false
+  const next = items.flatMap((item) => {
+    if (item.kind === 'bundle') return [item]
+    const product = products.find((entry) => entry.slug === item.slug)
+    const variant = product?.variants.find((entry) => entry.label === item.variantLabel)
+    if (!variant) return [item]
+    if (variant.stock <= 0) { changed = true; return [] }
+    const update = { ...item, price: variant.price, stock: variant.stock, quantity: Math.min(item.quantity, variant.stock) }
+    if (item.price !== update.price || item.stock !== update.stock || item.quantity !== update.quantity) changed = true
+    return [update]
+  })
+  return changed ? next : items
+}

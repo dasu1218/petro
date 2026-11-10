@@ -13,6 +13,9 @@ import orderRoutes from './routes/orderRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import Order from './models/Order.js';
 import Inventory from './models/Inventory.js';
+import productRoutes from './routes/productRoutes.js';
+import ProductSettings from './models/ProductSettings.js';
+import { isProductImage } from './services/imageUpload.js';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -38,12 +41,15 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/bundles', bundleRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/products', productRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {
     if (!request.file) {
       return response.status(400).json({ message: 'Image file is required' });
     }
+
+    if (!isProductImage(request.file.buffer)) return response.status(400).json({ message: 'Choose a JPG, PNG, or WebP image' });
 
     const result = await uploadToCloudinary(request.file.buffer, 'petro');
 
@@ -66,7 +72,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
-  await Promise.all([Order.init(), Inventory.init()]);
+  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });

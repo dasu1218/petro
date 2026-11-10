@@ -16,12 +16,15 @@ import NotFoundPage from './pages/NotFoundPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import RegisterPage from './pages/RegisterPage'
 import ShopPage from './pages/ShopPage'
+import ProductProvider from './context/ProductProvider'
+import AdminProductsPage from './pages/AdminProductsPage'
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
+        <ProductProvider>
+          <CartProvider>
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
@@ -38,10 +41,12 @@ function App() {
                 <Route path="/orders/:id" element={<OrderPage />} />
                 <Route path="/account" element={<AccountPage />} />
               </Route>
+              <Route element={<ProtectedRoute adminOnly />}><Route path="/admin/products" element={<AdminProductsPage />} /></Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
-        </CartProvider>
+          </CartProvider>
+        </ProductProvider>
       </AuthProvider>
     </BrowserRouter>
   )

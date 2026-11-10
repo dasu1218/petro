@@ -202,10 +202,12 @@ Base URL: `/api`
 | PUT / DELETE | `/profile/addresses/:id` | Edit or delete an owned address | ✅ |
 | PATCH | `/profile/addresses/:id/default` | Set the default delivery address | ✅ |
 | GET | `/products` | List (search, filter, sort, page) | – |
+| GET | `/products/admin` | Catalog and editable photo, price, and promotion settings | 🔑 Admin |
 | GET | `/health` | API health check | – |
 | GET | `/products/:id` | Product details | – |
 | POST | `/products` | Create product | 🔑 Admin |
 | PUT | `/products/:id` | Update product | 🔑 Admin |
+| PUT | `/products/:slug` | Save photos, variant prices, and scheduled promotion for an existing product | 🔑 Admin |
 | DELETE | `/products/:id` | Delete product | 🔑 Admin |
 | POST | `/upload` | Upload image to Cloudinary | 🔑 Admin |
 | GET | `/categories` | List categories | – |
@@ -393,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Admin products | 2026-11-10 | Admin photo uploads, variant prices, scheduled percentage promotions, live storefront catalog and cart price refresh | 35 API/service and 16 frontend tests, build and lint pass; configure Cloudinary and grant your own account admin access; live checks remain |
 | 25 | 2026-11-10 | Profile editing, password-confirmed email changes, saved address management, default address and checkout selection; existing order history retained | 31 API/service and 14 frontend tests pass; live MongoDB and browser checks remain; admin status updates pending |
 | 24 | 2026-11-10 | Cash on Delivery selection, server validation, saved payment method, amount due in confirmations, legacy order handling | 24 API/service and 12 frontend tests, build and lint pass; online payments and recording cash collection remain future work; live checks remain |
 | 23 | 2026-11-10 | Transactional orders, shared component stock, canonical totals, idempotent retries, confirmation and recent orders | Mocked API/service and checkout tests pass; live replica-set transaction and browser checks remain; orders start unpaid |

@@ -53,6 +53,7 @@ function AccountPage() {
 
       <div className="cta-row account-actions">
         <Link to="/orders" className="btn btn-primary btn-large">View orders</Link>
+        {user.role === 'admin' && <Link to="/admin/products" className="btn btn-secondary btn-large">Manage products</Link>}
         <button type="button" className="btn btn-secondary btn-large" onClick={handleLogout}>
           Log out
         </button>
