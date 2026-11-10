@@ -57,6 +57,18 @@ function CartSession({ children, token, userId }) {
   const [attempt, setAttempt] = useState(0)
   const queue = useRef(Promise.resolve())
   const latestRevision = useRef(0)
+  const orderLock = useRef(false)
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+  const beginOrder = useCallback(() => {
+    if (orderLock.current) return false
+    orderLock.current = true
+    setIsPlacingOrder(true)
+    return true
+  }, [])
+  const endOrder = useCallback(() => {
+    orderLock.current = false
+    setIsPlacingOrder(false)
+  }, [])
 
   useEffect(() => {
     if (!token) return
@@ -111,7 +123,7 @@ function CartSession({ children, token, userId }) {
   }, [items, ready, token, revision, pendingKey])
 
   const change = useCallback((action) => {
-    if (!ready) return
+    if (!ready || orderLock.current) return
     dispatch(action)
     latestRevision.current += 1
     setRevision(latestRevision.current)
@@ -154,8 +166,8 @@ function CartSession({ children, token, userId }) {
     const itemCount = items.reduce((total, item) => total + item.quantity, 0)
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
 
-    return { items, itemCount, subtotal, addItem, updateQuantity, removeItem, clearCart }
-  }, [items, addItem, updateQuantity, removeItem, clearCart])
+    return { items, itemCount, subtotal, addItem, updateQuantity, removeItem, clearCart, beginOrder, endOrder }
+  }, [items, addItem, updateQuantity, removeItem, clearCart, beginOrder, endOrder])
 
   const retry = () => {
     if (!ready) setAttempt((value) => value + 1)
@@ -167,6 +179,7 @@ function CartSession({ children, token, userId }) {
 
   return (
     <CartContext.Provider value={value}>
+      {isPlacingOrder && <p className="cart-sync-notice" role="status">Placing your order… Please wait for confirmation.</p>}
       {token && (!ready || saving || error) && (
         <div className="cart-sync-notice" role="status">
           {error ? `Your cart could not sync. ${error}` : ready ? 'Saving your cart…' : 'Loading your account cart…'}
@@ -174,7 +187,7 @@ function CartSession({ children, token, userId }) {
           {error && !ready && <button type="button" onClick={logout}>Sign out</button>}
         </div>
       )}
-      <div style={{ display: 'contents' }} inert={!ready}>{children}</div>
+      <div style={{ display: 'contents' }} inert={!ready || isPlacingOrder}>{children}</div>
     </CartContext.Provider>
   )
 }
