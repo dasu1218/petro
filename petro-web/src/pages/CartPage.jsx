@@ -85,13 +85,13 @@ function CartPage() {
           </div>
           <DeliveryProgress subtotal={subtotal} />
           <div className="cart-total">
-            <span>Total</span>
+            <span>Total before delivery</span>
             <strong>{formatLKR(subtotal)}</strong>
           </div>
 
-          <button type="button" className="btn btn-primary btn-large cart-checkout" disabled>
-            Checkout coming soon
-          </button>
+          <Link to="/checkout" className="btn btn-primary btn-large cart-checkout">
+            Continue to checkout
+          </Link>
           <button type="button" className="cart-clear" onClick={clearCart}>
             Clear cart
           </button>

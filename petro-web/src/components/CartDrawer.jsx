@@ -71,7 +71,8 @@ function CartDrawer({ open, onClose }) {
             <footer className="cart-drawer-footer">
               <div className="cart-item"><span>Subtotal</span><strong>{formatLKR(subtotal)}</strong></div>
               <p>Delivery is calculated at checkout.</p>
-              <Link to="/cart" className="btn btn-primary btn-large" onClick={onClose}>View cart</Link>
+              <Link to="/checkout" className="btn btn-primary btn-large" onClick={onClose}>Continue to checkout</Link>
+              <Link to="/cart" className="cart-clear" onClick={onClose}>View cart</Link>
               <button type="button" className="cart-clear" onClick={onClose}>Continue shopping</button>
             </footer>
           </>

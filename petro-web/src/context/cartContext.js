@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export const FREE_DELIVERY_THRESHOLD = 4500
+export { FREE_DELIVERY_THRESHOLD } from '../lib/checkout.js'
 
 export const CartContext = createContext(null)
 

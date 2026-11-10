@@ -297,7 +297,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 21:** Bundles section and API `[feature/bundles]`
 
 ### Week 4 – Checkout, Admin, Release
-- [ ] **Day 22:** Checkout page `[feature/checkout]`
+- [x] **Day 22:** Checkout page `[feature/checkout]`
 - [ ] **Day 23:** Order API and stock check `[feature/orders]`
 - [ ] **Day 24:** Payment (Cash on Delivery, then PayHere or Stripe) `[feature/payments]`
 - [ ] **Day 25:** Orders and Profile pages `[feature/orders]` `[feature/profile]`
@@ -388,6 +388,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 22 | 2026-11-10 | Protected checkout, address validation, delivery selection, estimated totals, review step, cart entry links | Seven checkout tests, build and lint pass; order placement is Day 23; browser verification remains |
 | 21 | 2026-11-10 | Bundle model and API, home section, Bundles page, savings and component availability, cart integration | Eleven tests pass with mocked database operations; live MongoDB and browser verification remain |
 | 20 | 2026-11-10 | Authenticated cart API, guest merge, account isolation, ordered saves, local recovery and retry | Seven tests pass with mocked database operations; live MongoDB persistence needs verification |
 | 19 | 2026-11-10 | Header cart drawer, quantity controls, removal, and shared free-delivery progress bar | Frontend build and lint passed; checkout remains a later roadmap item |

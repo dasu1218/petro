@@ -7,6 +7,7 @@ import CartProvider from './context/CartProvider'
 import AccountPage from './pages/AccountPage'
 import CartPage from './pages/CartPage'
 import BundlesPage from './pages/BundlesPage'
+import CheckoutPage from './pages/CheckoutPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -30,6 +31,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route element={<ProtectedRoute />}>
+                <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/account" element={<AccountPage />} />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
