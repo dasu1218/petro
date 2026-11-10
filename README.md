@@ -206,9 +206,12 @@ Base URL: `/api`
 | POST | `/upload` | Upload image to Cloudinary | 🔑 Admin |
 | GET | `/categories` | List categories | – |
 | GET | `/bundles` | List bundles | – |
-| GET / POST / PUT / DELETE | `/cart` | Manage cart | ✅ |
+| GET | `/cart` | Load the authenticated user's cart | ✅ |
+| PUT | `/cart` | Replace cart items (also handles add, quantity changes, and removal) | ✅ |
+| DELETE | `/cart` | Clear the authenticated user's cart | ✅ |
 | POST | `/orders` | Place order | ✅ |
 | GET | `/orders/my` | My orders | ✅ |
+| GET | `/orders/:id` | Order details for the authenticated owner | ✅ |
 | PUT | `/orders/:id/status` | Update status | 🔑 Admin |
 
 ---
@@ -290,14 +293,14 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [ ] **Day 16:** Auth API (JWT and bcrypt) `[feature/auth]`
 - [ ] **Day 17:** Login and Register pages, protected routes `[feature/auth]`
 - [ ] **Day 18:** Cart state (add, remove, stepper, subtotal) `[feature/cart]`
-- [ ] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
-- [ ] **Day 20:** Cart API sync `[feature/cart-api]`
-- [ ] **Day 21:** Bundles section and API `[feature/bundles]`
+- [x] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
+- [x] **Day 20:** Cart API sync `[feature/cart-api]`
+- [x] **Day 21:** Bundles section and API `[feature/bundles]`
 
 ### Week 4 – Checkout, Admin, Release
-- [ ] **Day 22:** Checkout page `[feature/checkout]`
-- [ ] **Day 23:** Order API and stock check `[feature/orders]`
-- [ ] **Day 24:** Payment (Cash on Delivery, then PayHere or Stripe) `[feature/payments]`
+- [x] **Day 22:** Checkout page `[feature/checkout]`
+- [x] **Day 23:** Order API and stock check `[feature/orders]`
+- [x] **Day 24:** Cash on Delivery checkout and order payment details `[feature/payments]` — PayHere/Stripe integration remains a follow-up.
 - [ ] **Day 25:** Orders and Profile pages `[feature/orders]` `[feature/profile]`
 - [ ] **Day 26:** Admin dashboard: product and order management `[feature/admin-dashboard]`
 - [ ] **Day 27:** Wishlist and reviews (optional) `[feature/wishlist-reviews]`
@@ -386,6 +389,12 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 24 | 2026-11-10 | Cash on Delivery selection, server validation, saved payment method, amount due in confirmations, legacy order handling | 24 API/service and 12 frontend tests, build and lint pass; online payments and recording cash collection remain future work; live checks remain |
+| 23 | 2026-11-10 | Transactional orders, shared component stock, canonical totals, idempotent retries, confirmation and recent orders | Mocked API/service and checkout tests pass; live replica-set transaction and browser checks remain; orders start unpaid |
+| 22 | 2026-11-10 | Protected checkout, address validation, delivery selection, estimated totals, review step, cart entry links | Seven checkout tests, build and lint pass; order placement is Day 23; browser verification remains |
+| 21 | 2026-11-10 | Bundle model and API, home section, Bundles page, savings and component availability, cart integration | Eleven tests pass with mocked database operations; live MongoDB and browser verification remain |
+| 20 | 2026-11-10 | Authenticated cart API, guest merge, account isolation, ordered saves, local recovery and retry | Seven tests pass with mocked database operations; live MongoDB persistence needs verification |
+| 19 | 2026-11-10 | Header cart drawer, quantity controls, removal, and shared free-delivery progress bar | Frontend build and lint passed; checkout remains a later roadmap item |
 | 1 | | | |
 | 2 | | | |
 | 3 | | | |
