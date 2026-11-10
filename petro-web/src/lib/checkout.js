@@ -14,7 +14,7 @@ export const ADDRESS_FIELDS = [
   { name: 'postalCode', label: 'Postal code', autoComplete: 'shipping postal-code', maxLength: 10 },
 ]
 
-export function validateCheckout(address, deliveryMethod) {
+export function validateCheckout(address, deliveryMethod, paymentMethod = 'cod') {
   const errors = {}
   const normalized = { country: 'Sri Lanka' }
   for (const field of ADDRESS_FIELDS) {
@@ -27,6 +27,7 @@ export function validateCheckout(address, deliveryMethod) {
   const phoneDigits = normalized.phone.replace(/\D/g, '')
   if (normalized.phone && (!/^\+?[\d\s()-]+$/.test(normalized.phone) || phoneDigits.length < 9 || phoneDigits.length > 15)) errors.phone = 'Enter a valid phone number with 9 to 15 digits.'
   if (!DELIVERY_METHODS.some((method) => method.id === deliveryMethod)) errors.deliveryMethod = 'Choose a delivery method.'
+  if (paymentMethod !== 'cod') errors.paymentMethod = 'Choose Cash on Delivery.'
   return { address: normalized, errors }
 }
 
@@ -38,9 +39,9 @@ export function getCheckoutTotals(items, deliveryMethod) {
   return { subtotal, delivery, total: subtotal + delivery }
 }
 
-export function getCheckoutFingerprint(items, address, deliveryMethod) {
+export function getCheckoutFingerprint(items, address, deliveryMethod, paymentMethod = 'cod') {
   return JSON.stringify({
     items: items.map(({ key, price, quantity, stock }) => ({ key, price, quantity, stock })),
-    address, deliveryMethod,
+    address, deliveryMethod, paymentMethod,
   })
 }

@@ -6,6 +6,7 @@ const fields = { fullName: 80, email: 254, phone: 24, addressLine1: 160, address
 export function validateOrderRequest(body = {}) {
   if (!body || typeof body !== 'object') throw orderError('Order details are required');
   const { items, deliveryMethod, expectedTotal, requestId } = body;
+  if (body.paymentMethod !== undefined && body.paymentMethod !== 'cod') throw orderError('Cash on Delivery is the available payment method');
   if (typeof requestId !== 'string' || !/^[a-zA-Z0-9-]{8,80}$/.test(requestId)) throw orderError('A valid request ID is required');
   if (!Array.isArray(items) || !items.length || items.length > 100) throw orderError('An order needs between 1 and 100 items');
   const lines = items.map((item) => {
@@ -25,6 +26,8 @@ export function validateOrderRequest(body = {}) {
   const digits = address.phone.replace(/\D/g, '');
   if (!/^\+?[\d\s()-]+$/.test(address.phone) || digits.length < 9 || digits.length > 15) throw orderError('Enter a valid phone number');
   const request = { items: lines, shippingAddress: address, deliveryMethod, expectedTotal, requestId };
+  // Preserve old request hashes so already-saved orders can still be replayed.
+  if (body.paymentMethod !== undefined) request.paymentMethod = body.paymentMethod;
   return { ...request, requestHash: createHash('sha256').update(JSON.stringify(request)).digest('hex') };
 }
 
