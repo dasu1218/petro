@@ -3,6 +3,7 @@ import QuantityStepper from '../components/QuantityStepper'
 import DeliveryProgress from '../components/DeliveryProgress'
 import { FREE_DELIVERY_THRESHOLD, useCart } from '../context/cartContext'
 import { formatLKR } from '../lib/format'
+import { getCartItemPath } from '../lib/cart.js'
 
 function CartPage() {
   const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } = useCart()
@@ -36,12 +37,12 @@ function CartPage() {
         <ul className="cart-lines" aria-label="Cart items">
           {items.map((item) => (
             <li key={item.key} className={`cart-line product-${item.accent}`}>
-              <Link to={`/products/${item.slug}`} className="cart-line-art" aria-hidden="true" tabIndex={-1}>
+              <Link to={getCartItemPath(item)} className="cart-line-art" aria-hidden="true" tabIndex={-1}>
                 PETRO
               </Link>
 
               <div className="cart-line-info">
-                <Link to={`/products/${item.slug}`} className="cart-line-name">
+                <Link to={getCartItemPath(item)} className="cart-line-name">
                   {item.name}
                 </Link>
                 <span className="cart-line-variant">

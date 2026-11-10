@@ -128,6 +128,7 @@ function CartSession({ children, token, userId }) {
       item: {
         key: getCartItemKey(product.slug, variant.label),
         slug: product.slug,
+        ...(product.kind === 'bundle' ? { kind: 'bundle' } : {}),
         name: product.name,
         accent: product.accent,
         variantLabel: variant.label,

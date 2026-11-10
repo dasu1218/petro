@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
 import { formatLKR } from '../lib/format'
+import { getCartItemPath } from '../lib/cart.js'
 import DeliveryProgress from './DeliveryProgress'
 import QuantityStepper from './QuantityStepper'
 
@@ -55,9 +56,9 @@ function CartDrawer({ open, onClose }) {
             <ul className="cart-lines cart-drawer-lines" aria-label="Cart items">
               {items.map((item) => (
                 <li key={item.key} className={`cart-line product-${item.accent}`}>
-                  <Link to={`/products/${item.slug}`} className="cart-line-art" onClick={onClose} aria-hidden="true" tabIndex={-1}>PETRO</Link>
+                  <Link to={getCartItemPath(item)} className="cart-line-art" onClick={onClose} aria-hidden="true" tabIndex={-1}>PETRO</Link>
                   <div className="cart-line-info">
-                    <Link to={`/products/${item.slug}`} className="cart-line-name" onClick={onClose}>{item.name}</Link>
+                    <Link to={getCartItemPath(item)} className="cart-line-name" onClick={onClose}>{item.name}</Link>
                     <span className="cart-line-variant">{item.variantLabel} · {formatLKR(item.price)} each</span>
                     {item.quantity >= item.stock && <span className="cart-line-limit">Only {item.stock} in stock</span>}
                     <QuantityStepper value={item.quantity} max={item.stock} label={`Quantity for ${item.name} ${item.variantLabel}`} onChange={(quantity) => updateQuantity(item.key, quantity)} />

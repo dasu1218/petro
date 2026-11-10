@@ -294,7 +294,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [ ] **Day 18:** Cart state (add, remove, stepper, subtotal) `[feature/cart]`
 - [x] **Day 19:** Slide-over cart drawer with shipping progress bar `[feature/cart]`
 - [x] **Day 20:** Cart API sync `[feature/cart-api]`
-- [ ] **Day 21:** Bundles section and API `[feature/bundles]`
+- [x] **Day 21:** Bundles section and API `[feature/bundles]`
 
 ### Week 4 – Checkout, Admin, Release
 - [ ] **Day 22:** Checkout page `[feature/checkout]`
@@ -388,6 +388,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 21 | 2026-11-10 | Bundle model and API, home section, Bundles page, savings and component availability, cart integration | Eleven tests pass with mocked database operations; live MongoDB and browser verification remain |
 | 20 | 2026-11-10 | Authenticated cart API, guest merge, account isolation, ordered saves, local recovery and retry | Seven tests pass with mocked database operations; live MongoDB persistence needs verification |
 | 19 | 2026-11-10 | Header cart drawer, quantity controls, removal, and shared free-delivery progress bar | Frontend build and lint passed; checkout remains a later roadmap item |
 | 1 | | | |

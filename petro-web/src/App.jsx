@@ -6,6 +6,7 @@ import AuthProvider from './context/AuthProvider'
 import CartProvider from './context/CartProvider'
 import AccountPage from './pages/AccountPage'
 import CartPage from './pages/CartPage'
+import BundlesPage from './pages/BundlesPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -22,7 +23,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/shop" element={<ShopPage />} />
-              <Route path="/bundles" element={<ShopPage />} />
+              <Route path="/bundles" element={<BundlesPage />} />
               <Route path="/wellness" element={<HomePage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/products/:slug" element={<ProductDetailPage />} />
