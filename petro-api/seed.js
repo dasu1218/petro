@@ -1,4 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import 'dotenv/config';
+import Bundle from './models/Bundle.js';
+import { defaultBundles } from './data/bundles.js';
 import path from 'node:path';
 
 const categories = [
@@ -132,6 +135,7 @@ const products = [
 const seedData = {
   categories,
   products,
+  bundles: defaultBundles,
 };
 
 const outputDir = path.resolve(process.cwd());
@@ -177,6 +181,9 @@ const tryMongoSeed = async () => {
     await Product.deleteMany({});
     await Category.insertMany(categories);
     await Product.insertMany(products);
+    for (const bundle of defaultBundles) {
+      await Bundle.findOneAndUpdate({ slug: bundle.slug }, { $set: bundle }, { upsert: true, runValidators: true });
+    }
 
     console.log('MongoDB seed complete.');
     await mongoose.disconnect();

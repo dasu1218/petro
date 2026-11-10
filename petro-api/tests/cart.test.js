@@ -4,10 +4,14 @@ import express from 'express';
 import User from '../models/User.js';
 import Cart from '../models/Cart.js';
 import cartRoutes from '../routes/cartRoutes.js';
+import bundleRoutes from '../routes/bundleRoutes.js';
+import Bundle from '../models/Bundle.js';
+import { defaultBundles } from '../data/bundles.js';
+import { buildBundleOffer } from '../services/bundles.js';
 import { signToken } from '../utils/token.js';
 import { normalizeCartItems } from '../services/cartItems.js';
 import { errorHandler } from '../middleware/errorHandler.js';
-import { mergeCartItems, readCart } from '../../petro-web/src/lib/cart.js';
+import { getCartItemPath, mergeCartItems, readCart } from '../../petro-web/src/lib/cart.js';
 
 const line = { slug: 'petal-cleanse-shampoo', variantLabel: '250ml', quantity: 2 };
 test('catalog overrides client prices and caps stock', () => {
@@ -43,9 +47,12 @@ test('local recovery handles corrupt data and empty pending carts', () => {
 let server;
 let base;
 const carts = new Map();
+let storedBundles = [];
+const originalBundleFind = Bundle.find;
 const original = { findUser: User.findById, find: Cart.findOne, update: Cart.findOneAndUpdate, delete: Cart.deleteOne };
 before(async () => {
   process.env.JWT_SECRET = 'cart-tests-only-secret';
+  Bundle.find = () => ({ sort: () => ({ lean: async () => storedBundles }) });
   User.findById = async (id) => ({ _id: id });
   Cart.findOne = async ({ user }) => carts.has(user) ? { items: carts.get(user) } : null;
   Cart.findOneAndUpdate = async ({ user }, { $set }) => { carts.set(user, $set.items); };
@@ -53,6 +60,7 @@ before(async () => {
   const app = express();
   app.use(express.json());
   app.use('/api/cart', cartRoutes);
+  app.use('/api/bundles', bundleRoutes);
   app.use(errorHandler);
   server = await new Promise((resolve, reject) => {
     const listener = app.listen(0, '127.0.0.1', (error) => error ? reject(error) : resolve(listener));
@@ -65,6 +73,7 @@ after(async () => {
   Cart.findOne = original.find;
   Cart.findOneAndUpdate = original.update;
   Cart.deleteOne = original.delete;
+  Bundle.find = originalBundleFind;
   if (server) await new Promise((resolve) => server.close(resolve));
 });
 const request = (user, method = 'GET', body) => fetch(base, {
@@ -84,4 +93,63 @@ test('routes save, validate and clear only the authenticated user cart', async (
   assert.equal((await (await request('alice')).json()).items.length, 1);
   await request('alice', 'DELETE');
   assert.deepEqual(await (await request('alice')).json(), { items: [] });
+});
+
+test('bundle offers compute savings and availability from their components', () => {
+  const offer = buildBundleOffer(defaultBundles[0]);
+  assert.equal(offer.regularPrice, 5630);
+  assert.equal(offer.savings, 640);
+  assert.equal(offer.variants[0].stock, 18);
+  assert.equal(offer.items.length, 2);
+  const limited = buildBundleOffer({ ...defaultBundles[0], items: [
+    { slug: line.slug, variantLabel: line.variantLabel, quantity: 3 },
+    { slug: line.slug, variantLabel: line.variantLabel, quantity: 2 },
+  ] });
+  assert.equal(limited.variants[0].stock, 8);
+  assert.equal(limited.items[0].quantity, 5);
+});
+
+test('inactive and invalid bundles are hidden; sold-out bundles remain visible', () => {
+  assert.equal(buildBundleOffer({ ...defaultBundles[0], isActive: false }), null);
+  assert.equal(buildBundleOffer({ ...defaultBundles[0], price: -1 }), null);
+  assert.equal(buildBundleOffer({ ...defaultBundles[0], items: [{ ...line, slug: 'missing' }] }), null);
+  const offer = buildBundleOffer(defaultBundles[0], [
+    { slug: line.slug, name: 'Shampoo', variants: [{ label: '250ml', price: 2450, stock: 0 }] },
+    { slug: 'omega-bites-plus', name: 'Bites', variants: [{ label: '300g', price: 3180, stock: 18 }] },
+  ]);
+  assert.equal(offer.variants[0].stock, 0);
+});
+
+test('bundles list publicly and persist through authenticated cart routes at server prices', async () => {
+  const publicResponse = await fetch(base.replace('/cart', '/bundles'));
+  assert.equal(publicResponse.status, 200);
+  const { bundles } = await publicResponse.json();
+  assert.equal(bundles.length, 2);
+  const bundle = bundles[0];
+  const response = await request('bundle-customer', 'PUT', { items: [{
+    slug: bundle.slug, variantLabel: bundle.variants[0].label, quantity: 999, price: 1,
+  }] });
+  assert.equal(response.status, 200);
+  const { items } = await response.json();
+  assert.equal(items[0].quantity, 18);
+  assert.equal(items[0].price, 4990);
+  assert.equal(items[0].kind, 'bundle');
+  assert.equal(getCartItemPath(items[0]), `/bundles#${bundle.slug}`);
+  assert.equal(getCartItemPath(line), `/products/${line.slug}`);
+  assert.equal((await (await request('bundle-customer')).json()).items[0].kind, 'bundle');
+});
+
+test('stored bundle definitions drive both listing and cart pricing', async () => {
+  storedBundles = [{ ...defaultBundles[0], price: 4500 }];
+  try {
+    const data = await (await fetch(base.replace('/cart', '/bundles'))).json();
+    assert.equal(data.bundles.length, 1);
+    assert.equal(data.bundles[0].variants[0].price, 4500);
+    const response = await request('bundle-customer', 'PUT', { items: [{
+      slug: defaultBundles[0].slug, variantLabel: 'Care bundle', quantity: 1,
+    }] });
+    assert.equal((await response.json()).items[0].price, 4500);
+    storedBundles = [{ ...defaultBundles[0], isActive: false }];
+    assert.deepEqual((await (await fetch(base.replace('/cart', '/bundles'))).json()).bundles, []);
+  } finally { storedBundles = []; }
 });

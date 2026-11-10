@@ -19,3 +19,7 @@ export function mergeCartItems(account, guest) {
   }
   return [...merged.values()]
 }
+
+export function getCartItemPath(item) {
+  return item.kind === 'bundle' ? `/bundles#${item.slug}` : `/products/${item.slug}`
+}

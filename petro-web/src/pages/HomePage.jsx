@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
 import products from '../data/products'
+import BundlesSection from '../components/BundlesSection'
 
 const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundles']
 
@@ -63,7 +64,7 @@ function HomePage() {
               <a href="#shop" className="btn btn-primary btn-large">
               Shop best sellers
               </a>
-              <a href="#bundles" className="btn btn-secondary btn-large">
+              <a href="#care-bundles" className="btn btn-secondary btn-large">
               Explore bundles
               </a>
           </div>
@@ -92,11 +93,11 @@ function HomePage() {
             </div>
             <div className="product-meta">
               <span className="chip">Best Seller</span>
-              <h2>Anti-Dermatitis Duo</h2>
+              <h2>Everyday Care Bundles</h2>
               <div className="product-row">
-                <strong>LKR 4,990</strong>
+                <strong>Better together</strong>
                 <Link to="/bundles" className="btn btn-primary btn-small">
-                  View bundle
+                  View bundles
                 </Link>
               </div>
             </div>
@@ -186,6 +187,8 @@ function HomePage() {
             <p className="empty-products">No featured products in this category yet.</p>
           )}
       </section>
+
+      <BundlesSection preview />
 
       <section className="feature-section" id="wellness">
         {features.map((feature) => (
