@@ -1,6 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+const API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:5001/api'
 
-export async function apiRequest(path, { method = 'GET', body, token } = {}) {
+export async function apiRequest(path, { method = 'GET', body, token, timeoutMs = 30000 } = {}) {
   const headers = {}
   const isFormData = body instanceof FormData
 
@@ -12,16 +12,22 @@ export async function apiRequest(path, { method = 'GET', body, token } = {}) {
     headers.Authorization = `Bearer ${token}`
   }
 
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   let response
 
   try {
     response = await fetch(`${API_URL}${path}`, {
       method,
+      signal: controller.signal,
       headers,
       body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
+    if (controller.signal.aborted) throw new Error('The request timed out. Please try again; for photo uploads, try turning enhancement off.')
     throw new Error('Cannot reach the PETRO API. Is the server running?')
+  } finally {
+    clearTimeout(timer)
   }
 
   const data = await response.json().catch(() => ({}))

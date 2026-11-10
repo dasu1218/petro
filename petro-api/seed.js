@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import 'dotenv/config';
+import './config/env.js';
 import Bundle from './models/Bundle.js';
 import { defaultBundles } from './data/bundles.js';
 import path from 'node:path';
