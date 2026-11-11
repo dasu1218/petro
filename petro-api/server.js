@@ -15,6 +15,7 @@ import Order from './models/Order.js';
 import Inventory from './models/Inventory.js';
 import productRoutes from './routes/productRoutes.js';
 import ProductSettings from './models/ProductSettings.js';
+import adminOrderRoutes from './routes/adminOrderRoutes.js';
 import { isProductImage } from './services/imageUpload.js';
 import { uploadedPhoto } from './services/photoEnhancement.js';
 
@@ -43,6 +44,7 @@ app.use('/api/bundles', bundleRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/admin/orders', adminOrderRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {

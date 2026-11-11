@@ -17,6 +17,9 @@ const schema = new mongoose.Schema({
   totals: { subtotal: Number, delivery: Number, total: Number },
   status: { type: String, enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'placed' },
   paymentStatus: { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' },
+  paidAt: Date,
+  paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  statusHistory: [{ _id: false, status: String, changedAt: Date, changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
 }, { timestamps: true });
 schema.index({ user: 1, requestId: 1 }, { unique: true });
 export default mongoose.models.Order || mongoose.model('Order', schema);

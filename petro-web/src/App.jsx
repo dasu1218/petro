@@ -18,6 +18,7 @@ import RegisterPage from './pages/RegisterPage'
 import ShopPage from './pages/ShopPage'
 import ProductProvider from './context/ProductProvider'
 import AdminProductsPage from './pages/AdminProductsPage'
+import AdminOrdersPage from './pages/AdminOrdersPage'
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
                 <Route path="/orders/:id" element={<OrderPage />} />
                 <Route path="/account" element={<AccountPage />} />
               </Route>
-              <Route element={<ProtectedRoute adminOnly />}><Route path="/admin/products" element={<AdminProductsPage />} /></Route>
+              <Route element={<ProtectedRoute adminOnly />}><Route path="/admin/products" element={<AdminProductsPage />} /><Route path="/admin/orders" element={<AdminOrdersPage />} /></Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
