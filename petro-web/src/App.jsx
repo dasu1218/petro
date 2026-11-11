@@ -19,6 +19,8 @@ import ShopPage from './pages/ShopPage'
 import ProductProvider from './context/ProductProvider'
 import AdminProductsPage from './pages/AdminProductsPage'
 import AdminOrdersPage from './pages/AdminOrdersPage'
+import WishlistProvider from './context/WishlistProvider'
+import WishlistPage from './pages/WishlistPage'
 
 function App() {
   return (
@@ -26,6 +28,7 @@ function App() {
       <AuthProvider>
         <ProductProvider>
           <CartProvider>
+          <WishlistProvider>
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
@@ -40,12 +43,13 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/:id" element={<OrderPage />} />
-                <Route path="/account" element={<AccountPage />} />
+                <Route path="/account" element={<AccountPage />} /><Route path="/wishlist" element={<WishlistPage />} />
               </Route>
               <Route element={<ProtectedRoute adminOnly />}><Route path="/admin/products" element={<AdminProductsPage />} /><Route path="/admin/orders" element={<AdminOrdersPage />} /></Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
+          </WishlistProvider>
           </CartProvider>
         </ProductProvider>
       </AuthProvider>

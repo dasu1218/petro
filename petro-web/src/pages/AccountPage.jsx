@@ -52,7 +52,7 @@ function AccountPage() {
       <AddressBook />
 
       <div className="cta-row account-actions">
-        <Link to="/orders" className="btn btn-primary btn-large">View orders</Link>
+        <Link to="/orders" className="btn btn-primary btn-large">View orders</Link><Link to="/wishlist" className="btn btn-secondary btn-large">My wishlist</Link>
         {user.role === 'admin' && <Link to="/admin/orders" className="btn btn-secondary btn-large">Manage orders</Link>}
         {user.role === 'admin' && <Link to="/admin/products" className="btn btn-secondary btn-large">Manage products</Link>}
         <button type="button" className="btn btn-secondary btn-large" onClick={handleLogout}>
