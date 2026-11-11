@@ -1,3 +1,4 @@
+import WishlistButton from '../components/WishlistButton'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
@@ -166,6 +167,7 @@ function HomePage() {
               </div>
               <div className="product-info">
                 <span className="chip">{product.promotion?.label || product.badges[0]}</span>
+                <WishlistButton slug={product.slug} />
                 <h3>
                   <Link to={`/products/${product.slug}`} className="product-name-link">
                     {product.name}

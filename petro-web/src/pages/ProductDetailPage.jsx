@@ -4,6 +4,8 @@ import QuantityStepper from '../components/QuantityStepper'
 import { useCart } from '../context/cartContext'
 import { useProducts } from '../context/productContext'
 import ProductStatus from '../components/ProductStatus'
+import ProductReviews from '../components/ProductReviews'
+import WishlistButton from '../components/WishlistButton'
 
 const galleryViews = [
   { label: 'Product', kind: 'product' },
@@ -91,10 +93,8 @@ function ProductDetailContent({ product }) {
         <div className="detail-information">
           <span className="eyebrow eyebrow-muted">{product.category}</span>
           <h1>{product.name}</h1>
-          <div className="product-rating" aria-label={`${product.rating} out of 5 from ${product.reviewCount} reviews`}>
-            <strong>{product.rating} / 5</strong>
-            <a href="#product-reviews">{product.reviewCount} reviews</a>
-          </div>
+          <a href="#product-reviews">Read customer reviews</a>
+          <WishlistButton slug={product.slug} />
           {product.promotion && <p className="chip">{product.promotion.label} · {product.promotion.percent}% off</p>}
           <p className="detail-description">{product.description}</p>
 
@@ -176,11 +176,12 @@ function ProductDetailContent({ product }) {
         </div>
       </div>
 
-      <section className="detail-description-section" id="product-reviews">
+      <section className="detail-description-section">
         <span className="eyebrow eyebrow-muted">Product details</span>
         <h2>Thoughtful care, made simple.</h2>
         <p>{product.description} Select the size that best fits your pet's routine.</p>
       </section>
+      <ProductReviews slug={product.slug} />
     </section>
   )
 }

@@ -13,6 +13,10 @@ import orderRoutes from './routes/orderRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import Order from './models/Order.js';
 import Inventory from './models/Inventory.js';
+import Wishlist from './models/Wishlist.js';
+import Review from './models/Review.js';
+import wishlistRoutes from './routes/wishlistRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import ProductSettings from './models/ProductSettings.js';
 import adminOrderRoutes from './routes/adminOrderRoutes.js';
@@ -43,6 +47,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/bundles', bundleRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
 
@@ -73,7 +79,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
-  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init()]);
+  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });
