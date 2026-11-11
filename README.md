@@ -308,7 +308,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 23:** Order API and stock check `[feature/orders]`
 - [x] **Day 24:** Cash on Delivery checkout and order payment details `[feature/payments]` — PayHere/Stripe integration remains a follow-up.
 - [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
-- [ ] **Day 26:** Admin dashboard: product and order management `[feature/admin-dashboard]`
+- [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
 - [ ] **Day 27:** Wishlist and reviews (optional) `[feature/wishlist-reviews]`
 - [ ] **Day 28:** Testing (Jest, Supertest, Vitest, responsive checks) `[feature/testing]`
 - [ ] **Day 29:** Deploy API (Render) and frontend (Vercel) `[release/v1.0.0]`
@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 26 | 2026-11-11 | Admin order list, filtering, pagination, fulfilment progression, cash collection and audit fields; product management retained | 63 tests, build and lint pass; live checks remain; cancellation/refunds deferred |
 | Admin products | 2026-11-10 | Admin photo uploads, variant prices, scheduled percentage promotions, live storefront catalog and cart price refresh | 35 API/service and 16 frontend tests, build and lint pass; configure Cloudinary and grant your own account admin access; live checks remain |
 | 25 | 2026-11-10 | Profile editing, password-confirmed email changes, saved address management, default address and checkout selection; existing order history retained | 31 API/service and 14 frontend tests pass; live MongoDB and browser checks remain; admin status updates pending |
 | 24 | 2026-11-10 | Cash on Delivery selection, server validation, saved payment method, amount due in confirmations, legacy order handling | 24 API/service and 12 frontend tests, build and lint pass; online payments and recording cash collection remain future work; live checks remain |

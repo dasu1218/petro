@@ -29,3 +29,5 @@ Existing orders with no payment method retain that historical value and display 
 ## Verification
 
 Run `npm test` in `petro-api` and `npm test`, `npm run build`, `npm run lint` in `petro-web`. API tests mock MongoDB operations and transaction rollback; they do not prove real MongoDB concurrency or durability. Before release, verify transaction commit/rollback on a replica set, concurrent buyers competing for the last unit, repeated request IDs, ownership, checkout retries, and the confirmation in a browser.
+
+Admin fulfilment progression and COD cash collection are now available through `/api/admin/orders` and `/admin/orders`. See `ADMIN-ORDERS.md` for endpoints, restrictions, and audit fields. Cancellation, refunds, and restocking remain unimplemented.
