@@ -310,7 +310,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
 - [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
 - [x] **Day 27:** Account wishlists and customer reviews `[feature/wishlist-reviews]`
-- [ ] **Day 28:** Testing (Jest, Supertest, Vitest, responsive checks) `[feature/testing]`
+- [ ] **Day 28:** Testing — automated API/frontend verification and CI complete; responsive browser checks pending `[feature/testing]`
 - [ ] **Day 29:** Deploy API (Render) and frontend (Vercel) `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 28 | 2026-11-11 | Auth regression coverage, stricter input validation, root verify command and CI workflow | 74 tests, lint and build pass; live database/browser checks remain; CI awaits push |
 | 27 | 2026-11-11 | Persistent wishlists, save controls, own review editing/deletion, public real review summaries | 68 tests, build and lint pass; live MongoDB and browser verification remain |
 | 26 | 2026-11-11 | Admin order list, filtering, pagination, fulfilment progression, cash collection and audit fields; product management retained | 63 tests, build and lint pass; live checks remain; cancellation/refunds deferred |
 | Admin products | 2026-11-10 | Admin photo uploads, variant prices, scheduled percentage promotions, live storefront catalog and cart price refresh | 35 API/service and 16 frontend tests, build and lint pass; configure Cloudinary and grant your own account admin access; live checks remain |

@@ -1,0 +1,23 @@
+name: Verify Petro
+on:
+  pull_request:
+  push:
+    branches: [main, develop, 'feature/**']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            petro-api/package-lock.json
+            petro-web/package-lock.json
+      - run: npm ci --prefix petro-api
+      - run: npm ci --prefix petro-web
+      - run: npm run verify
