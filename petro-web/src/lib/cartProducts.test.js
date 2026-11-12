@@ -23,3 +23,9 @@ test('renaming a product refreshes cart display names without changing product k
   assert.equal(updated[0].key, original.key)
   assert.equal(updated[0].quantity, original.quantity)
 })
+
+test('explicitly archived products leave the cart but a missing/loading catalog does not clear it', () => {
+  const items = [{ ...item }]
+  assert.equal(refreshCartProducts(items, []), items)
+  assert.deepEqual(refreshCartProducts(items, [], [item.slug]), [])
+})

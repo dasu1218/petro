@@ -11,7 +11,7 @@ export async function getBaseCatalog(session = null) {
 export async function catalogHasProduct(slug) {
   return seedProducts.some((product) => product.slug === slug) || Boolean(await CatalogProduct.exists({ slug }));
 }
-export async function getCatalog(session = null) {
+export async function getCatalog(session = null, { includeArchived = false } = {}) {
   const base = await getBaseCatalog(session);
   const inventory = await Inventory.find({}).session(session).lean();
   const settings = await ProductSettings.find({}).session(session).lean();
@@ -21,5 +21,5 @@ export async function getCatalog(session = null) {
     return { ...product, variants: product.variants.map((variant) => ({
     ...variant, stock: stock.get(`${product.slug}:${variant.label}`) ?? variant.stock,
     })) };
-  });
+  }).filter((product) => includeArchived || !product.isArchived);
 }
