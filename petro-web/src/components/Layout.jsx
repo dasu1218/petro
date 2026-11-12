@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import CartDrawer from './CartDrawer'
+import PageMetadata from './PageMetadata'
+import RouteFocus from './RouteFocus'
 import { useAuth } from '../context/authContext'
 import { useCart } from '../context/cartContext'
 
@@ -19,14 +21,16 @@ function Layout() {
 
   return (
     <div className="app-shell">
+      <PageMetadata /><RouteFocus />
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <header className="topbar">
-        <div className="brand-block">
+        <Link to="/" className="brand-block" aria-label="PETRO home">
           <div className="brand-mark">P</div>
           <div>
             <div className="brand-name">PETRO</div>
             <div className="brand-tag">pet care essentials</div>
           </div>
-        </div>
+        </Link>
 
         <nav className="main-nav" aria-label="Main navigation">
           {navItems.map((item) => (
@@ -67,7 +71,7 @@ function Layout() {
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="page-content">
+      <main className="page-content" id="main-content" tabIndex={-1}>
         <Outlet />
       </main>
 
@@ -77,12 +81,12 @@ function Layout() {
           <span>Premium pet care essentials</span>
         </div>
         <div>
-          <strong>Support</strong>
-          <span>hello@petro.com</span>
+          <strong>Explore</strong>
+          <Link to="/shop">Shop products</Link><Link to="/bundles">Care bundles</Link>
         </div>
         <div>
-          <strong>Hours</strong>
-          <span>Mon - Sat · 8AM - 7PM</span>
+          <strong>Your PETRO</strong>
+          <Link to="/account">My account</Link><Link to="/wishlist">My wishlist</Link>
         </div>
       </footer>
     </div>

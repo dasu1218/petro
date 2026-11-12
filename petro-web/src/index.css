@@ -25,10 +25,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 18%),
-    radial-gradient(circle at bottom right, rgba(13, 148, 136, 0.08), transparent 20%),
-    #faf8f5;
+  background: #fffdfb;
 }
 
 button,
