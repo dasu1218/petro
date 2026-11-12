@@ -18,6 +18,8 @@ import Inventory from './models/Inventory.js';
 import Wishlist from './models/Wishlist.js';
 import Review from './models/Review.js';
 import CatalogProduct from './models/CatalogProduct.js';
+import Restock from './models/Restock.js';
+import inventoryRoutes from './routes/inventoryRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -56,6 +58,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/admin/inventory', inventoryRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {
@@ -84,7 +87,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
-  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init(), CatalogProduct.init()]);
+  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init(), CatalogProduct.init(), Restock.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });

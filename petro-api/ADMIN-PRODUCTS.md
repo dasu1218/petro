@@ -1,6 +1,6 @@
 # Product photos, prices, and promotions
 
-The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking and editing product descriptions after creation are not included in this feature. Admin order management is available separately at /admin/orders.
+The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking is available in the Stock management panel; see RESTOCKING.md. Editing product descriptions after creation is not included in this feature. Admin order management is available separately at /admin/orders.
 
 ## Access and setup
 

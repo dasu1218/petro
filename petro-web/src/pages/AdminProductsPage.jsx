@@ -1,3 +1,4 @@
+import InventoryPanel from '../components/InventoryPanel'
 import NewProductForm from '../components/NewProductForm'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/authContext'
@@ -90,6 +91,6 @@ export default function AdminProductsPage() {
   return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Products & promotions</h1><p>Manage your product photos, size prices, and special offers.</p><button type="button" className="btn btn-primary btn-large" onClick={() => { setCreating(true); setCreatedMessage('') }}>Add new product</button></div>
     {createdMessage && <p role="status">{createdMessage}</p>}
     {creating && <NewProductForm onCancel={() => setCreating(false)} onCreated={(product) => { setSelected(product.slug); setCreating(false); setCreatedMessage(`${product.name} created. Upload photos and save your changes below.`); setResult((current) => ({ ...current, loading: true })); setAttempt((value) => value + 1); reload() }} />}
-    {creating ? null : result.loading ? <p role="status">Loading products…</p> : result.error ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary btn-large" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : <><label className="form-field saved-address-picker"><span>Choose a product</span><select value={product?.slug || ''} onChange={(event) => setSelected(event.target.value)}>{result.products.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}</select></label>{product && <ProductEditor key={product.slug} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} />}</>}
+    {creating ? null : result.loading ? <p role="status">Loading products…</p> : result.error ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary btn-large" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : <><label className="form-field saved-address-picker"><span>Choose a product</span><select value={product?.slug || ''} onChange={(event) => setSelected(event.target.value)}>{result.products.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}</option>)}</select></label>{product && <><ProductEditor key={product.slug} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} /><InventoryPanel key={`stock:${product.slug}`} product={product} onChanged={reload} /></>}</>}
   </section>
 }
