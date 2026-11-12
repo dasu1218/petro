@@ -1659,3 +1659,9 @@
 @media (max-width: 900px) { .shop-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .shop-filters { grid-template-columns: minmax(0, 1fr); padding: 18px; } .shop-search { grid-column: auto; } .shop-filter-options { align-items: flex-start; flex-direction: column; } .shop-filter-options .btn { margin-left: 0; width: 100%; } .shop-pagination { gap: 12px; flex-wrap: wrap; } .shop-pagination .btn { width: auto; min-width: 0; } }
 .new-product-variant { margin-bottom: 20px; padding: 16px 0; border-bottom: 1px solid #e2dcd5; }
+.inventory-panel { margin-top: 48px; }
+.stock-levels { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+.stock-levels > div { flex: 1; min-width: 140px; padding: 16px; border: 1px solid #e2dcd5; border-radius: 12px; background: #f0fdfa; }
+.stock-levels dt { font-weight: 700; }
+.stock-levels dd { margin: 8px 0 0; }
+.stock-history { list-style: none; padding: 0; display: grid; gap: 16px; }
