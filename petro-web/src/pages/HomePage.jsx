@@ -10,16 +10,16 @@ const categories = ['Skin Care', 'Digestion', 'Flea & Tick', 'Nutrition', 'Bundl
 
 const features = [
   {
-    title: 'Clinically guided',
-    text: 'Every formula is built around daily pet wellness and long-term skin support.',
+    title: 'Compare your options',
+    text: 'Explore product descriptions, available sizes, and current prices before choosing.',
   },
   {
-    title: 'Fast local delivery',
-    text: 'Order before 6PM and get trusted essentials to your doorstep in as little as 24 hours.',
+    title: 'Delivery choices',
+    text: 'Choose standard or express delivery and review your delivery total at checkout.',
   },
   {
-    title: 'Pet-first care',
-    text: 'We only stock products designed to support comfort, immunity, and healthy routines.',
+    title: 'Keep favourites close',
+    text: 'Save products to your wishlist and return to them when you are ready to shop.',
   },
 ]
 
@@ -56,7 +56,7 @@ function HomePage() {
     <>
       <section className="hero-section" id="home">
         <div className="hero-copy">
-          <span className="eyebrow">Vet-approved wellness</span>
+          <span className="eyebrow">Everyday pet care</span>
           <h1>Healthy routines for happier pets.</h1>
           <p>
             Care kits, nutrition, and grooming essentials designed to keep your dog or cat
@@ -65,37 +65,37 @@ function HomePage() {
 
           <div className="cta-row">
               <a href="#shop" className="btn btn-primary btn-large">
-              Shop best sellers
+              Shop products
               </a>
               <a href="#care-bundles" className="btn btn-secondary btn-large">
               Explore bundles
               </a>
           </div>
 
-          <div className="mini-stats" aria-label="Store metrics">
+          <div className="mini-stats" aria-label="Shopping features">
             <div>
-              <strong>4.9/5</strong>
-              <span>Average rating</span>
+              <strong>COD</strong>
+              <span>Pay on delivery</span>
             </div>
             <div>
-              <strong>12k+</strong>
-              <span>Happy pets</span>
+              <strong>Wishlist</strong>
+              <span>Save your favourites</span>
             </div>
             <div>
-              <strong>2-day</strong>
-              <span>Delivery</span>
+              <strong>Bundles</strong>
+              <span>Care, together</span>
             </div>
           </div>
         </div>
 
         <div className="hero-visual" aria-label="Featured pet care products">
-          <div className="floating-badge">Free shipping over LKR 4,500</div>
+          <div className="floating-badge">Free standard delivery from LKR 4,500</div>
             <div className="product-showcase card-primary" id="bundles">
             <div className="product-image product-rose">
               <span>🐾</span>
             </div>
             <div className="product-meta">
-              <span className="chip">Best Seller</span>
+              <span className="chip">Care bundles</span>
               <h2>Everyday Care Bundles</h2>
               <div className="product-row">
                 <strong>Better together</strong>
@@ -108,12 +108,12 @@ function HomePage() {
 
           <div className="info-row">
             <div className="mini-card">
-              <span>98%</span>
-              <small>Pet parent satisfaction</small>
+              <span>Sizes</span>
+              <small>Choose your preferred size</small>
             </div>
             <div className="mini-card accent-card">
-              <span>New</span>
-              <small>Glow + gut bundle</small>
+              <span>Reviews</span>
+              <small>Read customer experiences</small>
             </div>
           </div>
         </div>
@@ -147,9 +147,7 @@ function HomePage() {
             <span className="eyebrow eyebrow-muted">Featured picks</span>
             <h2>Care essentials for every routine.</h2>
           </div>
-            <a href="#shop" className="btn btn-secondary">
-            View all products
-            </a>
+            <Link to="/shop" className="btn btn-secondary">View all products</Link>
         </div>
 
           <ProductStatus />
@@ -162,7 +160,7 @@ function HomePage() {
                   className="product-card-link"
                   aria-label={`View ${product.name}`}
                 >
-                  {product.images?.[0] ? <img src={product.images[0].url} alt={product.name} className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
+                  {product.images?.[0] ? <img src={product.images[0].url} alt={product.name} loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
                 </Link>
               </div>
               <div className="product-info">

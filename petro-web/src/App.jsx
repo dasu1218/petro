@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import OrderPage from './pages/OrderPage'
 import OrdersPage from './pages/OrdersPage'
 import HomePage from './pages/HomePage'
+import WellnessPage from './pages/WellnessPage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProductDetailPage from './pages/ProductDetailPage'
@@ -34,7 +35,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/shop" element={<ShopPage />} />
               <Route path="/bundles" element={<BundlesPage />} />
-              <Route path="/wellness" element={<HomePage />} />
+              <Route path="/wellness" element={<WellnessPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/products/:slug" element={<ProductDetailPage />} />
               <Route path="/login" element={<LoginPage />} />
