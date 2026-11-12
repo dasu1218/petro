@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Product details | 2026-11-12 | Admin name, description, category and badge editing; live catalog and cart-name refresh | 104 tests, lint and build pass; live checks remain; URLs and size labels stay fixed |
 | Restocking | 2026-11-12 | Admin stock additions, remaining stock per size, transactional audit history and retry protection | 99 tests, lint and build pass; live MongoDB and browser checks remain |
 | Product creation | 2026-11-12 | Admin product creation, live catalog integration, custom-product cart/orders/wishlist/reviews support | 92 tests, lint and build pass; live checks remain; restocking and product removal are separate work |
 | Shop browsing | 2026-11-12 | Live catalog search, category/price/stock/promotion filters, sorting and URL-based pagination | 87 tests, lint and build pass; client-side filtering for the current catalog; browser checks and publishing remain |

@@ -15,3 +15,11 @@ test('catalog refresh avoids unnecessary cart saves and removes sold-out lines',
   assert.equal(refreshCartProducts(items, [{ slug: 'shampoo', variants: [{ label: '250ml', price: 2000, stock: 10 }] }]), items)
   assert.deepEqual(refreshCartProducts(items, [{ slug: 'shampoo', variants: [{ label: '250ml', price: 2000, stock: 0 }] }]), [])
 })
+
+test('renaming a product refreshes cart display names without changing product keys or quantities', () => {
+  const original = { ...item, name: 'Original name', key: 'shampoo:250ml' }
+  const updated = refreshCartProducts([original], [{ slug: 'shampoo', name: 'Updated name', variants: [{ label: '250ml', price: 2000, stock: 10 }] }])
+  assert.equal(updated[0].name, 'Updated name')
+  assert.equal(updated[0].key, original.key)
+  assert.equal(updated[0].quantity, original.quantity)
+})

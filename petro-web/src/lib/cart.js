@@ -32,8 +32,8 @@ export function refreshCartProducts(items, products) {
     const variant = product?.variants.find((entry) => entry.label === item.variantLabel)
     if (!variant) return [item]
     if (variant.stock <= 0) { changed = true; return [] }
-    const update = { ...item, price: variant.price, stock: variant.stock, quantity: Math.min(item.quantity, variant.stock) }
-    if (item.price !== update.price || item.stock !== update.stock || item.quantity !== update.quantity) changed = true
+    const update = { ...item, name: product.name || item.name, price: variant.price, stock: variant.stock, quantity: Math.min(item.quantity, variant.stock) }
+    if (item.name !== update.name || item.price !== update.price || item.stock !== update.stock || item.quantity !== update.quantity) changed = true
     return [update]
   })
   return changed ? next : items

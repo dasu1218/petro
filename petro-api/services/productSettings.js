@@ -1,3 +1,4 @@
+import { applyProductDetails } from './productDetails.js';
 export const productError = (message) => Object.assign(new Error(message), { status: 400 });
 export function validateProductSettings(body, product) {
   if (!body || !Array.isArray(body.images) || body.images.length > 6) throw productError('Choose up to six product photos');
@@ -45,7 +46,7 @@ export function applyProductSettings(product, settings, now = new Date()) {
   const promo = settings?.promotion;
   const active = Boolean(promo?.enabled && (!promo.startsAt || new Date(promo.startsAt) <= now) && (!promo.endsAt || now < new Date(promo.endsAt)));
   return {
-    ...product,
+    ...applyProductDetails(product, settings),
     images: settings ? settings.images : [],
     promotion: active ? { label: promo.label, percent: promo.percent } : null,
     variants: product.variants.map((variant) => {
