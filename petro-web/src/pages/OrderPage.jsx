@@ -1,3 +1,4 @@
+import OrderTracking from '../components/OrderTracking'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
@@ -25,7 +26,8 @@ function OrderPage() {
   const payment = getOrderPayment(order)
   return (
     <section className="page-panel">
-      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p></div>
+      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult({ order: null, error: '' }); setAttempt((value) => value + 1) }}>Refresh order updates</button></div>
+      <OrderTracking order={order} />
       <div className="checkout-layout">
         <section className="checkout-panel">
           <h2>Delivery details</h2>

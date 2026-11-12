@@ -18,6 +18,7 @@ const schema = new mongoose.Schema({
   status: { type: String, enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'placed' },
   paymentStatus: { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' },
   cancellation: { reason: String, cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, cancelledAt: Date, stockRestored: Boolean },
+  tracking: { carrier: String, number: String, url: String, updatedAt: Date, updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } },
   paidAt: Date,
   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   statusHistory: [{ _id: false, status: String, changedAt: Date, changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
