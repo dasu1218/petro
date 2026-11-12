@@ -311,7 +311,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
 - [x] **Day 27:** Account wishlists and customer reviews `[feature/wishlist-reviews]`
 - [ ] **Day 28:** Testing — automated API/frontend verification and CI complete; responsive browser checks pending `[feature/testing]`
-- [ ] **Day 29:** Deploy API (Render) and frontend (Vercel) `[release/v1.0.0]`
+- [ ] **Day 29:** Render/Vercel configuration ready; publish and verify live deployments `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
 **Overall progress:** `1 / 30 days`
@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 29 preparation | 2026-11-12 | Render blueprint, Vercel SPA routing, production environment checks, exact-origin CORS and deployment guide | 77 tests, lint and build pass; hosting accounts, production URLs and live checks still required |
 | 28 | 2026-11-11 | Auth regression coverage, stricter input validation, root verify command and CI workflow | 74 tests, lint and build pass; live database/browser checks remain; CI awaits push |
 | 27 | 2026-11-11 | Persistent wishlists, save controls, own review editing/deletion, public real review summaries | 68 tests, build and lint pass; live MongoDB and browser verification remain |
 | 26 | 2026-11-11 | Admin order list, filtering, pagination, fulfilment progression, cash collection and audit fields; product management retained | 63 tests, build and lint pass; live checks remain; cancellation/refunds deferred |
@@ -414,6 +415,8 @@ Add one entry per day.
 ---
 
 ## ☁️ Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the Render/Vercel setup, environment settings, and live verification steps. Hosting configurations are prepared; the app has not been published by this change.
 
 - **API:** Render / Railway. Set all env vars in the dashboard, set `CLIENT_URL` to your frontend domain, and allow the host in the MongoDB Atlas IP access list.
 - **Frontend:** Vercel / Netlify. Set `VITE_API_URL` to your deployed API URL. Build command: `npm run build`, output folder: `dist`. Add a rewrite rule so React Router routes work on refresh (all paths to `index.html`).

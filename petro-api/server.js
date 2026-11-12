@@ -1,4 +1,6 @@
 import cors from 'cors';
+import mongoose from 'mongoose';
+import { validateRuntime, corsOrigin } from './config/runtime.js';
 import './config/env.js';
 import express from 'express';
 import multer from 'multer';
@@ -23,6 +25,7 @@ import adminOrderRoutes from './routes/adminOrderRoutes.js';
 import { isProductImage } from './services/imageUpload.js';
 import { uploadedPhoto } from './services/photoEnhancement.js';
 
+const origins = validateRuntime();
 const app = express();
 const port = process.env.PORT || 5001;
 const upload = multer({
@@ -32,14 +35,15 @@ const upload = multer({
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: corsOrigin(origins),
     credentials: true,
   }),
 );
 app.use(express.json());
 
 app.get('/api/health', (_request, response) => {
-  response.json({ status: 'ok' });
+  const ready = mongoose.connection.readyState === 1;
+  response.status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'unavailable' });
 });
 
 app.use('/api/auth', authRoutes);
