@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Shop browsing | 2026-11-12 | Live catalog search, category/price/stock/promotion filters, sorting and URL-based pagination | 87 tests, lint and build pass; client-side filtering for the current catalog; browser checks and publishing remain |
 | 29 preparation | 2026-11-12 | Render blueprint, Vercel SPA routing, production environment checks, exact-origin CORS and deployment guide | 77 tests, lint and build pass; hosting accounts, production URLs and live checks still required |
 | 28 | 2026-11-11 | Auth regression coverage, stricter input validation, root verify command and CI workflow | 74 tests, lint and build pass; live database/browser checks remain; CI awaits push |
 | 27 | 2026-11-11 | Persistent wishlists, save controls, own review editing/deletion, public real review summaries | 68 tests, build and lint pass; live MongoDB and browser verification remain |
