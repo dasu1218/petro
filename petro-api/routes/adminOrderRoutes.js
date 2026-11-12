@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { protect, admin } from '../middleware/auth.js';
 import Order from '../models/Order.js';
 import { publicOrder } from '../services/orders.js';
+import { cancelOrder } from '../services/orderCancellation.js';
 import { ORDER_STATUSES, validateStatusChange } from '../services/orderManagement.js';
 const router = Router();
 router.use(protect, admin);
@@ -37,5 +38,10 @@ router.put('/:id/payment', async (request, response) => {
   }, { new: true, runValidators: true });
   if (!order) return response.status(409).json({ message: 'Only unpaid, delivered Cash on Delivery orders can be marked paid. Refresh to check the latest state.' });
   response.json({ order: publicOrder(order) });
+});
+router.post('/:id/cancel', async (request, response) => {
+  if (!mongoose.isValidObjectId(request.params.id)) return response.status(404).json({ message: 'Order not found' });
+  const result = await cancelOrder(request.params.id, request.user._id, request.body);
+  response.json({ order: publicOrder(result.order), replayed: result.replayed });
 });
 export default router;

@@ -25,13 +25,14 @@ function OrderPage() {
   const payment = getOrderPayment(order)
   return (
     <section className="page-panel">
-      <div className="page-header"><span className="eyebrow eyebrow-muted">Order received</span><h1>Thank you for your order.</h1><p>Order reference: {order._id}</p></div>
+      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p></div>
       <div className="checkout-layout">
         <section className="checkout-panel">
           <h2>Delivery details</h2>
           <address className="order-address"><strong>{order.shippingAddress.fullName}</strong><br />{order.shippingAddress.addressLine1}<br />{order.shippingAddress.addressLine2 && <>{order.shippingAddress.addressLine2}<br /></>}{order.shippingAddress.city}, {order.shippingAddress.postalCode}<br />{order.shippingAddress.country}</address>
           <p>{order.deliveryMethod === 'express' ? 'Express delivery' : 'Standard delivery'}</p>
           <p>Status: <strong>{order.status}</strong></p>
+          {order.status === 'cancelled' && order.cancellation?.reason && <p>Cancellation reason: {order.cancellation.reason}</p>}
           <div className="order-payment">
             <h2>Payment</h2>
             <p><strong>{payment.methodLabel}</strong> · {payment.statusLabel}</p>
