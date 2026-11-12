@@ -24,9 +24,10 @@ export function getCartItemPath(item) {
   return item.kind === 'bundle' ? `/bundles#${item.slug}` : `/products/${item.slug}`
 }
 
-export function refreshCartProducts(items, products) {
+export function refreshCartProducts(items, products, unavailableSlugs = []) {
   let changed = false
   const next = items.flatMap((item) => {
+    if (unavailableSlugs.includes(item.slug)) { changed = true; return [] }
     if (item.kind === 'bundle') return [item]
     const product = products.find((entry) => entry.slug === item.slug)
     const variant = product?.variants.find((entry) => entry.label === item.variantLabel)

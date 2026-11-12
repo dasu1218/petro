@@ -9,7 +9,10 @@ import { getCatalog, getBaseCatalog, catalogHasProduct } from '../services/catal
 import { validateProductSettings } from '../services/productSettings.js';
 import { applyProductDetails, validateProductDetails } from '../services/productDetails.js';
 const router = Router();
-router.get('/', async (_request, response) => response.json({ products: await getCatalog() }));
+router.get('/', async (_request, response) => {
+  const catalog = await getCatalog(null, { includeArchived: true });
+  response.json({ products: catalog.filter((product) => !product.isArchived), unavailableSlugs: catalog.filter((product) => product.isArchived).map((product) => product.slug) });
+});
 router.get('/admin', protect, admin, async (_request, response) => {
   const settings = await ProductSettings.find({}).lean();
   response.json({ products: (await getBaseCatalog()).map((product) => ({ ...applyProductDetails(product, settings.find((entry) => entry.slug === product.slug)), settings: settings.find((entry) => entry.slug === product.slug) || null })) });
@@ -24,6 +27,12 @@ router.post('/', protect, admin, async (request, response) => {
     if (error.code === 11000) return response.status(409).json({ message: 'That product URL is already in use. Choose another.'});
     throw error;
   }
+});
+router.patch('/:slug/availability', protect, admin, async (request, response) => {
+  if (typeof request.body?.isArchived !== 'boolean') return response.status(400).json({ message: 'Choose whether the product is hidden' });
+  if (!await catalogHasProduct(request.params.slug)) return response.status(404).json({ message: 'Product not found' });
+  await ProductSettings.findOneAndUpdate({ slug: request.params.slug }, { $set: { isArchived: request.body.isArchived } }, { upsert: true, runValidators: true });
+  response.json({ isArchived: request.body.isArchived });
 });
 router.patch('/:slug/details', protect, admin, async (request, response) => {
   const product = (await getBaseCatalog()).find((entry) => entry.slug === request.params.slug);

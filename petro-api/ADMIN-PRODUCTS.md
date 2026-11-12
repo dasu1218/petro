@@ -63,3 +63,16 @@ Choose a product and use Product details to edit its name, description, category
 `PATCH /api/products/:slug/details` accepts the complete name, description, category, and badges payload. It requires admin access and whitelists only those fields. Overrides are stored under ProductSettings.details for both seed and admin-created products. Saving details preserves photos, base prices, promotions, stock records, and product/size identifiers. Saving photo/price settings also preserves saved descriptive overrides. Unknown products return 404.
 
 Five new regression tests cover descriptive validation and whitelisting, existing nested defaults, preservation of other settings, public/admin catalog updates, admin-only access, bundle component names, and cart name refresh. The complete verification run passes 104 tests, lint, and build. Database persistence and rendered browser interactions still require a live check.
+
+
+## Hide or restore products
+
+Use Shop visibility in the admin product editor. Hide from shop removes a product from public product listings and details; Restore to shop makes it available again. Hidden products remain in the admin selector with a Hidden label and can still be edited or restocked. This action preserves photos, prices, descriptions, promotions, inventory, reviews, wishlists, and historical order snapshots.
+
+`PATCH /api/products/:slug/availability` requires admin access and a boolean `isArchived` payload. Only the visibility flag changes. Public catalog responses include available products and unavailableSlugs for refreshing saved carts. Bundles containing hidden components are omitted because their included products are unavailable. Restoring a product restores eligible bundles according to their current settings and stock.
+
+Cart synchronization drops stale/unavailable product variants and bundle lines while preserving validation of malformed quantities. Final order validation stays strict and never silently creates an order without a requested line. Guest carts drop explicitly hidden products on catalog refresh. A guest bundle line may remain visible until authenticated synchronization; final order validation still rejects unavailable bundles. Wishlist entries remain saved and show a notice when their products are unavailable. Existing review records remain accessible through the reviews API; hiding a product is not a privacy control.
+
+Public catalogs refresh every minute and on window focus, so another open browser may show an old product temporarily. The server uses current availability when synchronizing carts and placing orders. No permanent product deletion endpoint has been added.
+
+Availability tests cover admin access, boolean validation, public/admin visibility, preservation/restoration of stock and photos, dependent bundles, stale cart cleanup, strict order normalization, and local cart refresh. The full suite has 108 passing tests, plus lint and build. Live database persistence and browser behavior still need verification.

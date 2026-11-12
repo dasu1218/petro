@@ -47,6 +47,7 @@ export function applyProductSettings(product, settings, now = new Date()) {
   const active = Boolean(promo?.enabled && (!promo.startsAt || new Date(promo.startsAt) <= now) && (!promo.endsAt || now < new Date(promo.endsAt)));
   return {
     ...applyProductDetails(product, settings),
+    isArchived: settings?.isArchived === true,
     images: settings ? settings.images : [],
     promotion: active ? { label: promo.label, percent: promo.percent } : null,
     variants: product.variants.map((variant) => {

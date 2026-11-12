@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Product visibility | 2026-11-12 | Admin hide/restore controls, dependent bundle availability, saved cart recovery | 108 tests, lint and build pass; live checks remain; product records and past orders preserved |
 | Product details | 2026-11-12 | Admin name, description, category and badge editing; live catalog and cart-name refresh | 104 tests, lint and build pass; live checks remain; URLs and size labels stay fixed |
 | Restocking | 2026-11-12 | Admin stock additions, remaining stock per size, transactional audit history and retry protection | 99 tests, lint and build pass; live MongoDB and browser checks remain |
 | Product creation | 2026-11-12 | Admin product creation, live catalog integration, custom-product cart/orders/wishlist/reviews support | 92 tests, lint and build pass; live checks remain; restocking and product removal are separate work |
