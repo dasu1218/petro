@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import { before, beforeEach, after, test } from 'node:test';
+import express from 'express';
+import CatalogProduct from '../models/CatalogProduct.js';
+import ProductSettings from '../models/ProductSettings.js';
+import Inventory from '../models/Inventory.js';
+import Bundle from '../models/Bundle.js';
+import User from '../models/User.js';
+import routes from '../routes/productRoutes.js';
+import { validateNewProduct } from '../services/newProduct.js';
+import { catalogHasProduct } from '../services/catalog.js';
+import { errorHandler } from '../middleware/errorHandler.js';
+import { signToken } from '../utils/token.js';
+const body = () => ({ slug:'new-care-shampoo',name:' New Care Shampoo ',description:'Daily grooming shampoo.',category:'skin-care',variants:[{label:'250ml',price:2500,stock:5}],badges:['New'] });
+test('new products whitelist editable fields and validate variant quantities and unique labels',()=>{
+ const product=validateNewProduct({...body(),role:'admin',isFeatured:true});assert.equal(product.name,'New Care Shampoo');assert.equal(product.role,undefined);assert.equal(product.isFeatured,false);
+ for(const patch of [{slug:'Bad URL'},{category:'unknown'},{variants:[]},{variants:[{label:'250ml',price:-1,stock:5}]},{variants:[{label:'250ml',price:2500,stock:-1}]},{variants:[...body().variants,{label:'250ML',price:1,stock:1}]}])assert.throws(()=>validateNewProduct({...body(),...patch}),{status:400});
+});
+let entries, settings, server, base;
+const original={cf:CatalogProduct.find,ce:CatalogProduct.exists,cc:CatalogProduct.create,sf:ProductSettings.find,su:ProductSettings.findOneAndUpdate,inv:Inventory.find,b:Bundle.exists,u:User.findById};
+beforeEach(()=>{entries=[];settings=[];});
+before(async()=>{
+ process.env.JWT_SECRET='new-products-tests';
+ CatalogProduct.find=()=>({sort:()=>({session:()=>({lean:async()=>entries})})});
+ CatalogProduct.exists=async({slug})=>entries.some((entry)=>entry.slug===slug);
+ CatalogProduct.create=async(data)=>{entries.push(data);return data;};
+ ProductSettings.find=()=>({lean:async()=>settings,session:()=>({lean:async()=>settings})});
+ ProductSettings.findOneAndUpdate=async({slug},{$set})=>{settings=[{slug,...$set}];};
+ Inventory.find=()=>({session:()=>({lean:async()=>[]})});Bundle.exists=async()=>false;
+ User.findById=async(id)=>({_id:id,role:id==='admin'?'admin':'customer'});
+ const app=express();app.use(express.json());app.use('/products',routes);app.use(errorHandler);
+ server=await new Promise((resolve,reject)=>{const s=app.listen(0,'127.0.0.1',(error)=>error?reject(error):resolve(s));s.on('error',reject);});base=`http://127.0.0.1:${server.address().port}/products`;
+});
+after(async()=>{CatalogProduct.find=original.cf;CatalogProduct.exists=original.ce;CatalogProduct.create=original.cc;ProductSettings.find=original.sf;ProductSettings.findOneAndUpdate=original.su;Inventory.find=original.inv;Bundle.exists=original.b;User.findById=original.u;if(server)await new Promise((resolve)=>server.close(resolve));});
+const request=(path='',method='GET',payload,user='admin')=>fetch(base+path,{method,headers:{'Content-Type':'application/json',...(user?{Authorization:`Bearer ${signToken(user)}`}:{})},body:payload===undefined?undefined:JSON.stringify(payload)});
+test('only admins can create products and duplicate or reserved URLs are rejected',async()=>{
+ assert.equal((await request('','POST',body(),null)).status,401);assert.equal((await request('','POST',body(),'customer')).status,403);
+ assert.equal((await request('','POST',body())).status,201);assert.equal((await request('','POST',body())).status,409);
+ assert.equal((await request('','POST',{...body(),slug:'petal-cleanse-shampoo'})).status,409);
+ assert.equal((await request('','POST',{...body(),slug:'anti-dermatitis-duo'})).status,409);
+});
+test('created products appear in public and admin catalogs and support photos, price changes and offers',async()=>{
+ await request('','POST',body());
+ assert.ok(await catalogHasProduct(body().slug));
+ const publicData=await(await request()).json();assert.ok(publicData.products.some((product)=>product.slug===body().slug));
+ const adminData=await(await request('/admin')).json();assert.ok(adminData.products.some((product)=>product.slug===body().slug));
+ const update={images:[],prices:[{label:'250ml',price:2000}],promotion:{enabled:true,label:'Launch',percent:10}};
+ assert.equal((await request(`/${body().slug}`,'PUT',update)).status,200);
+ const updated=(await(await request()).json()).products.find((product)=>product.slug===body().slug);
+ assert.equal(updated.variants[0].price,1800);assert.equal(updated.variants[0].stock,5);
+});

@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth.js';
 import Review from '../models/Review.js';
-import { seedProducts } from '../services/catalog.js';
+import { catalogHasProduct } from '../services/catalog.js';
 import { publicReview, validateReview } from '../services/reviews.js';
 const router = Router();
-router.param('slug', (request, response, next, slug) => seedProducts.some((product) => product.slug === slug) ? next() : response.status(404).json({ message: 'Product not found' }));
+router.param('slug', async (request, response, next, slug) => {
+  try { if (await catalogHasProduct(slug)) return next(); return response.status(404).json({ message: 'Product not found' }); } catch (error) { next(error); }
+});
 router.get('/:slug/mine', protect, async (request, response) => {
   const review = await Review.findOne({ user: request.user._id, slug: request.params.slug });
   response.json({ review: review ? publicReview(review) : null });

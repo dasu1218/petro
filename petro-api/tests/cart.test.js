@@ -1,3 +1,4 @@
+import CatalogProduct from '../models/CatalogProduct.js';
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import express from 'express';
@@ -59,7 +60,11 @@ const originalOrderFind = Order.find;
 const originalOrderFindOne = Order.findOne;
 const savedOrder = { _id: '507f1f77bcf86cd799439011', user: 'alice', requestId: 'private-id', requestHash: 'private-hash', totals: { total: 2800 } };
 const original = { findUser: User.findById, find: Cart.findOne, update: Cart.findOneAndUpdate, delete: Cart.deleteOne };
+const originalCatalogFind = CatalogProduct.find;
+const originalCatalogExists = CatalogProduct.exists;
 before(async () => {
+  CatalogProduct.find = () => ({ sort: () => ({ session: () => ({ lean: async () => [] }) }) });
+  CatalogProduct.exists = async () => false;
   process.env.JWT_SECRET = 'cart-tests-only-secret';
   Bundle.find = () => ({ sort: () => ({ session: () => ({ lean: async () => storedBundles }) }) });
   Inventory.find = () => ({ session: () => ({ lean: async () => [] }) });
@@ -83,6 +88,8 @@ before(async () => {
   base = `http://127.0.0.1:${server.address().port}/api/cart`;
 });
 after(async () => {
+  CatalogProduct.find = originalCatalogFind;
+  CatalogProduct.exists = originalCatalogExists;
   User.findById = original.findUser;
   Cart.findOne = original.find;
   Cart.findOneAndUpdate = original.update;

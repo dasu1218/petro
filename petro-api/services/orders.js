@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Inventory from '../models/Inventory.js';
-import { getCatalog, seedProducts } from './catalog.js';
+import { getCatalog } from './catalog.js';
 import { getBundleOffers } from './bundles.js';
 import { buildOrderPlan, orderError, validateOrderRequest } from './orderPlan.js';
 
@@ -27,7 +27,7 @@ export async function placeOrder(userId, body, dependencies = orderDependencies)
       const bundles = await dependencies.getBundleOffers(catalog, session);
       const plan = buildOrderPlan(request, catalog, bundles);
       for (const [key, quantity] of [...plan.demand].sort(([a], [b]) => a.localeCompare(b))) {
-        const initial = seedProducts.flatMap((product) => product.variants.map((variant) => ({ key: `${product.slug}:${variant.label}`, stock: variant.stock }))).find((entry) => entry.key === key);
+        const initial = catalog.flatMap((product) => product.variants.map((variant) => ({ key: `${product.slug}:${variant.label}`, stock: variant.stock }))).find((entry) => entry.key === key);
         if (!initial) throw orderError('Product is unavailable', 409);
         await Inventory.updateOne({ key }, { $setOnInsert: { stock: initial.stock } }, { upsert: true, session });
         const result = await Inventory.updateOne({ key, stock: { $gte: quantity } }, { $inc: { stock: -quantity } }, { session });

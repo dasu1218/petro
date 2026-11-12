@@ -1,6 +1,6 @@
 # Product photos, prices, and promotions
 
-The admin page is `/admin/products`, also linked from My Account for admins. It manages the existing eight catalog products. Creating new products, changing inventory, and admin order management are separate features.
+The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking and editing product descriptions after creation are not included in this feature. Admin order management is available separately at /admin/orders.
 
 ## Access and setup
 
@@ -43,3 +43,14 @@ The response includes `url`, `publicId`, `originalUrl`, and (when enhanced) `enh
 Enhancement failures leave the product unchanged and show an error. Retry or disable enhancement for another upload. The original asset may already exist in Cloudinary after a failed transformation. Cloudinary transformation usage applies to generated copies. See the official transformation reference: https://cloudinary.com/documentation/transformation_reference#improve
 
 Enhancement tests mock Cloudinary and check eager upload options, result selection, preserved originals, validation, and error propagation. A real upload still needs verification against the configured Cloudinary account.
+
+
+## Add a new product
+
+On Manage products, click Add new product. Enter its name, a unique lowercase URL name, description, category, optional badges, and 1–10 sizes. Each size needs a unique label, whole-LKR price, and nonnegative initial stock. Products appear in the shop immediately after creation; use zero stock if you are not ready to sell. Then upload photos, choose the main photo, set any promotion, and Save product in the existing editor.
+
+`POST /api/products` is admin-only. It validates and whitelists fields, rejects duplicate seed/custom/bundle URL names, and stores products in CatalogProduct documents with a unique slug index. The public and admin catalogs combine these documents with the existing seed products. Actual .env values, user roles, and request-supplied internal fields cannot be set through creation. Product URLs and size labels are fixed after creation; the editor updates photos, prices, and offers.
+
+Cart normalization, wishlist/review existence checks, bundle component lookup, and transactional stock reservation all support persisted products outside the seed file. Initial inventory is taken from the product's variant when first reserved. Orders retain their original product and price snapshots. Existing seed commands do not delete CatalogProduct documents.
+
+New-product tests mock database persistence and cover admin access, validation, duplicate/reserved URLs, catalog visibility, promotions, and ordering a non-seed product. Live persistence, creation forms, uploads, and concurrent last-unit checks still require verification.
