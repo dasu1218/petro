@@ -4,9 +4,14 @@ import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
 import { formatLKR } from '../lib/format'
 import { getOrderPayment } from '../lib/payment.js'
+import { canCancelOrder } from '../lib/orderActions.js'
+import { useProducts } from '../context/productContext'
 const nextStatus = { placed: 'processing', processing: 'shipped', shipped: 'delivered' }
 export default function AdminOrdersPage() {
   const { token } = useAuth()
+  const { reload } = useProducts()
+  const [cancelId, setCancelId] = useState(null)
+  const [cancelReason, setCancelReason] = useState('')
   const [filter, setFilter] = useState({ status: '', page: 1 })
   const [result, setResult] = useState({ orders: [], hasMore: false, loading: true, error: '' })
   const [attempt, setAttempt] = useState(0)
@@ -24,8 +29,9 @@ export default function AdminOrdersPage() {
     if (busy) return
     setBusy(true); setActionError(''); setFeedback('')
     try {
-      await apiRequest(`/admin/orders/${order._id}/${type}`, { method: 'PUT', token, body })
-      setFeedback(type === 'payment' ? 'Cash collection recorded.' : 'Order status updated.')
+      await apiRequest(`/admin/orders/${order._id}/${type}`, { method: type === 'cancel' ? 'POST' : 'PUT', token, body })
+      setFeedback(type === 'cancel' ? 'Order cancelled and reserved stock restored.' : type === 'payment' ? 'Cash collection recorded.' : 'Order status updated.')
+      if (type === 'cancel') { setCancelId(null); setCancelReason(''); reload() }
       setConfirmCash(null); refresh()
     } catch (error) { setActionError(error.message); refresh() } finally { setBusy(false) }
   }
@@ -39,7 +45,10 @@ export default function AdminOrdersPage() {
         return <article key={order._id} className="checkout-panel"><h2>Order {order._id}</h2><p>Status: <strong>{order.status}</strong> · {payment.methodLabel} · {payment.statusLabel}</p><p>Total: <strong>{formatLKR(order.totals.total)}</strong></p>
           <details><summary>Items and delivery details</summary><address className="order-address">{order.shippingAddress.fullName}<br />{order.shippingAddress.addressLine1}<br />{order.shippingAddress.addressLine2 && <>{order.shippingAddress.addressLine2}<br /></>}{order.shippingAddress.city}, {order.shippingAddress.postalCode}<br />{order.shippingAddress.country}</address><p>{order.shippingAddress.phone}<br />{order.shippingAddress.email}</p><ul>{order.items.map((item) => <li key={`${item.slug}:${item.variantLabel}`}>{item.quantity} × {item.name} ({item.variantLabel}) · {formatLKR(item.price * item.quantity)}</li>)}</ul><p>{order.deliveryMethod} delivery</p></details>
           <div className="cta-row account-actions">{nextStatus[order.status] && <button type="button" disabled={busy} className="btn btn-primary btn-large" onClick={() => update(order, 'status', { status: nextStatus[order.status] })}>Mark {nextStatus[order.status]}</button>}
+          {canCancelOrder(order) && <button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => { setCancelId(order._id); setCancelReason(''); setConfirmCash(null) }}>Cancel order</button>}
           {order.status === 'delivered' && order.paymentMethod === 'cod' && order.paymentStatus === 'unpaid' && <button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => setConfirmCash(order._id)}>Record cash collected</button>}</div>
+          {order.status === 'cancelled' && order.cancellation?.reason && <p>Cancellation reason: {order.cancellation.reason}</p>}
+          {cancelId === order._id && canCancelOrder(order) && <form className="checkout-panel cancel-order-form" onSubmit={(event) => { event.preventDefault(); update(order, 'cancel', { reason: cancelReason }) }}><fieldset disabled={busy}><legend>Confirm order cancellation</legend><p>This cancels the order and restores the reserved product and bundle stock. The order record is kept.</p><label className="form-field"><span>Cancellation reason (shown to the customer)</span><textarea rows={3} maxLength={200} required value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} /></label>{actionError && <p className="form-error" role="alert">{actionError}</p>}<div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">Confirm cancellation</button><button type="button" className="btn btn-secondary btn-large" onClick={() => setCancelId(null)}>Keep order</button></div></fieldset></form>}
           {confirmCash === order._id && <div className="order-payment"><p>Confirm that you received the full {formatLKR(order.totals.total)} in cash for this order.</p><div className="cta-row"><button type="button" disabled={busy} className="btn btn-primary btn-large" onClick={() => update(order, 'payment', { paymentStatus: 'paid' })}>Confirm cash received</button><button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => setConfirmCash(null)}>Cancel</button></div></div>}
         </article>
       })}</div><div className="cta-row account-actions"><button type="button" className="btn btn-secondary btn-large" disabled={busy || filter.page === 1} onClick={() => { setFilter((current) => ({ ...current, page: current.page - 1 })); setResult((current) => ({ ...current, loading: true })) }}>Previous</button><span>Page {filter.page}</span><button type="button" className="btn btn-secondary btn-large" disabled={busy || !result.hasMore} onClick={() => { setFilter((current) => ({ ...current, page: current.page + 1 })); setResult((current) => ({ ...current, loading: true })) }}>Next</button></div>

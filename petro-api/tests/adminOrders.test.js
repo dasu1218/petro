@@ -33,7 +33,7 @@ test('fulfilment is sequential and terminal states cannot change', () => {
   for (const [from, to] of [['placed','delivered'], ['shipped','placed'], ['delivered','processing'], ['cancelled','placed'], ['placed','cancelled']]) assert.throws(() => validateStatusChange(from,to), { status: 409 });
 });
 test('customers and anonymous users cannot list orders or mutate status or payment', async () => {
-  for (const [path, method] of [['','GET'], [`/${id}/status`,'PUT'], [`/${id}/payment`,'PUT']]) {
+  for (const [path, method] of [['','GET'], [`/${id}/status`,'PUT'], [`/${id}/payment`,'PUT'], [`/${id}/cancel`,'POST']]) {
     assert.equal((await request(path,method,undefined,null)).status,401);
     assert.equal((await request(path,method,undefined,'customer')).status,403);
   }

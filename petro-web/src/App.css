@@ -1667,3 +1667,6 @@
 .stock-history { list-style: none; padding: 0; display: grid; gap: 16px; }
 .product-details-editor { margin-bottom: 32px; }
 .product-availability { margin-bottom: 32px; }
+.cancel-order-form { margin-top: 20px; background: #fff7ed; }
+.cancel-order-form fieldset { border: 0; padding: 0; min-width: 0; }
+.cancel-order-form legend { font-weight: 700; }
