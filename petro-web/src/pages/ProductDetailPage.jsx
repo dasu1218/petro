@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
 import { useCart } from '../context/cartContext'
-import products from '../data/products'
+import { useProducts } from '../context/productContext'
+import ProductStatus from '../components/ProductStatus'
+import ProductReviews from '../components/ProductReviews'
+import WishlistButton from '../components/WishlistButton'
 
 const galleryViews = [
   { label: 'Product', kind: 'product' },
@@ -10,9 +13,8 @@ const galleryViews = [
   { label: 'Size guide', kind: 'size' },
 ]
 
-function ProductDetailPage() {
-  const { slug } = useParams()
-  const product = products.find((item) => item.slug === slug)
+function ProductDetailContent({ product }) {
+  const [photoIndex, setPhotoIndex] = useState(0)
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0)
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
@@ -51,7 +53,7 @@ function ProductDetailPage() {
             role="img"
             aria-label={`${product.name} ${activeGalleryView.label.toLowerCase()} view`}
           >
-            {activeGalleryView.kind === 'formula' ? (
+            {activeGalleryView.kind === 'product' && product.images?.length ? <img className="detail-photo" src={product.images[photoIndex]?.url || product.images[0].url} alt={product.name} /> : activeGalleryView.kind === 'formula' ? (
               <div className="formula-art">
                 <span className="eyebrow eyebrow-muted">Made for daily care</span>
                 <strong>{product.badges.join(' · ')}</strong>
@@ -69,6 +71,7 @@ function ProductDetailPage() {
             )}
           </div>
 
+          {product.images?.length > 1 && <div className="photo-thumbnails">{product.images.map((photo, index) => <button type="button" key={photo.publicId} aria-label={`Show photo ${index + 1}`} aria-pressed={photoIndex === index} onClick={() => { setPhotoIndex(index); setActiveGalleryIndex(0) }}><img src={photo.url} alt="" /></button>)}</div>}
           <div className="detail-gallery-thumbnails" aria-label="Product gallery">
             {galleryViews.map((view, index) => (
               <button
@@ -90,10 +93,9 @@ function ProductDetailPage() {
         <div className="detail-information">
           <span className="eyebrow eyebrow-muted">{product.category}</span>
           <h1>{product.name}</h1>
-          <div className="product-rating" aria-label={`${product.rating} out of 5 from ${product.reviewCount} reviews`}>
-            <strong>{product.rating} / 5</strong>
-            <a href="#product-reviews">{product.reviewCount} reviews</a>
-          </div>
+          <a href="#product-reviews">Read customer reviews</a>
+          <WishlistButton slug={product.slug} />
+          {product.promotion && <p className="chip">{product.promotion.label} · {product.promotion.percent}% off</p>}
           <p className="detail-description">{product.description}</p>
 
           <div className="detail-badges" aria-label="Product benefits">
@@ -127,6 +129,7 @@ function ProductDetailPage() {
           <div className="detail-purchase-row">
             <div>
               <span className="detail-price-label">Price</span>
+              {selectedVariant.regularPrice > selectedVariant.price && <del>LKR {selectedVariant.regularPrice.toLocaleString('en-LK')}</del>}
               <strong className="detail-price">LKR {selectedVariant.price.toLocaleString('en-LK')}</strong>
             </div>
             <span className="stock-status">
@@ -173,13 +176,20 @@ function ProductDetailPage() {
         </div>
       </div>
 
-      <section className="detail-description-section" id="product-reviews">
+      <section className="detail-description-section">
         <span className="eyebrow eyebrow-muted">Product details</span>
         <h2>Thoughtful care, made simple.</h2>
         <p>{product.description} Select the size that best fits your pet's routine.</p>
       </section>
+      <ProductReviews slug={product.slug} />
     </section>
   )
 }
 
+function ProductDetailPage() {
+  const { slug } = useParams()
+  const { products, loading, error } = useProducts()
+  if (loading || error) return <section className="page-panel"><ProductStatus /></section>
+  return <ProductDetailContent key={slug} product={products.find((item) => item.slug === slug)} />
+}
 export default ProductDetailPage

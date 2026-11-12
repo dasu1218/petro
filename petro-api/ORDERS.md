@@ -12,6 +12,8 @@ Order placement requires MongoDB Atlas or another deployment supporting multi-do
 
 Inventory records store remaining stock by `slug:variantLabel`. A missing record starts from the product seed catalog on its first reservation. Product prices and initial stock still come from `seed-data.json`; Bundle definitions use MongoDB with the existing curated fallback. Cart loading and bundle listing overlay remaining Inventory stock. The static frontend product catalog may display older stock; the order API always checks the final available quantity.
 
+ProductSettings now overrides product photos and base prices and applies active scheduled promotions. The storefront uses the live catalog and periodically refreshes it. Order placement uses these same effective prices; saved orders retain their original price snapshots. See `ADMIN-PRODUCTS.md`.
+
 Each order expands bundle quantities into their product components, combines demand across all individual and bundle lines, and rejects shortages. Within one transaction, conditional stock updates decrement each component and an immutable order snapshot is inserted. A failure aborts both operations. Order cancellation and restocking are not implemented; do not adjust status manually expecting inventory to be restored. Existing development seed commands do not reset Inventory or Orders.
 
 ## Retry behavior
@@ -27,3 +29,5 @@ Existing orders with no payment method retain that historical value and display 
 ## Verification
 
 Run `npm test` in `petro-api` and `npm test`, `npm run build`, `npm run lint` in `petro-web`. API tests mock MongoDB operations and transaction rollback; they do not prove real MongoDB concurrency or durability. Before release, verify transaction commit/rollback on a replica set, concurrent buyers competing for the last unit, repeated request IDs, ownership, checkout retries, and the confirmation in a browser.
+
+Admin fulfilment progression and COD cash collection are now available through `/api/admin/orders` and `/admin/orders`. See `ADMIN-ORDERS.md` for endpoints, restrictions, and audit fields. Cancellation, refunds, and restocking remain unimplemented.

@@ -1,5 +1,7 @@
 import cors from 'cors';
-import 'dotenv/config';
+import mongoose from 'mongoose';
+import { validateRuntime, corsOrigin } from './config/runtime.js';
+import './config/env.js';
 import express from 'express';
 import multer from 'multer';
 import { uploadToCloudinary } from './config/cloudinary.js';
@@ -10,9 +12,20 @@ import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import bundleRoutes from './routes/bundleRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 import Order from './models/Order.js';
 import Inventory from './models/Inventory.js';
+import Wishlist from './models/Wishlist.js';
+import Review from './models/Review.js';
+import wishlistRoutes from './routes/wishlistRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import ProductSettings from './models/ProductSettings.js';
+import adminOrderRoutes from './routes/adminOrderRoutes.js';
+import { isProductImage } from './services/imageUpload.js';
+import { uploadedPhoto } from './services/photoEnhancement.js';
 
+const origins = validateRuntime();
 const app = express();
 const port = process.env.PORT || 5001;
 const upload = multer({
@@ -22,20 +35,26 @@ const upload = multer({
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: corsOrigin(origins),
     credentials: true,
   }),
 );
 app.use(express.json());
 
 app.get('/api/health', (_request, response) => {
-  response.json({ status: 'ok' });
+  const ready = mongoose.connection.readyState === 1;
+  response.status(ready ? 200 : 503).json({ status: ready ? 'ok' : 'unavailable' });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/bundles', bundleRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/admin/orders', adminOrderRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {
   try {
@@ -43,12 +62,12 @@ app.post('/api/upload', protect, admin, upload.single('image'), async (request, 
       return response.status(400).json({ message: 'Image file is required' });
     }
 
-    const result = await uploadToCloudinary(request.file.buffer, 'petro');
+    if (!isProductImage(request.file.buffer)) return response.status(400).json({ message: 'Choose a JPG, PNG, or WebP image' });
 
-    return response.status(201).json({
-      url: result.secure_url || result.url,
-      publicId: result.public_id,
-    });
+    const enhance = request.body?.enhance !== 'false';
+    if (request.body?.enhance !== undefined && !['true', 'false'].includes(request.body.enhance)) return response.status(400).json({ message: 'Invalid photo enhancement option' });
+    const result = await uploadToCloudinary(request.file.buffer, 'petro', enhance);
+    return response.status(201).json(uploadedPhoto(result, enhance));
   } catch (error) {
     return response.status(500).json({
       message: error.message || 'Image upload failed',
@@ -64,7 +83,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
-  await Promise.all([Order.init(), Inventory.init()]);
+  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });

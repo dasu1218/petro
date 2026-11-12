@@ -197,11 +197,17 @@ Base URL: `/api`
 | POST | `/auth/register` | Create account | – |
 | POST | `/auth/login` | Login, returns JWT | – |
 | GET | `/auth/me` | Current user | ✅ |
+| PUT | `/profile` | Edit name and email (current password required for email changes) | ✅ |
+| POST | `/profile/addresses` | Save a delivery address | ✅ |
+| PUT / DELETE | `/profile/addresses/:id` | Edit or delete an owned address | ✅ |
+| PATCH | `/profile/addresses/:id/default` | Set the default delivery address | ✅ |
 | GET | `/products` | List (search, filter, sort, page) | – |
+| GET | `/products/admin` | Catalog and editable photo, price, and promotion settings | 🔑 Admin |
 | GET | `/health` | API health check | – |
 | GET | `/products/:id` | Product details | – |
 | POST | `/products` | Create product | 🔑 Admin |
 | PUT | `/products/:id` | Update product | 🔑 Admin |
+| PUT | `/products/:slug` | Save photos, variant prices, and scheduled promotion for an existing product | 🔑 Admin |
 | DELETE | `/products/:id` | Delete product | 🔑 Admin |
 | POST | `/upload` | Upload image to Cloudinary | 🔑 Admin |
 | GET | `/categories` | List categories | – |
@@ -301,11 +307,11 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 22:** Checkout page `[feature/checkout]`
 - [x] **Day 23:** Order API and stock check `[feature/orders]`
 - [x] **Day 24:** Cash on Delivery checkout and order payment details `[feature/payments]` — PayHere/Stripe integration remains a follow-up.
-- [ ] **Day 25:** Orders and Profile pages `[feature/orders]` `[feature/profile]`
-- [ ] **Day 26:** Admin dashboard: product and order management `[feature/admin-dashboard]`
-- [ ] **Day 27:** Wishlist and reviews (optional) `[feature/wishlist-reviews]`
-- [ ] **Day 28:** Testing (Jest, Supertest, Vitest, responsive checks) `[feature/testing]`
-- [ ] **Day 29:** Deploy API (Render) and frontend (Vercel) `[release/v1.0.0]`
+- [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
+- [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
+- [x] **Day 27:** Account wishlists and customer reviews `[feature/wishlist-reviews]`
+- [ ] **Day 28:** Testing — automated API/frontend verification and CI complete; responsive browser checks pending `[feature/testing]`
+- [ ] **Day 29:** Render/Vercel configuration ready; publish and verify live deployments `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
 **Overall progress:** `1 / 30 days`
@@ -389,6 +395,12 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| 29 preparation | 2026-11-12 | Render blueprint, Vercel SPA routing, production environment checks, exact-origin CORS and deployment guide | 77 tests, lint and build pass; hosting accounts, production URLs and live checks still required |
+| 28 | 2026-11-11 | Auth regression coverage, stricter input validation, root verify command and CI workflow | 74 tests, lint and build pass; live database/browser checks remain; CI awaits push |
+| 27 | 2026-11-11 | Persistent wishlists, save controls, own review editing/deletion, public real review summaries | 68 tests, build and lint pass; live MongoDB and browser verification remain |
+| 26 | 2026-11-11 | Admin order list, filtering, pagination, fulfilment progression, cash collection and audit fields; product management retained | 63 tests, build and lint pass; live checks remain; cancellation/refunds deferred |
+| Admin products | 2026-11-10 | Admin photo uploads, variant prices, scheduled percentage promotions, live storefront catalog and cart price refresh | 35 API/service and 16 frontend tests, build and lint pass; configure Cloudinary and grant your own account admin access; live checks remain |
+| 25 | 2026-11-10 | Profile editing, password-confirmed email changes, saved address management, default address and checkout selection; existing order history retained | 31 API/service and 14 frontend tests pass; live MongoDB and browser checks remain; admin status updates pending |
 | 24 | 2026-11-10 | Cash on Delivery selection, server validation, saved payment method, amount due in confirmations, legacy order handling | 24 API/service and 12 frontend tests, build and lint pass; online payments and recording cash collection remain future work; live checks remain |
 | 23 | 2026-11-10 | Transactional orders, shared component stock, canonical totals, idempotent retries, confirmation and recent orders | Mocked API/service and checkout tests pass; live replica-set transaction and browser checks remain; orders start unpaid |
 | 22 | 2026-11-10 | Protected checkout, address validation, delivery selection, estimated totals, review step, cart entry links | Seven checkout tests, build and lint pass; order placement is Day 23; browser verification remains |
@@ -403,6 +415,8 @@ Add one entry per day.
 ---
 
 ## ☁️ Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the Render/Vercel setup, environment settings, and live verification steps. Hosting configurations are prepared; the app has not been published by this change.
 
 - **API:** Render / Railway. Set all env vars in the dashboard, set `CLIENT_URL` to your frontend domain, and allow the host in the MongoDB Atlas IP access list.
 - **Frontend:** Vercel / Netlify. Set `VITE_API_URL` to your deployed API URL. Build command: `npm run build`, output folder: `dist`. Add a rewrite rule so React Router routes work on refresh (all paths to `index.html`).
