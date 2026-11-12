@@ -1,6 +1,6 @@
 # Product photos, prices, and promotions
 
-The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking is available in the Stock management panel; see RESTOCKING.md. Editing product descriptions after creation is not included in this feature. Admin order management is available separately at /admin/orders.
+The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking is available in the Stock management panel; see RESTOCKING.md. Names, descriptions, categories, and badges can be changed in Product details. Admin order management is available separately at /admin/orders.
 
 ## Access and setup
 
@@ -49,8 +49,17 @@ Enhancement tests mock Cloudinary and check eager upload options, result selecti
 
 On Manage products, click Add new product. Enter its name, a unique lowercase URL name, description, category, optional badges, and 1–10 sizes. Each size needs a unique label, whole-LKR price, and nonnegative initial stock. Products appear in the shop immediately after creation; use zero stock if you are not ready to sell. Then upload photos, choose the main photo, set any promotion, and Save product in the existing editor.
 
-`POST /api/products` is admin-only. It validates and whitelists fields, rejects duplicate seed/custom/bundle URL names, and stores products in CatalogProduct documents with a unique slug index. The public and admin catalogs combine these documents with the existing seed products. Actual .env values, user roles, and request-supplied internal fields cannot be set through creation. Product URLs and size labels are fixed after creation; the editor updates photos, prices, and offers.
+`POST /api/products` is admin-only. It validates and whitelists fields, rejects duplicate seed/custom/bundle URL names, and stores products in CatalogProduct documents with a unique slug index. The public and admin catalogs combine these documents with the existing seed products. Actual .env values, user roles, and request-supplied internal fields cannot be set through creation. Product URLs and size labels are fixed after creation; the editors update descriptive details, photos, prices, and offers.
 
 Cart normalization, wishlist/review existence checks, bundle component lookup, and transactional stock reservation all support persisted products outside the seed file. Initial inventory is taken from the product's variant when first reserved. Orders retain their original product and price snapshots. Existing seed commands do not delete CatalogProduct documents.
 
 New-product tests mock database persistence and cover admin access, validation, duplicate/reserved URLs, catalog visibility, promotions, and ordering a non-seed product. Live persistence, creation forms, uploads, and concurrent last-unit checks still require verification.
+
+
+## Edit product details
+
+Choose a product and use Product details to edit its name, description, category, and badges. Click Save product details. This separate action does not save or discard unsaved photo/price edits in the other editor. The live catalog refreshes after saving; names also refresh in current product cart lines. Existing order snapshots remain unchanged.
+
+`PATCH /api/products/:slug/details` accepts the complete name, description, category, and badges payload. It requires admin access and whitelists only those fields. Overrides are stored under ProductSettings.details for both seed and admin-created products. Saving details preserves photos, base prices, promotions, stock records, and product/size identifiers. Saving photo/price settings also preserves saved descriptive overrides. Unknown products return 404.
+
+Five new regression tests cover descriptive validation and whitelisting, existing nested defaults, preservation of other settings, public/admin catalog updates, admin-only access, bundle component names, and cart name refresh. The complete verification run passes 104 tests, lint, and build. Database persistence and rendered browser interactions still require a live check.

@@ -1665,3 +1665,4 @@
 .stock-levels dt { font-weight: 700; }
 .stock-levels dd { margin: 8px 0 0; }
 .stock-history { list-style: none; padding: 0; display: grid; gap: 16px; }
+.product-details-editor { margin-bottom: 32px; }
