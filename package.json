@@ -1,0 +1,8 @@
+{
+  "name": "petro",
+  "private": true,
+  "scripts": {
+    "test": "npm --prefix petro-api test && npm --prefix petro-web test",
+    "verify": "npm test && npm --prefix petro-web run lint && npm --prefix petro-web run build"
+  }
+}

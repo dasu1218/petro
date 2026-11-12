@@ -11,8 +11,12 @@ const sendAuthResponse = (response, statusCode, user) => {
 export const register = async (request, response) => {
   const { name, email, password } = request.body || {};
 
-  if (!name || !email || !password) {
+  if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string' || !name.trim() || !email.trim() || !password) {
     return response.status(400).json({ message: 'Name, email, and password are required' });
+  }
+
+  if (name.trim().length > 80 || email.trim().length > 254 || !/^\S+@\S+\.\S+$/.test(email.trim()) || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) {
+    return response.status(400).json({ message: 'Enter a valid name, email, and password of at least 8 characters and at most 72 UTF-8 bytes' });
   }
 
   const existing = await User.findOne({ email: String(email).toLowerCase().trim() });
@@ -22,7 +26,7 @@ export const register = async (request, response) => {
   }
 
   // role is never taken from the request body, so new accounts are always customers
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ name: name.trim(), email: email.trim().toLowerCase(), password });
 
   return sendAuthResponse(response, 201, user);
 };
@@ -30,7 +34,7 @@ export const register = async (request, response) => {
 export const login = async (request, response) => {
   const { email, password } = request.body || {};
 
-  if (!email || !password) {
+  if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password || email.length > 254) {
     return response.status(400).json({ message: 'Email and password are required' });
   }
 
