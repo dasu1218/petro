@@ -1684,3 +1684,5 @@
 @media (max-width: 760px) { .order-timeline { grid-template-columns: minmax(0, 1fr); } }
 .password-change-form { margin-top: 32px; }
 .password-change-form .password-error { color: #b91c1c; }
+.history-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: end; gap: 20px; margin-bottom: 24px; }
+@media (max-width: 760px) { .history-filters { grid-template-columns: minmax(0, 1fr); } }

@@ -24,4 +24,5 @@ const schema = new mongoose.Schema({
   statusHistory: [{ _id: false, status: String, changedAt: Date, changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
 }, { timestamps: true });
 schema.index({ user: 1, requestId: 1 }, { unique: true });
+schema.index({ user: 1, createdAt: -1, _id: -1 });
 export default mongoose.models.Order || mongoose.model('Order', schema);
