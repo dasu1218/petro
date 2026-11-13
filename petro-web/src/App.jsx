@@ -20,6 +20,7 @@ import ShopPage from './pages/ShopPage'
 import ProductProvider from './context/ProductProvider'
 import AdminProductsPage from './pages/AdminProductsPage'
 import AdminOrdersPage from './pages/AdminOrdersPage'
+import AdminOverviewPage from './pages/AdminOverviewPage'
 import WishlistProvider from './context/WishlistProvider'
 import WishlistPage from './pages/WishlistPage'
 
@@ -46,7 +47,7 @@ function App() {
                 <Route path="/orders/:id" element={<OrderPage />} />
                 <Route path="/account" element={<AccountPage />} /><Route path="/wishlist" element={<WishlistPage />} />
               </Route>
-              <Route element={<ProtectedRoute adminOnly />}><Route path="/admin/products" element={<AdminProductsPage />} /><Route path="/admin/orders" element={<AdminOrdersPage />} /></Route>
+              <Route element={<ProtectedRoute adminOnly />}><Route path="/admin" element={<AdminOverviewPage />} /><Route path="/admin/products" element={<AdminProductsPage />} /><Route path="/admin/orders" element={<AdminOrdersPage />} /></Route>
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

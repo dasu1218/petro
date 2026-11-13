@@ -5,7 +5,7 @@ const publicPages = {
   '/bundles': ['Care Bundles', 'Explore PETRO care bundles, included products, prices, and availability.'],
   '/wellness': ['Pet Wellness', 'Explore grooming, nutrition, and everyday pet care categories at PETRO.'],
 }
-const privatePages = { '/login': 'Log in', '/register': 'Create an account', '/account': 'My account', '/cart': 'Your cart', '/checkout': 'Checkout', '/wishlist': 'My wishlist', '/orders': 'My orders', '/admin/products': 'Manage products', '/admin/orders': 'Manage orders' }
+const privatePages = { '/login': 'Log in', '/register': 'Create an account', '/account': 'My account', '/cart': 'Your cart', '/checkout': 'Checkout', '/wishlist': 'My wishlist', '/orders': 'My orders', '/admin': 'Admin dashboard', '/admin/products': 'Manage products', '/admin/orders': 'Manage orders' }
 export function getPageMeta(pathname, products = [], catalogReady = true) {
   const entry = publicPages[pathname]
   if (entry) return { title: `PETRO | ${entry[0]}`, description: entry[1], indexable: true, type: 'website' }

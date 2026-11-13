@@ -25,6 +25,7 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import ProductSettings from './models/ProductSettings.js';
 import adminOrderRoutes from './routes/adminOrderRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import { isProductImage } from './services/imageUpload.js';
 import { uploadedPhoto } from './services/photoEnhancement.js';
 
@@ -58,6 +59,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/inventory', inventoryRoutes);
 
 app.post('/api/upload', protect, admin, upload.single('image'), async (request, response) => {

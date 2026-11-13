@@ -8,7 +8,7 @@ test('public storefront routes have distinct titles and relevant descriptions', 
   assert.ok(metadata.every((meta) => meta.indexable && meta.description.length > 20))
 })
 test('private, authentication and admin routes never use personal data in metadata', () => {
-  for (const path of ['/account','/cart','/checkout','/wishlist','/orders','/orders/private-id','/login','/register','/admin/products','/admin/orders']) {
+  for (const path of ['/account','/cart','/checkout','/wishlist','/orders','/orders/private-id','/login','/register','/admin','/admin/products','/admin/orders']) {
     const meta = getPageMeta(path)
     assert.equal(meta.indexable, false)
     assert.ok(!meta.title.includes('private-id'))
