@@ -5,7 +5,7 @@ export const products = Array.from({ length: 8 }, (_, index) => ({
   variants: [{ label: '250ml', price: 1000 + index * 100, regularPrice: 1000 + index * 100, stock: 10 }],
 }))
 export async function mockStore(page, role = null, options = {}) {
-  const user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
+  let user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
   let cartItems = []
   const orderRequests = []
   const orders = new Map()
@@ -73,6 +73,6 @@ export async function mockStore(page, role = null, options = {}) {
     unexpected.push(`${method} ${path}`)
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
-  if (user) await page.addInitScript(() => localStorage.setItem('petro_token', 'browser-test-token'))
-  return { errors, unexpected, savedProducts, orderRequests, orders }
+  if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
+  return { errors, unexpected, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

@@ -29,6 +29,17 @@ My Account → Change password requires the current password, new password, and 
 
 The same optimistic save increments the user's tokenVersion. JWTs include that version and protected endpoints compare it with the current database value. Old tokens, including tokens from other devices, fail after a successful change. Existing accounts/tokens default to version zero until their first password change; token versions and hashes are excluded from public user responses. A concurrent account update returns the existing 409 conflict response instead of overwriting it.
 
-The browser clears the current session and returns to login with confirmation. Other browsers cannot use their old token on protected endpoints; they may still display an old account screen until their next request or reload. There is no password-reset email or recovery link in this feature. Failed changes do not sign out the current session.
+The browser clears the current session and returns to login with confirmation. Other browsers cannot use their old token on protected endpoints. The frontend now clears matching sessions on authenticated 401 responses and refreshes account roles when its window regains focus. Tabs on the same browser origin also synchronize token replacement and logout. There is no password-reset email or recovery link in this feature. Failed changes do not sign out the current session.
 
 Four route tests use actual Mongoose validation and password pre-save hashing with the collection write mocked. They verify authorization, wrong/reused passwords, multibyte limits, hashed persistence, role preservation, old-token rejection, legacy token compatibility, and login with the new password. Two frontend tests cover matching confirmation and input rules. The full suite has 127 passing tests; lint and build pass. Live database persistence and browser session behaviour still require verification.
+
+
+## Browser session synchronization
+
+Login and logout changes to petro_token propagate to other open tabs on the same origin through storage events. A replacement token clears the previous account state and verifies the new session before showing account content. Logout removes admin controls and protected content in the other tab. No existing account roles are modified in the database by this feature.
+
+Window focus triggers a fresh auth/me check so server-side role changes update the visible controls. Matching authenticated 401 responses clear the active session; 403 responses and login credential failures do not trigger global logout. Expiry events from an older token cannot clear a newer account. Session versions and request sequence guards prevent stale responses from restoring an older user or profile.
+
+A temporary initial session-check failure keeps the stored token and offers Retry session check or Sign out. Protected content remains unavailable until verification succeeds. A refresh failure for an already-loaded account shows a nonfatal notice; server authorization remains authoritative on every protected request. The frontend does not infer or grant admin permissions.
+
+Browser checks cover two-tab logout, two-tab replacement with a different account, refreshed roles, expired current tokens, unrelated old-token errors, and retry after temporary verification failure at desktop/mobile sizes. The API request unit test verifies that only authenticated 401 responses emit the session-expiry event. Tests use mocked browser APIs rather than live accounts.
