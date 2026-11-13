@@ -395,6 +395,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Order tracking | 2026-11-12 | Admin courier/reference/link editing and customer progress timelines with recorded milestone dates | 121 tests, lint and build pass; manual courier details, no provider integration; live checks remain |
 | Order cancellation | 2026-11-12 | Admin cancellation of unpaid unshipped orders, snapshot-based transactional stock restoration and audit trail | 115 tests, lint and build pass; live checks remain; paid/shipped cancellations and refunds unsupported |
 | Product visibility | 2026-11-12 | Admin hide/restore controls, dependent bundle availability, saved cart recovery | 108 tests, lint and build pass; live checks remain; product records and past orders preserved |
 | Product details | 2026-11-12 | Admin name, description, category and badge editing; live catalog and cart-name refresh | 104 tests, lint and build pass; live checks remain; URLs and size labels stay fixed |

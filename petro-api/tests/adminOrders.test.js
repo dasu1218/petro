@@ -5,6 +5,7 @@ import User from '../models/User.js';
 import Order from '../models/Order.js';
 import routes from '../routes/adminOrderRoutes.js';
 import { validateStatusChange } from '../services/orderManagement.js';
+import { validateTracking } from '../services/tracking.js';
 import { signToken } from '../utils/token.js';
 import { errorHandler } from '../middleware/errorHandler.js';
 let server, base, order;
@@ -33,7 +34,7 @@ test('fulfilment is sequential and terminal states cannot change', () => {
   for (const [from, to] of [['placed','delivered'], ['shipped','placed'], ['delivered','processing'], ['cancelled','placed'], ['placed','cancelled']]) assert.throws(() => validateStatusChange(from,to), { status: 409 });
 });
 test('customers and anonymous users cannot list orders or mutate status or payment', async () => {
-  for (const [path, method] of [['','GET'], [`/${id}/status`,'PUT'], [`/${id}/payment`,'PUT'], [`/${id}/cancel`,'POST']]) {
+  for (const [path, method] of [['','GET'], [`/${id}/status`,'PUT'], [`/${id}/payment`,'PUT'], [`/${id}/cancel`,'POST'], [`/${id}/tracking`,'PUT']]) {
     assert.equal((await request(path,method,undefined,null)).status,401);
     assert.equal((await request(path,method,undefined,'customer')).status,403);
   }
@@ -61,4 +62,32 @@ test('cash can be recorded only once on a delivered unpaid COD order', async () 
 test('legacy payment methods cannot be marked COD paid', async () => {
   order.status='delivered'; delete order.paymentMethod;
   assert.equal((await request(`/${id}/payment`,'PUT',{paymentStatus:'paid'})).status,409);
+});
+
+
+test('tracking validation rejects insecure links and ignores client audit/status fields', () => {
+  assert.deepEqual(validateTracking({ carrier: ' Courier ', number: ' REF123 ', url: '', status: 'delivered', updatedBy: 'forged' }), { carrier: 'Courier', number: 'REF123', url: '' });
+  for (const body of [{ carrier: '', number: 'REF' }, { carrier: 'Courier', number: '' }, { carrier: 'Courier', number: 'REF', url: 'javascript:alert(1)' }, { carrier: 'Courier', number: 'REF', url: 'http://example.com' }, { carrier: 'Courier', number: 'REF', url: 'https://user:pass@example.com' }]) assert.throws(() => validateTracking(body), { status: 400 });
+});
+test('admins save tracking only on processing/shipped orders without advancing status or trusting audit fields', async () => {
+  const body = { carrier: 'Courier', number: 'REF123', url: 'https://example.com/track/REF123', updatedBy: 'forged', status: 'delivered' };
+  assert.equal((await request(`/${id}/tracking`, 'PUT', body)).status, 409);
+  order.status = 'processing';
+  assert.equal((await request(`/${id}/tracking`, 'PUT', body)).status, 200);
+  assert.equal(order.status, 'processing');
+  assert.equal(order.tracking.carrier, 'Courier');
+  assert.equal(order.tracking.updatedBy, 'admin');
+  assert.ok(order.tracking.updatedAt instanceof Date);
+  order.status = 'delivered';
+  assert.equal((await request(`/${id}/tracking`, 'PUT', body)).status, 409);
+  assert.equal((await request('/invalid/tracking', 'PUT', body)).status, 404);
+});
+test('tracking rejects a status change that happened after the initial order read', async () => {
+  order.status = 'processing';
+  const currentFind = Order.findById;
+  Order.findById = async () => { const snapshot = { ...order }; order.status = 'shipped'; return snapshot; };
+  try {
+    assert.equal((await request(`/${id}/tracking`, 'PUT', { carrier: 'Courier', number: 'REF123' })).status, 409);
+    assert.equal(order.tracking, undefined);
+  } finally { Order.findById = currentFind; }
 });

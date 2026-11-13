@@ -1,3 +1,4 @@
+import OrderTrackingEditor from '../components/OrderTrackingEditor'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
@@ -30,7 +31,7 @@ export default function AdminOrdersPage() {
     setBusy(true); setActionError(''); setFeedback('')
     try {
       await apiRequest(`/admin/orders/${order._id}/${type}`, { method: type === 'cancel' ? 'POST' : 'PUT', token, body })
-      setFeedback(type === 'cancel' ? 'Order cancelled and reserved stock restored.' : type === 'payment' ? 'Cash collection recorded.' : 'Order status updated.')
+      setFeedback(type === 'cancel' ? 'Order cancelled and reserved stock restored.' : type === 'tracking' ? 'Tracking details saved.' : type === 'payment' ? 'Cash collection recorded.' : 'Order status updated.')
       if (type === 'cancel') { setCancelId(null); setCancelReason(''); reload() }
       setConfirmCash(null); refresh()
     } catch (error) { setActionError(error.message); refresh() } finally { setBusy(false) }
@@ -47,6 +48,7 @@ export default function AdminOrdersPage() {
           <div className="cta-row account-actions">{nextStatus[order.status] && <button type="button" disabled={busy} className="btn btn-primary btn-large" onClick={() => update(order, 'status', { status: nextStatus[order.status] })}>Mark {nextStatus[order.status]}</button>}
           {canCancelOrder(order) && <button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => { setCancelId(order._id); setCancelReason(''); setConfirmCash(null) }}>Cancel order</button>}
           {order.status === 'delivered' && order.paymentMethod === 'cod' && order.paymentStatus === 'unpaid' && <button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => setConfirmCash(order._id)}>Record cash collected</button>}</div>
+          {['processing', 'shipped'].includes(order.status) && <details className="tracking-disclosure"><summary>Add or edit courier tracking</summary><OrderTrackingEditor key={`${order._id}:${order.tracking?.updatedAt || ''}`} order={order} busy={busy} onSave={(body) => update(order, 'tracking', body)} /></details>}
           {order.status === 'cancelled' && order.cancellation?.reason && <p>Cancellation reason: {order.cancellation.reason}</p>}
           {cancelId === order._id && canCancelOrder(order) && <form className="checkout-panel cancel-order-form" onSubmit={(event) => { event.preventDefault(); update(order, 'cancel', { reason: cancelReason }) }}><fieldset disabled={busy}><legend>Confirm order cancellation</legend><p>This cancels the order and restores the reserved product and bundle stock. The order record is kept.</p><label className="form-field"><span>Cancellation reason (shown to the customer)</span><textarea rows={3} maxLength={200} required value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} /></label>{actionError && <p className="form-error" role="alert">{actionError}</p>}<div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">Confirm cancellation</button><button type="button" className="btn btn-secondary btn-large" onClick={() => setCancelId(null)}>Keep order</button></div></fieldset></form>}
           {confirmCash === order._id && <div className="order-payment"><p>Confirm that you received the full {formatLKR(order.totals.total)} in cash for this order.</p><div className="cta-row"><button type="button" disabled={busy} className="btn btn-primary btn-large" onClick={() => update(order, 'payment', { paymentStatus: 'paid' })}>Confirm cash received</button><button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => setConfirmCash(null)}>Cancel</button></div></div>}

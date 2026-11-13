@@ -26,3 +26,15 @@ Exact repeated cancellation calls return the existing cancellation without resto
 Customer order details display the cancellation and reason. Cancellation is final in this workflow; returning it to processing is not supported. A customer must place a new order if needed. Concurrent shipment/cancellation operations require the same transaction conflict handling as other inventory operations.
 
 Verification: 115 tests, lint, and build pass. New tests cover component aggregation, repeat requests, shipped/paid restrictions, rollback, missing records, stale status changes, customer access restrictions, and frontend button eligibility. Real replica-set transaction concurrency and browser confirmation flows still require verification.
+
+## Courier tracking and customer progress
+
+Orders in processing or shipped status offer Add or edit courier tracking. Enter the courier name, tracking reference, and optional HTTPS tracking link. `PUT /api/admin/orders/:id/tracking` requires admin access and `{ "carrier": "...", "number": "...", "url": "https://..." }`; the URL may be blank or omitted. The server trims and validates fields, rejects embedded URL credentials and insecure schemes, and records the saving admin and timestamp. Customer-supplied audit or status fields are ignored.
+
+Tracking updates do not change order status, payment, or inventory. A status change between reading and saving returns 409. Delivered, cancelled, and not-yet-processing orders cannot have tracking edited through this route. Concurrent tracking edits at the same fulfilment stage use the last completed write.
+
+Customers open My Orders → an order to see its progress timeline, recorded milestone times, and courier information. Refresh order updates loads the latest stored status. Missing older timestamps are shown without inventing dates. Cancelled orders show a cancellation path rather than future shipment milestones. External tracking links open in a new tab with safe link attributes.
+
+This stores tracking information supplied by the admin. It does not book shipments, buy labels, send notifications, or synchronize automatically with courier systems. Milestone times reflect PETRO's recorded status changes, not carrier scan events.
+
+Verification: six new validation/route/timeline tests extend the full suite to 121 passing tests. Lint and production build also pass. Live persistence, courier links, browser interactions, and concurrent saves still require verification.

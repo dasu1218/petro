@@ -1670,3 +1670,15 @@
 .cancel-order-form { margin-top: 20px; background: #fff7ed; }
 .cancel-order-form fieldset { border: 0; padding: 0; min-width: 0; }
 .cancel-order-form legend { font-weight: 700; }
+.order-tracking { margin-bottom: 28px; }
+.order-timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 24px 0; }
+.order-timeline li { display: flex; align-items: flex-start; gap: 10px; color: #64748b; }
+.order-timeline li.is-complete { color: #134e4a; }
+.timeline-dot { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; border: 1px solid #e2dcd5; border-radius: 50%; }
+.is-complete .timeline-dot { background: #ccfbf1; border-color: #0d9488; }
+.order-timeline small { display: block; margin-top: 6px; }
+.tracking-disclosure { margin-top: 20px; }
+.tracking-editor { margin-top: 12px; }
+.tracking-editor fieldset { min-width: 0; border: 0; padding: 0; }
+.tracking-editor .btn { margin-top: 20px; }
+@media (max-width: 760px) { .order-timeline { grid-template-columns: minmax(0, 1fr); } }
