@@ -74,3 +74,7 @@ All nine integration tests pass locally. The separate `inventory-integration` Gi
 The replica-set suite also creates an admin catalog product and verifies order reservation, refusal of new orders after archival, and cancellation restoration from the original stock snapshot. A second case restocks a custom product before its first order, buys more than its original stock, and retries the restock without adding stock twice.
 
 The cancellation failure case orders a two-component bundle, removes the later stock record, and verifies that cancellation rolls back the earlier component increment, order status, and audit history. After repairing the missing record, retrying cancellation restores both components once. Only the temporary test database is changed. These checks test services and persistence; they do not verify rendered admin controls or a deployed database.
+
+### Admin product picker coverage
+
+The desktop/mobile browser suite checks case-insensitive product URL search, visible/hidden filters, empty results, clearing filters, and selecting a hidden product. Editing a product name before filtering verifies that filtering preserves the current draft and sends no save request. Explicitly selecting another product opens that product's editor. The fixture supplies hidden products without changing real catalog data. The suite now contains 15 scenarios across two viewports (30 checks).

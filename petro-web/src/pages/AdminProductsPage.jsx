@@ -84,6 +84,8 @@ export default function AdminProductsPage() {
   const [result, setResult] = useState({ products: [], loading: true, error: '' })
   const [selected, setSelected] = useState(() => params.get('product') || '')
   const [creating, setCreating] = useState(false)
+  const [query, setQuery] = useState('')
+  const [visibility, setVisibility] = useState('all')
   const [createdMessage, setCreatedMessage] = useState('')
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
@@ -92,9 +94,26 @@ export default function AdminProductsPage() {
     return () => { ignore = true }
   }, [token, attempt])
   const product = result.products.find((entry) => entry.slug === selected) || result.products[0]
+  const terms = query.trim().toLocaleLowerCase('en').split(/\s+/).filter(Boolean)
+  const matches = result.products.filter((entry) => {
+    const text = `${entry.name} ${entry.slug}`.toLocaleLowerCase('en')
+    return terms.every((term) => text.includes(term))
+      && (visibility === 'all' || Boolean(entry.settings?.isArchived) === (visibility === 'hidden'))
+  })
+  const selectedMatches = matches.some((entry) => entry.slug === product?.slug)
   return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Products & promotions</h1><p><Link to="/admin">Back to dashboard</Link></p><p>Manage your product photos, size prices, and special offers.</p><button type="button" className="btn btn-primary btn-large" onClick={() => { setCreating(true); setCreatedMessage('') }}>Add new product</button></div>
     {createdMessage && <p role="status">{createdMessage}</p>}
     {creating && <NewProductForm onCancel={() => setCreating(false)} onCreated={(product) => { setSelected(product.slug); setCreating(false); setCreatedMessage(`${product.name} created. Upload photos and save your changes below.`); setResult((current) => ({ ...current, loading: true })); setAttempt((value) => value + 1); reload() }} />}
-    {creating ? null : result.loading ? <p role="status">Loading products…</p> : result.error ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary btn-large" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : <><label className="form-field saved-address-picker"><span>Choose a product</span><select value={product?.slug || ''} onChange={(event) => setSelected(event.target.value)}>{result.products.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}{entry.settings?.isArchived ? ' (Hidden)' : ''}</option>)}</select></label>{product && <><ProductAvailability key={`availability:${product.slug}`} product={product} onChanged={() => { reload(); setAttempt((value) => value + 1) }} /><ProductDetailsEditor key={`details:${product.slug}`} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} /><ProductEditor key={product.slug} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} /><InventoryPanel key={`stock:${product.slug}`} product={product} onChanged={reload} /></>}</>}
+    {creating ? null : result.loading ? <p role="status">Loading products…</p> : result.error ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary btn-large" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : <><div className="checkout-fields">
+      <label className="form-field"><span>Search admin products</span><input type="search" maxLength={120} placeholder="Product name or URL" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+      <label className="form-field"><span>Product visibility</span><select value={visibility} onChange={(event) => setVisibility(event.target.value)}><option value="all">All products</option><option value="visible">Visible products</option><option value="hidden">Hidden products</option></select></label>
+    </div>
+    <p role="status">{matches.length} of {result.products.length} products match.</p>
+    {(query || visibility !== 'all') && <button type="button" className="btn btn-secondary" onClick={() => { setQuery(''); setVisibility('all') }}>Clear product filters</button>}
+    <label className="form-field saved-address-picker"><span>Choose a product</span><select disabled={!matches.length} value={selectedMatches ? product.slug : ''} onChange={(event) => setSelected(event.target.value)}>
+      {!selectedMatches && <option value="" disabled>{matches.length ? 'Choose a matching product' : 'No matching products'}</option>}
+      {matches.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.name}{entry.settings?.isArchived ? ' (Hidden)' : ''}</option>)}
+    </select></label>
+    {!selectedMatches && product && <p>Currently editing {product.name}. Your editor stays open until you choose another product.</p>}{product && <><ProductAvailability key={`availability:${product.slug}`} product={product} onChanged={() => { reload(); setAttempt((value) => value + 1) }} /><ProductDetailsEditor key={`details:${product.slug}`} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} /><ProductEditor key={product.slug} product={product} onSaved={() => { reload(); setAttempt((value) => value + 1) }} /><InventoryPanel key={`stock:${product.slug}`} product={product} onChanged={reload} /></>}</>}
   </section>
 }
