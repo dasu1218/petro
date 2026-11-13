@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Session sync | 2026-11-13 | Cross-tab account/logout sync, role refresh, matching-token expiry and verification retry controls | 137 logic/API tests, 28 browser checks, lint and build pass; live integration remains |
 | Checkout browser checks | 2026-11-13 | Desktop/mobile validation, express COD confirmation, unchanged-payload retry and empty-cart coverage | 16 browser checks pass; APIs/orders mocked; real checkout verification remains |
 | Browser smoke | 2026-11-13 | Chromium desktop/mobile layout, shop/cart, role navigation and photo select/save checks; CI artifacts | 136 existing tests plus 10 browser checks, lint and build pass; APIs/uploads mocked; live checks remain |
 | Admin overview | 2026-11-13 | Operational order/payment summaries, low-stock cards and management shortcuts | 136 tests, lint and build pass; live database/browser verification remains |
