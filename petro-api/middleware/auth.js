@@ -10,12 +10,14 @@ export const protect = async (request, response, next) => {
   }
 
   try {
-    const { id } = verifyToken(token);
+    const { id, version = 0 } = verifyToken(token);
     const user = await User.findById(id);
 
     if (!user) {
       return response.status(401).json({ message: 'Not authorized, user not found' });
     }
+
+    if (version !== (user.tokenVersion || 0)) return response.status(401).json({ message: 'Your session expired. Please log in again.' });
 
     request.user = user;
     return next();

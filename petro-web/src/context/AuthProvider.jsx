@@ -101,15 +101,23 @@ function AuthProvider({ children }) {
     return data.user
   }, [token])
 
+  const changePassword = useCallback(async (body) => {
+    const version = sessionVersion.current
+    const data = await apiRequest('/profile/password', { method: 'PUT', token, body })
+    if (version !== sessionVersion.current) throw new Error('Your session changed. Please log in again.')
+    logout()
+    return data
+  }, [token, logout])
+
   const value = useMemo(
     () => ({
-      user, token, isLoading, isAuthenticated: Boolean(user), login, register, logout,
+      user, token, isLoading, isAuthenticated: Boolean(user), login, register, logout, changePassword,
       updateProfile: (body) => updateAccount('/profile', 'PUT', body),
       saveAddress: (id, body) => updateAccount(id ? `/profile/addresses/${id}` : '/profile/addresses', id ? 'PUT' : 'POST', body),
       deleteAddress: (id) => updateAccount(`/profile/addresses/${id}`, 'DELETE'),
       setDefaultAddress: (id) => updateAccount(`/profile/addresses/${id}/default`, 'PATCH'),
     }),
-    [user, token, isLoading, login, register, logout, updateAccount],
+    [user, token, isLoading, login, register, logout, updateAccount, changePassword],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
