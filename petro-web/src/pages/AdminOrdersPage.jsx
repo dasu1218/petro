@@ -36,7 +36,7 @@ export default function AdminOrdersPage() {
       setConfirmCash(null); refresh()
     } catch (error) { setActionError(error.message); refresh() } finally { setBusy(false) }
   }
-  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Manage orders</h1><p><Link to="/admin/products">Manage products & promotions</Link></p></div>
+  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Manage orders</h1><p><Link to="/admin">Back to dashboard</Link></p><p><Link to="/admin/products">Manage products & promotions</Link></p></div>
     <label className="form-field saved-address-picker"><span>Filter by status</span><select disabled={busy} value={filter.status} onChange={(event) => { setFilter({ status: event.target.value, page: 1 }); setResult((current) => ({ ...current, loading: true })); setConfirmCash(null) }}><option value="">All orders</option>{['placed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
     {actionError && <p className="form-error" role="alert">{actionError}</p>}<p role="status">{busy ? 'Updating order…' : feedback}</p>
     {result.loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={refresh}>Try again</button></div> : <>

@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Admin overview | 2026-11-13 | Operational order/payment summaries, low-stock cards and management shortcuts | 136 tests, lint and build pass; live database/browser verification remains |
 | Customer history | 2026-11-13 | Owner-scoped order pagination, fulfilment/payment filters and URL navigation | 132 tests, lint and build pass; live index and browser checks remain |
 | Password changes | 2026-11-13 | Current-password-confirmed changes, bcrypt hashing, token-version session invalidation and login feedback | 127 tests, lint and build pass; live checks remain; email password recovery not implemented |
 | Order tracking | 2026-11-12 | Admin courier/reference/link editing and customer progress timelines with recorded milestone dates | 121 tests, lint and build pass; manual courier details, no provider integration; live checks remain |
