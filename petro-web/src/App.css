@@ -1682,3 +1682,5 @@
 .tracking-editor fieldset { min-width: 0; border: 0; padding: 0; }
 .tracking-editor .btn { margin-top: 20px; }
 @media (max-width: 760px) { .order-timeline { grid-template-columns: minmax(0, 1fr); } }
+.password-change-form { margin-top: 32px; }
+.password-change-form .password-error { color: #b91c1c; }

@@ -1,3 +1,4 @@
+import ChangePasswordForm from '../components/ChangePasswordForm'
 import { useState } from 'react'
 import AddressBook from '../components/AddressBook'
 import { Link, useNavigate } from 'react-router-dom'
@@ -49,6 +50,7 @@ function AccountPage() {
           <button type="submit" className="btn btn-primary btn-large">Save profile</button>
         </fieldset>
       </form>
+      <ChangePasswordForm />
       <AddressBook />
 
       <div className="cta-row account-actions">

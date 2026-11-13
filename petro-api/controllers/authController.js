@@ -1,9 +1,10 @@
+import { validNewPassword } from '../services/passwords.js';
 import User from '../models/User.js';
 import { signToken } from '../utils/token.js';
 
 const sendAuthResponse = (response, statusCode, user) => {
   response.status(statusCode).json({
-    token: signToken(user._id),
+    token: signToken(user._id, user.tokenVersion || 0),
     user,
   });
 };
@@ -15,7 +16,7 @@ export const register = async (request, response) => {
     return response.status(400).json({ message: 'Name, email, and password are required' });
   }
 
-  if (name.trim().length > 80 || email.trim().length > 254 || !/^\S+@\S+\.\S+$/.test(email.trim()) || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) {
+  if (name.trim().length > 80 || email.trim().length > 254 || !/^\S+@\S+\.\S+$/.test(email.trim()) || !validNewPassword(password)) {
     return response.status(400).json({ message: 'Enter a valid name, email, and password of at least 8 characters and at most 72 UTF-8 bytes' });
   }
 

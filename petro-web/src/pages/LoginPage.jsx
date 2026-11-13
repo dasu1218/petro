@@ -40,6 +40,7 @@ function LoginPage() {
           <p>Track orders, save addresses, and check out faster.</p>
         </div>
 
+        {location.state?.passwordChanged && <p role="status" className="account-feedback">Your password was changed. Log in with your new password.</p>}
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           {error && (
             <p className="form-error" role="alert">

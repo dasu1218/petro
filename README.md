@@ -197,6 +197,7 @@ Base URL: `/api`
 | POST | `/auth/register` | Create account | – |
 | POST | `/auth/login` | Login, returns JWT | – |
 | GET | `/auth/me` | Current user | ✅ |
+| PUT | `/profile/password` | Change password and invalidate previous sessions | ✅ |
 | PUT | `/profile` | Edit name and email (current password required for email changes) | ✅ |
 | POST | `/profile/addresses` | Save a delivery address | ✅ |
 | PUT / DELETE | `/profile/addresses/:id` | Edit or delete an owned address | ✅ |
@@ -395,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Password changes | 2026-11-13 | Current-password-confirmed changes, bcrypt hashing, token-version session invalidation and login feedback | 127 tests, lint and build pass; live checks remain; email password recovery not implemented |
 | Order tracking | 2026-11-12 | Admin courier/reference/link editing and customer progress timelines with recorded milestone dates | 121 tests, lint and build pass; manual courier details, no provider integration; live checks remain |
 | Order cancellation | 2026-11-12 | Admin cancellation of unpaid unshipped orders, snapshot-based transactional stock restoration and audit trail | 115 tests, lint and build pass; live checks remain; paid/shipped cancellations and refunds unsupported |
 | Product visibility | 2026-11-12 | Admin hide/restore controls, dependent bundle availability, saved cart recovery | 108 tests, lint and build pass; live checks remain; product records and past orders preserved |
