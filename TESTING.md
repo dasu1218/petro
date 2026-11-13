@@ -23,3 +23,22 @@ Live verification still required before release:
 - Admin fulfilment progression, stale concurrent updates, and cash collection displayed in the customer's order.
 
 Use a development database and test account for live checks. Existing seed scripts replace product/category collections; automated tests do not run seed scripts.
+
+## Desktop and mobile browser smoke tests
+
+From the repository root, after installing frontend dependencies:
+
+```bash
+npm --prefix petro-web run browser:install
+npm run test:e2e
+```
+
+The Playwright suite launches an isolated Vite server on 127.0.0.1:4175 and runs five scenarios at 1440×900 and 375×812 in Chromium (10 checks total). It verifies full-width shop layout/no horizontal overflow, search and pagination, product add-to-cart/drawer interaction, customer UI hiding admin controls and redirecting direct admin navigation, admin access to product management, and choosing a photo then saving its reference. It also checks for browser runtime errors and unexpected API requests.
+
+All API responses and image uploads are fixtures. External requests are blocked. No test signs into a real account, changes real products/orders, sends credentials, touches MongoDB, or uploads to Cloudinary. These are real-browser UI smoke tests, not full live-service integration tests. Firefox, WebKit, checkout submission, email delivery, and real payment/shipping integrations are not covered by this suite.
+
+Playwright writes full-page shop/admin screenshots under `petro-web/test-results`, an HTML report under `petro-web/playwright-report`, and traces on failure. These generated artifacts are ignored by Git. Open the report with `npx playwright show-report` from petro-web. The browser-smoke CI job installs Chromium and uploads reports/screenshots, retaining artifacts for seven days. Its first GitHub run still requires pushing this branch.
+
+Current local results: 136 existing tests plus 10 browser checks pass, along with lint and production build. The browser screenshots use fixture product names and blocked external fonts; they are verification artifacts rather than production marketing screenshots.
+
+References: https://playwright.dev/docs/test-webserver and https://playwright.dev/docs/ci

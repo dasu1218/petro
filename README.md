@@ -311,7 +311,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
 - [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
 - [x] **Day 27:** Account wishlists and customer reviews `[feature/wishlist-reviews]`
-- [ ] **Day 28:** Testing — automated API/frontend verification and CI complete; responsive browser checks pending `[feature/testing]`
+- [ ] **Day 28:** API/frontend verification and Chromium desktop/mobile smoke checks complete; wider live-service/browser verification pending `[feature/testing]`
 - [ ] **Day 29:** Render/Vercel configuration ready; publish and verify live deployments `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Browser smoke | 2026-11-13 | Chromium desktop/mobile layout, shop/cart, role navigation and photo select/save checks; CI artifacts | 136 existing tests plus 10 browser checks, lint and build pass; APIs/uploads mocked; live checks remain |
 | Admin overview | 2026-11-13 | Operational order/payment summaries, low-stock cards and management shortcuts | 136 tests, lint and build pass; live database/browser verification remains |
 | Customer history | 2026-11-13 | Owner-scoped order pagination, fulfilment/payment filters and URL navigation | 132 tests, lint and build pass; live index and browser checks remain |
 | Password changes | 2026-11-13 | Current-password-confirmed changes, bcrypt hashing, token-version session invalidation and login feedback | 127 tests, lint and build pass; live checks remain; email password recovery not implemented |
