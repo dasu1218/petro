@@ -100,3 +100,60 @@ test('shared component shortages reject product-plus-bundle orders before stock 
   assert.equal(await Order.countDocuments(),0);
   assert.equal(await Inventory.countDocuments(),0);
 });
+
+const createCustomProduct = () => CatalogProduct.create({
+  slug: 'test-custom-treats', name: 'Custom treats', description: 'Integration fixture',
+  category: 'nutrition', variants: [{ label: '100g', price: 1000, stock: 3 }],
+});
+const customRequest = (extra = {}) => request({
+  expectedTotal: 1350,
+  items: [{ slug: 'test-custom-treats', variantLabel: '100g', quantity: 1 }],
+  ...extra,
+});
+
+test('admin-created products reserve their own stock and restore snapshots after archival', async () => {
+  await createCustomProduct();
+  const placed = await placeOrder(alice._id, customRequest());
+  const key = 'test-custom-treats:100g';
+  assert.equal(placed.order.items[0].name, 'Custom treats');
+  assert.equal((await Inventory.findOne({ key })).stock, 2);
+  await ProductSettings.create({ slug: 'test-custom-treats', isArchived: true });
+  await assert.rejects(placeOrder(bob._id, customRequest()), { status: 400, message: 'Product variant not found' });
+  await cancelOrder(placed.order._id, admin._id, { reason: 'Customer request' });
+  assert.equal((await Inventory.findOne({ key })).stock, 3);
+  assert.equal(await Order.countDocuments(), 1);
+});
+
+test('restocking an admin-created product initializes and preserves its live ledger', async () => {
+  await createCustomProduct();
+  const addition = { variantLabel: '100g', quantity: 4, reason: 'New delivery', requestId: randomUUID() };
+  await restockProduct(admin._id, 'test-custom-treats', addition);
+  assert.equal((await Inventory.findOne({ key: 'test-custom-treats:100g' })).stock, 7);
+  await placeOrder(alice._id, customRequest({ expectedTotal: 4350, items: [{ slug: 'test-custom-treats', variantLabel: '100g', quantity: 4 }] }));
+  assert.equal((await Inventory.findOne({ key: 'test-custom-treats:100g' })).stock, 3);
+  assert.equal((await restockProduct(admin._id, 'test-custom-treats', addition)).replayed, true);
+  assert.equal((await Inventory.findOne({ key: 'test-custom-treats:100g' })).stock, 3);
+});
+
+test('cancellation rolls back earlier component restoration when a later stock record is missing', async () => {
+  const placed = await placeOrder(alice._id, request({
+    expectedTotal: 4990,
+    items: [{ slug: 'anti-dermatitis-duo', variantLabel: 'Care bundle', quantity: 1 }],
+  }));
+  const keys = (await Inventory.find({}).lean()).map((entry) => entry.key).sort();
+  assert.equal(keys.length, 2);
+  const first = await Inventory.findOne({ key: keys[0] }).lean();
+  const missing = await Inventory.findOne({ key: keys[1] }).lean();
+  await Inventory.deleteOne({ key: missing.key });
+  await assert.rejects(cancelOrder(placed.order._id, admin._id, { reason: 'Customer request' }), { status: 409 });
+  const unchanged = await Order.findById(placed.order._id);
+  assert.equal(unchanged.status, 'placed');
+  assert.equal(unchanged.cancellation?.stockRestored, undefined);
+  assert.equal(unchanged.statusHistory.some((entry) => entry.status === 'cancelled'), false);
+  assert.equal((await Inventory.findOne({ key: first.key })).stock, first.stock);
+  // Repair the missing ledger, then retry the same cancellation successfully.
+  await Inventory.create({ key: missing.key, stock: missing.stock });
+  await cancelOrder(placed.order._id, admin._id, { reason: 'Customer request' });
+  assert.equal((await Inventory.findOne({ key: first.key })).stock, first.stock + 1);
+  assert.equal((await Inventory.findOne({ key: missing.key })).stock, missing.stock + 1);
+});
