@@ -4,8 +4,12 @@ export const products = Array.from({ length: 8 }, (_, index) => ({
   category: index % 2 ? 'nutrition' : 'skin-care', images: [], badges: ['Care'],
   variants: [{ label: '250ml', price: 1000 + index * 100, regularPrice: 1000 + index * 100, stock: 10 }],
 }))
-export async function mockStore(page, role = null) {
+export async function mockStore(page, role = null, options = {}) {
   const user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
+  let cartItems = []
+  const orderRequests = []
+  const orders = new Map()
+  let firstOrderResponse = true
   const savedProducts = []
   const settings = new Map()
   const photo = 'https://images.example.test/photo.png'
@@ -26,7 +30,33 @@ export async function mockStore(page, role = null) {
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
     if (path === '/bundles') return json({ bundles: [] })
     if (path === '/wishlist') return json({ slugs: [] })
-    if (path === '/cart') return json({ items: method === 'PUT' ? route.request().postDataJSON().items : [] })
+    if (path === '/cart') {
+      if (method === 'PUT') cartItems = route.request().postDataJSON().items
+      return json({ items: cartItems })
+    }
+    if (path === '/orders' && method === 'POST') {
+      const payload = route.request().postDataJSON()
+      orderRequests.push(payload)
+      let order = orders.get(payload.requestId)
+      if (!order) {
+        const items = payload.items.map((item) => {
+          const product = products.find((entry) => entry.slug === item.slug)
+          return { ...item, name: product.name, price: product.variants[0].price }
+        })
+        const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        order = { _id: '507f1f77bcf86cd799439011', items, shippingAddress: payload.shippingAddress, deliveryMethod: payload.deliveryMethod, paymentMethod: payload.paymentMethod, paymentStatus: 'unpaid', status: 'placed', statusHistory: [], createdAt: '2026-11-13T00:00:00Z', totals: { subtotal, delivery: payload.expectedTotal - subtotal, total: payload.expectedTotal } }
+        orders.set(payload.requestId, order)
+      }
+      if (options.failFirstOrderResponse && firstOrderResponse) {
+        firstOrderResponse = false
+        return json({ message: 'The order response is unavailable. Please retry the original order.' }, 503)
+      }
+      return json({ order }, orderRequests.length === 1 ? 201 : 200)
+    }
+    if (path.startsWith('/orders/') && method === 'GET') {
+      const order = [...orders.values()].find((entry) => path === `/orders/${entry._id}`)
+      return order ? json({ order }) : json({ message: 'Order not found' }, 404)
+    }
     if (path === '/products/admin') return user?.role === 'admin' ? json({ products: products.map((product) => ({ ...product, settings: settings.get(product.slug) || null })) }) : json({ message: 'Admin access required' }, 403)
     if (path === '/upload' && method === 'POST') {
       if (!route.request().headers()['content-type']?.includes('multipart/form-data; boundary=')) return json({ message: 'Missing multipart file boundary' }, 400)
@@ -44,5 +74,5 @@ export async function mockStore(page, role = null) {
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript(() => localStorage.setItem('petro_token', 'browser-test-token'))
-  return { errors, unexpected, savedProducts }
+  return { errors, unexpected, savedProducts, orderRequests, orders }
 }

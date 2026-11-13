@@ -33,12 +33,21 @@ npm --prefix petro-web run browser:install
 npm run test:e2e
 ```
 
-The Playwright suite launches an isolated Vite server on 127.0.0.1:4175 and runs five scenarios at 1440×900 and 375×812 in Chromium (10 checks total). It verifies full-width shop layout/no horizontal overflow, search and pagination, product add-to-cart/drawer interaction, customer UI hiding admin controls and redirecting direct admin navigation, admin access to product management, and choosing a photo then saving its reference. It also checks for browser runtime errors and unexpected API requests.
+The Playwright suite launches an isolated Vite server on 127.0.0.1:4175 and runs eight scenarios at 1440×900 and 375×812 in Chromium (16 checks total). It verifies full-width shop layout/no horizontal overflow, search and pagination, product add-to-cart/drawer interaction, customer UI hiding admin controls and redirecting direct admin navigation, admin access to product management, and choosing a photo then saving its reference. It also checks for browser runtime errors and unexpected API requests.
 
-All API responses and image uploads are fixtures. External requests are blocked. No test signs into a real account, changes real products/orders, sends credentials, touches MongoDB, or uploads to Cloudinary. These are real-browser UI smoke tests, not full live-service integration tests. Firefox, WebKit, checkout submission, email delivery, and real payment/shipping integrations are not covered by this suite.
+All API responses and image uploads are fixtures. External requests are blocked. No test signs into a real account, changes real products/orders, sends credentials, touches MongoDB, or uploads to Cloudinary. These are real-browser UI smoke tests, not full live-service integration tests. Firefox, WebKit, live backend checkout, email delivery, and real payment/shipping integrations are not covered by this suite.
 
 Playwright writes full-page shop/admin screenshots under `petro-web/test-results`, an HTML report under `petro-web/playwright-report`, and traces on failure. These generated artifacts are ignored by Git. Open the report with `npx playwright show-report` from petro-web. The browser-smoke CI job installs Chromium and uploads reports/screenshots, retaining artifacts for seven days. Its first GitHub run still requires pushing this branch.
 
-Current local results: 136 existing tests plus 10 browser checks pass, along with lint and production build. The browser screenshots use fixture product names and blocked external fonts; they are verification artifacts rather than production marketing screenshots.
+Current local results: 136 existing tests plus 16 browser checks pass, along with lint and production build. The browser screenshots use fixture product names and blocked external fonts; they are verification artifacts rather than production marketing screenshots.
 
 References: https://playwright.dev/docs/test-webserver and https://playwright.dev/docs/ci
+
+
+### Checkout browser coverage
+
+The checkout scenarios start on a product page, add an item to the cart, open the drawer, and follow Continue to checkout. They verify that incomplete address details show errors and focus the first invalid field, the order cannot be submitted before review, express COD submits the reviewed amount and shipping address, and a confirmed order opens the details page and clears the cart.
+
+A separate fixture persists a simulated order but returns a first-attempt 503 response. The test checks that the cart remains populated until success and that Retry original order sends exactly the same request ID and payload. The fixture then returns the original confirmation; no second simulated order is created. This verifies client retry behavior, not actual MongoDB transaction durability.
+
+The empty-cart check verifies that direct checkout navigation offers no review/place-order controls and sends no order request. Checkout review screenshots are generated for both viewport sizes under test-results and included in existing CI artifacts. All uploads, accounts, orders and cart persistence in this suite remain isolated mock data.
