@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Admin product search | 2026-11-13 | Product picker search by name/URL, visible/hidden filters, match counts and explicit selection that preserves the current draft while filtering | Desktop/mobile browser coverage; admin authorization unchanged |
 | Custom-product transactions | 2026-11-13 | Real database coverage for custom-product stock, archival snapshots, restock retries and failed cancellation recovery | Nine integration tests pass; no production behaviour changes; deployed database verification remains |
 | Inventory integration | 2026-11-13 | Isolated real MongoDB replica-set tests for stock competition, retries, rollback, restocking and cancellation; dedicated CI job | Six integration tests pass; production Atlas verification remains; see TESTING.md |
 | Session sync | 2026-11-13 | Cross-tab account/logout sync, role refresh, matching-token expiry and verification retry controls | 137 logic/API tests, 28 browser checks, lint and build pass; live integration remains |

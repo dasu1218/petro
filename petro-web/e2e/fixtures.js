@@ -11,7 +11,7 @@ export async function mockStore(page, role = null, options = {}) {
   const orders = new Map()
   let firstOrderResponse = true
   const savedProducts = []
-  const settings = new Map()
+  const settings = new Map((options.hiddenSlugs || []).map((slug) => [slug, { isArchived: true, prices: [], images: [] }]))
   const photo = 'https://images.example.test/photo.png'
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j7WQAAAAASUVORK5CYII=', 'base64')
   const errors = []
