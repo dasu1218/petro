@@ -5,6 +5,8 @@ on:
     branches: [main, develop, 'feature/**']
 permissions:
   contents: read
+env:
+  MONGOMS_DISABLE_POSTINSTALL: '1'
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -43,3 +45,16 @@ jobs:
             petro-web/playwright-report/
             petro-web/test-results/
           retention-days: 7
+
+  inventory-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: petro-api/package-lock.json
+      - run: npm ci --prefix petro-api
+      - run: npm run test:integration

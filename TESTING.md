@@ -8,7 +8,7 @@ npm ci --prefix petro-web
 npm run verify
 ```
 
-`npm run verify` runs the API suite, frontend logic suite, frontend lint, and production build. Tests use Node's built-in runner; no extra test dependencies are required. GitHub Actions runs the same command for pull requests and pushes to main, develop, and feature branches. The workflow has not been executed on GitHub until these changes are pushed.
+`npm run verify` runs the API suite, frontend logic suite, frontend lint, and production build. Tests use Node's built-in runner; the default suite does not start MongoDB. GitHub Actions runs the same command for pull requests and pushes to main, develop, and feature branches. The workflow has not been executed on GitHub until these changes are pushed.
 
 Current result: 98 API/service tests and 39 frontend logic tests pass. API HTTP tests use ephemeral localhost ports and mocked persistence. They do not modify a real database or upload images to Cloudinary. Cryptographic authentication checks use real bcrypt comparison and JWT signing/verification. Frontend tests cover logic and request handling, not rendered browser interactions.
 
@@ -19,7 +19,7 @@ Live verification still required before release:
 - Responsive layouts at 375px, 768px, and desktop widths; keyboard navigation and visible validation feedback.
 - Customer registration/login, saved addresses, wishlist switching, and review editing in a browser.
 - A real admin photo upload, original/enhanced comparison, product save, and storefront price/promotion refresh.
-- MongoDB replica-set order commit and rollback, last-unit competition between buyers, and duplicate request retries.
+- Production MongoDB/Atlas configuration and checkout against the deployed API; local replica-set transaction coverage is described below.
 - Admin fulfilment progression, stale concurrent updates, and cash collection displayed in the customer's order.
 
 Use a development database and test account for live checks. Existing seed scripts replace product/category collections; automated tests do not run seed scripts.
@@ -56,3 +56,15 @@ The empty-cart check verifies that direct checkout navigation offers no review/p
 ### Session browser coverage
 
 The desktop/mobile suite also checks storage-event logout and account replacement across two real browser tabs, role refresh on window focus, clearing an expired current token, preserving a newer session from an old-token error, and retaining the token with retry controls after a temporary session-check failure. These scenarios verify rendered customer/admin controls and protected navigation with isolated fixture accounts; backend authorization continues to have its own API tests.
+
+## Isolated MongoDB transaction tests
+
+```bash
+npm run test:integration
+```
+
+This separate suite starts a real, temporary MongoDB 8.0.18 single-node replica set on loopback using `mongodb-memory-server`. The first run downloads the pinned MongoDB binary and requires network access; later runs use the cached binary. No existing MongoDB installation or Atlas credentials are needed. The suite never reads `MONGO_URI`, uses a dedicated temporary database, and stops its replica set after testing.
+
+Six checks cover canonical order totals and stock reservation, two buyers competing for the last unit, concurrent identical request IDs, actual inventory rollback after an injected order-write failure, retry-safe restocking and cancellation, and shared product/bundle stock shortages. These run the production services and Mongoose models against real transactions. They do not exercise HTTP authentication or production Atlas configuration.
+
+All six integration tests pass locally. The separate `inventory-integration` GitHub Actions job installs API dependencies and runs this command; its GitHub result requires pushing the branch. CI disables the dependency's postinstall download so other jobs do not download an unused MongoDB binary. The existing 137 logic/API tests remain in `npm run verify`; integration tests are explicitly separate because they require a MongoDB binary and local ports.
