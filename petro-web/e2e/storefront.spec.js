@@ -1,0 +1,82 @@
+import { test, expect } from '@playwright/test'
+import { mockStore } from './fixtures.js'
+
+test('shop remains full-width without horizontal overflow and supports search and pagination', async ({ page }, info) => {
+  const monitor = await mockStore(page)
+  await page.goto('/shop')
+  await expect(page.getByRole('heading', { name: 'Pet care essentials', exact: true })).toBeVisible()
+  await expect(page.getByText('Showing 1–6 of 8 products')).toBeVisible()
+  const dimensions = await page.evaluate(() => ({ shell: document.querySelector('.app-shell').getBoundingClientRect(), viewport: window.innerWidth, body: document.documentElement.scrollWidth }))
+  expect(dimensions.shell.x).toBe(0)
+  expect(Math.abs(dimensions.shell.width - dimensions.viewport)).toBeLessThan(1)
+  expect(dimensions.body).toBeLessThanOrEqual(dimensions.viewport + 1)
+  await page.getByRole('searchbox', { name: 'Search products' }).fill('Care Product 2')
+  await expect(page.getByText('Showing 1–1 of 1 products')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Care Product 2', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click()
+  await page.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(page.getByText('Showing 7–8 of 8 products')).toBeVisible()
+  await expect(page).toHaveURL(/page=2/)
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+  await page.screenshot({ path: info.outputPath('shop.png'), fullPage: true })
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('product details add to the cart and the drawer opens and closes', async ({ page }) => {
+  const monitor = await mockStore(page)
+  await page.goto('/products/care-product-2')
+  await expect(page.getByRole('heading', { name: 'Care Product 2', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Add to cart', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Cart, 1 item', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Cart, 1 item', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Your cart (1)' })).toBeVisible()
+  await page.getByRole('button', { name: 'Close cart', exact: true }).click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('customer account hides admin links and rejects direct admin navigation', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer')
+  await page.goto('/account')
+  await expect(page.getByRole('heading', { name: 'Hi, Customer' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Manage products', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Admin dashboard', exact: true })).toHaveCount(0)
+  await page.goto('/admin/products')
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('heading', { name: 'Products & promotions', exact: true })).toHaveCount(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('admin can open product management from My Account', async ({ page }, info) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/account')
+  await page.getByRole('link', { name: 'Manage products', exact: true }).click()
+  await expect(page).toHaveURL(/\/admin\/products/)
+  await expect(page.getByRole('heading', { name: 'Products & promotions', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Add new product', exact: true })).toBeVisible()
+  await expect(page.getByText('Stock management', { exact: true })).toBeVisible()
+  await page.screenshot({ path: info.outputPath('admin-products.png'), fullPage: true })
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+
+test('admin can select a photo and save its reference to the product', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  await expect(page.getByRole('heading', { name: 'Products & promotions', exact: true })).toBeVisible()
+  await page.getByLabel('Add product photos', { exact: true }).setInputFiles({
+    name: 'pet-photo.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j7WQAAAAASUVORK5CYII=', 'base64'),
+  })
+  await expect(page.getByAltText('Product photo 1', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Save product', exact: true }).click()
+  await expect(page.getByText('Product saved. Photos, prices, and promotions are now published.', { exact: true }).first()).toBeVisible()
+  expect(monitor.savedProducts).toHaveLength(1)
+  expect(monitor.savedProducts[0].images[0].publicId).toBe('test/photo')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
