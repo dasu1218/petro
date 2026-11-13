@@ -1,7 +1,7 @@
 # Orders
 
 - `POST /api/orders` creates an order for the authenticated user.
-- `GET /api/orders/my` returns that user's latest 50 orders.
+- `GET /api/orders/my` returns a paginated list of that user's orders.
 - `GET /api/orders/:id` returns an order only to its owner. Other owners and invalid IDs receive 404.
 
 The create payload contains `requestId`, `items` (`slug`, `variantLabel`, `quantity`), `shippingAddress`, `deliveryMethod`, `paymentMethod: "cod"`, and `expectedTotal`. The API ignores supplied ownership and item prices. It validates address/contact details, resolves canonical prices, calculates delivery, and rejects changed totals with 409 so the customer can review again. Initial rates remain standard LKR 350, free from LKR 4,500, or express LKR 650. Confirm these store rates before release.
@@ -31,3 +31,14 @@ Existing orders with no payment method retain that historical value and display 
 Run `npm test` in `petro-api` and `npm test`, `npm run build`, `npm run lint` in `petro-web`. API tests mock MongoDB operations and transaction rollback; they do not prove real MongoDB concurrency or durability. Before release, verify transaction commit/rollback on a replica set, concurrent buyers competing for the last unit, repeated request IDs, ownership, checkout retries, and the confirmation in a browser.
 
 Admin fulfilment progression and COD cash collection are now available through `/api/admin/orders` and `/admin/orders`. See `ADMIN-ORDERS.md` for endpoints, restrictions, and audit fields. Cancellation, refunds, and restocking remain unimplemented.
+
+
+## Customer order history
+
+My Orders now shows ten orders per page with order-status and payment-status filters. The controls are stored in URL parameters so browser back/forward and copied links retain the view. Changing either filter resets to page one. Empty pages provide a route back to the first unfiltered page, and order cards link to tracking/details.
+
+`GET /api/orders/my?page=1&status=shipped&payment=unpaid` accepts optional status and payment filters. Status uses the fulfilment enum; payment is paid or unpaid. Page must be an integer from 1 to 10,000. The response contains orders, page, and hasMore. The API fetches one extra row to determine hasMore and uses createdAt plus _id for deterministic newest-first ordering. A user/createdAt/_id index supports the owner-scoped listing. Pagination is offset-based and may shift if orders are inserted or deleted between requests.
+
+The account is always derived from authentication. Supplied user IDs, unknown ownership query fields, and frontend state cannot select another customer's orders. Retry request IDs/hashes remain excluded from order responses. Existing clients still receive an orders array; the default result size is now ten rather than fifty.
+
+Three new API tests cover validated filters, multiple pages, hasMore boundaries, empty pages, owner isolation, and private-field stripping. Two frontend tests check filter URL handling and exclusion of ownership parameters. The full verification run passes 132 tests, lint, and build. Live database indexing, persistence, and browser navigation remain to be verified.

@@ -69,7 +69,7 @@ before(async () => {
   Bundle.find = () => ({ sort: () => ({ session: () => ({ lean: async () => storedBundles }) }) });
   Inventory.find = () => ({ session: () => ({ lean: async () => [] }) });
   ProductSettings.find = () => ({ session: () => ({ lean: async () => [] }) });
-  Order.find = ({ user }) => ({ sort: () => ({ limit: async () => user === savedOrder.user ? [savedOrder] : [] }) });
+  Order.find = ({ user }) => ({ sort: () => ({ skip: () => ({ limit: async () => user === savedOrder.user ? [savedOrder] : [] }) }) });
   Order.findOne = async ({ user, _id }) => user === savedOrder.user && _id === savedOrder._id ? savedOrder : null;
   User.findById = async (id) => ({ _id: id });
   Cart.findOne = async ({ user }) => carts.has(user) ? { items: carts.get(user) } : null;
