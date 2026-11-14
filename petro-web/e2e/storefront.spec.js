@@ -131,3 +131,34 @@ test('size guide shows live prices and stock and selects an available size', asy
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+test('browsing review pages preserves the customer rating and comment draft', async ({ page }) => {
+  const review = (id, comment) => ({ id, authorName: 'Test reviewer', rating: 4, comment })
+  const monitor = await mockStore(page, 'customer', {
+    ownReview: review('own', 'My saved review'),
+    reviewPages: {
+      1: { reviews: [review('first', 'First page review')], count: 21, rating: 4, hasMore: true },
+      2: { reviews: [review('last', 'Second page review')], count: 21, rating: 4, hasMore: false },
+    },
+  })
+  await page.goto('/products/care-product-1')
+  const section = page.locator('#product-reviews')
+  const comment = section.getByRole('textbox', { name: 'Your review' })
+  const rating = section.getByRole('combobox', { name: 'Rating', exact: true })
+  await expect(comment).toHaveValue('My saved review')
+  const initialOwnRequests = monitor.reviewRequests.filter((request) => request.endsWith('/mine')).length
+  await comment.fill('My unsaved review draft')
+  await rating.selectOption('3')
+  await section.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(section.getByText('Second page review', { exact: true })).toBeVisible()
+  await expect(comment).toHaveValue('My unsaved review draft')
+  await expect(rating).toHaveValue('3')
+  await section.getByRole('button', { name: 'Previous', exact: true }).click()
+  await expect(section.getByText('First page review', { exact: true })).toBeVisible()
+  await expect(comment).toHaveValue('My unsaved review draft')
+  await expect(rating).toHaveValue('3')
+  expect(monitor.reviewRequests.filter((request) => request.endsWith('/mine'))).toHaveLength(initialOwnRequests)
+  expect(monitor.reviewRequests.some((request) => request.startsWith('PUT'))).toBe(false)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
