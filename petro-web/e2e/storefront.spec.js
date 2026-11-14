@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { mockStore } from './fixtures.js'
+import { mockStore, products } from './fixtures.js'
 
 test('shop remains full-width without horizontal overflow and supports search and pagination', async ({ page }, info) => {
   const monitor = await mockStore(page)
@@ -103,6 +103,31 @@ test('admin product filters preserve drafts and allow explicit selection of hidd
   await picker.selectOption('care-product-2')
   await expect(name).toHaveValue('Care Product 2')
   expect(monitor.savedProducts).toHaveLength(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('size guide shows live prices and stock and selects an available size', async ({ page }) => {
+  const product = { ...products[0], variants: [
+    { label: '250ml', price: 1000, stock: 10 },
+    { label: '500ml', price: 1800, regularPrice: 2000, stock: 4 },
+    { label: '1L', price: 3000, stock: 0 },
+  ] }
+  const monitor = await mockStore(page, null, { products: [product] })
+  await page.goto(`/products/${product.slug}`)
+  await page.getByRole('button', { name: 'Show size guide view', exact: true }).click()
+  const guide = page.getByRole('region', { name: `${product.name} size guide view` })
+  await expect(guide.getByRole('table', { name: 'Sizes and availability' })).toBeVisible()
+  await expect(guide.getByRole('row').filter({ hasText: '500ml' })).toContainText('LKR 1,800')
+  await expect(guide.getByRole('button', { name: 'Choose 1L from size guide', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Increase quantity' }).click()
+  await guide.getByRole('button', { name: 'Choose 500ml from size guide', exact: true }).click()
+  await expect(guide.getByRole('button', { name: 'Choose 500ml from size guide', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.variant-option[aria-pressed="true"]')).toContainText('500ml')
+  await page.getByRole('button', { name: 'Add to cart', exact: true }).click()
+  await expect(page.locator('.detail-cart-feedback')).toContainText('1 × Care Product 1 (500ml) added.')
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
+  expect(overflow).toBe(false)
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })

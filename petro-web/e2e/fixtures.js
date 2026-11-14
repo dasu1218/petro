@@ -26,7 +26,7 @@ export async function mockStore(page, role = null, options = {}) {
     const path = url.pathname.slice(4)
     const method = route.request().method()
     const json = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
-    if (path === '/products' && method === 'GET') return json({ products, unavailableSlugs: [] })
+    if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: [] })
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
     if (path === '/bundles') return json({ bundles: [] })
     if (path === '/wishlist') return json({ slugs: [] })
