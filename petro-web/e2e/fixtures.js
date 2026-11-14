@@ -7,6 +7,7 @@ export const products = Array.from({ length: 8 }, (_, index) => ({
 export async function mockStore(page, role = null, options = {}) {
   let user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
   let cartItems = []
+  const reviewRequests = []
   const orderRequests = []
   const orders = new Map()
   let firstOrderResponse = true
@@ -69,10 +70,15 @@ export async function mockStore(page, role = null, options = {}) {
       return json({ message: 'Product saved' })
     }
     if (path.startsWith('/admin/inventory/')) return json({ variants: [{ label: '250ml', stock: 10 }], history: [] })
-    if (path.startsWith('/reviews/')) return json(path.endsWith('/mine') ? { review: null } : { reviews: [], count: 0, rating: null, hasMore: false })
+    if (path.startsWith('/reviews/')) {
+      reviewRequests.push(`${method} ${path}${url.search}`)
+      if (path.endsWith('/mine')) return json({ review: options.ownReview || null })
+      if (method === 'PUT') return json({ review: { id: 'own-review', ...route.request().postDataJSON() } })
+      return json(options.reviewPages?.[url.searchParams.get('page') || '1'] || { reviews: [], count: 0, rating: null, hasMore: false })
+    }
     unexpected.push(`${method} ${path}`)
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
-  return { errors, unexpected, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
+  return { errors, unexpected, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

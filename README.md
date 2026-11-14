@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Review draft preservation | 2026-11-14 | Separate public pagination and own-review loading so browsing reviews preserves unsaved comments and ratings; own-review retry feedback | Desktop/mobile draft checks; account/product changes still open a fresh editor |
 | Product size guide | 2026-11-14 | Live size, price and availability table with available-size selection and quantity reset | Browser checks cover selection, sold-out sizes and mobile overflow; pack sizes do not imply dosage advice |
 | Admin product search | 2026-11-13 | Product picker search by name/URL, visible/hidden filters, match counts and explicit selection that preserves the current draft while filtering | Desktop/mobile browser coverage; admin authorization unchanged |
 | Custom-product transactions | 2026-11-13 | Real database coverage for custom-product stock, archival snapshots, restock retries and failed cancellation recovery | Nine integration tests pass; no production behaviour changes; deployed database verification remains |

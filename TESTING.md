@@ -82,3 +82,7 @@ The desktop/mobile browser suite checks case-insensitive product URL search, vis
 ### Product size guide coverage
 
 The desktop/mobile suite opens the size guide using a three-size fixture, checks current and regular prices, disables a sold-out size, and selects an available size. It verifies that the purchase selection changes and the quantity resets before adding to the cart. The check also rejects horizontal page overflow. The suite now contains 16 scenarios across two viewports (32 checks). This uses fixture catalog responses, not production stock.
+
+### Review draft coverage
+
+The desktop/mobile browser suite loads an existing customer review, changes its comment and rating, then browses forward and back through public reviews. Both draft fields must survive, pagination must not reload the private review, and pagination must send no review save request. Public listing and private review failures have separate feedback. Account and product switches continue to remount the review editor. The suite now contains 17 scenarios across two viewports (34 checks), using isolated fixture reviews.
