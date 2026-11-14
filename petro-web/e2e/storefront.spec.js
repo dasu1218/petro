@@ -162,3 +162,42 @@ test('browsing review pages preserves the customer rating and comment draft', as
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('product opens on an available size and sold-out sizes remain inspectable', async ({ page }) => {
+  const product = { ...products[0], variants: [
+    { label: '250ml', price: 1000, stock: 0 },
+    { label: '500ml', price: 1800, stock: 4 },
+  ] }
+  const monitor = await mockStore(page, null, { products: [product] })
+  await page.goto(`/products/${product.slug}`)
+  const selected = page.locator('.variant-option[aria-pressed="true"]')
+  await expect(selected).toContainText('500ml')
+  await expect(page.locator('.stock-status')).toHaveText('4 in stock')
+  await expect(page.getByRole('button', { name: 'Add to cart', exact: true })).toBeEnabled()
+  await page.locator('.variant-option').filter({ hasText: '250ml' }).click()
+  await expect(selected).toContainText('250ml')
+  await expect(page.locator('.detail-price')).toHaveText('LKR 1,000')
+  await expect(page.getByRole('button', { name: 'Add to cart', exact: true })).toBeDisabled()
+  await expect(page.getByRole('group', { name: 'Quantity', exact: true })).toHaveCount(0)
+  await page.locator('.variant-option').filter({ hasText: '500ml' }).click()
+  await page.getByRole('button', { name: 'Add to cart', exact: true }).click()
+  await expect(page.locator('.detail-cart-feedback')).toContainText('1 × Care Product 1 (500ml) added.')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('a fully sold-out product shows its first size without allowing purchase', async ({ page }) => {
+  const monitor = await mockStore(page, null, { products: [{ ...products[0], variants: [
+    { label: '250ml', price: 1000, stock: 0 },
+    { label: '500ml', price: 1800, stock: 0 },
+  ] }] })
+  await page.goto('/products/care-product-1')
+  await expect(page.locator('.variant-option[aria-pressed="true"]')).toContainText('250ml')
+  await expect(page.getByRole('button', { name: 'Add to cart', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Show size guide view', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Choose 250ml from size guide', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Choose 500ml from size guide', exact: true })).toBeDisabled()
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
