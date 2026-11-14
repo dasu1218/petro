@@ -86,3 +86,7 @@ The desktop/mobile suite opens the size guide using a three-size fixture, checks
 ### Review draft coverage
 
 The desktop/mobile browser suite loads an existing customer review, changes its comment and rating, then browses forward and back through public reviews. Both draft fields must survive, pagination must not reload the private review, and pagination must send no review save request. Public listing and private review failures have separate feedback. Account and product switches continue to remount the review editor. The suite now contains 17 scenarios across two viewports (34 checks), using isolated fixture reviews.
+
+### Stock-aware size selection
+
+Desktop/mobile checks verify that a product whose first size is sold out starts on its first available size. Customers can inspect a sold-out size and its price, but cannot add it to the cart. Switching back to an available size permits purchase. A fully sold-out product keeps its first size selected and disables purchase and size-guide selection. The browser suite now contains 19 scenarios across two viewports (38 checks); stock is fixture data, and production availability is still validated by the API.

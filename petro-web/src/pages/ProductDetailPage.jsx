@@ -15,7 +15,7 @@ const galleryViews = [
 
 function ProductDetailContent({ product }) {
   const [photoIndex, setPhotoIndex] = useState(0)
-  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0)
+  const [selectedVariantLabel, setSelectedVariantLabel] = useState(() => (product?.variants.find((variant) => variant.stock > 0) || product?.variants[0])?.label)
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [addedToCart, setAddedToCart] = useState(false)
@@ -33,11 +33,12 @@ function ProductDetailContent({ product }) {
     )
   }
 
+  const selectedVariantIndex = Math.max(0, product.variants.findIndex((variant) => variant.label === selectedVariantLabel))
   const selectedVariant = product.variants[selectedVariantIndex]
   const activeGalleryView = galleryViews[activeGalleryIndex]
 
   const chooseVariant = (index) => {
-    setSelectedVariantIndex(index)
+    setSelectedVariantLabel(product.variants[index].label)
     setQuantity(1)
     setAddedToCart(false)
   }
@@ -124,6 +125,7 @@ function ProductDetailContent({ product }) {
                   onClick={() => chooseVariant(index)}
                 >
                   <span>{variant.label}</span>
+                  {variant.stock === 0 && <small>Out of stock</small>}
                   <strong>LKR {variant.price.toLocaleString('en-LK')}</strong>
                 </button>
               ))}
