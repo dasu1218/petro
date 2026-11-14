@@ -36,6 +36,12 @@ function ProductDetailContent({ product }) {
   const selectedVariant = product.variants[selectedVariantIndex]
   const activeGalleryView = galleryViews[activeGalleryIndex]
 
+  const chooseVariant = (index) => {
+    setSelectedVariantIndex(index)
+    setQuantity(1)
+    setAddedToCart(false)
+  }
+
   return (
     <section className="product-detail page-panel">
       <nav className="product-breadcrumb" aria-label="Breadcrumb">
@@ -50,10 +56,12 @@ function ProductDetailContent({ product }) {
         <div className="detail-gallery">
           <div
             className={`detail-gallery-main product-${product.accent} gallery-${activeGalleryView.kind}`}
-            role="img"
+            role={activeGalleryView.kind === 'size' ? 'region' : 'img'}
             aria-label={`${product.name} ${activeGalleryView.label.toLowerCase()} view`}
           >
-            {activeGalleryView.kind === 'product' && product.images?.length ? <img className="detail-photo" src={product.images[photoIndex]?.url || product.images[0].url} alt={product.name} /> : activeGalleryView.kind === 'formula' ? (
+            {activeGalleryView.kind === 'product' && product.images?.length ? <img className="detail-photo" src={product.images[photoIndex]?.url || product.images[0].url} alt={product.name} /> : activeGalleryView.kind === 'size' ? (
+              <div className="product-size-guide"><table><caption>Sizes and availability</caption><thead><tr><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Availability</th><th scope="col">Selection</th></tr></thead><tbody>{product.variants.map((variant, index) => <tr key={variant.label}><th scope="row">{variant.label}</th><td>{variant.regularPrice > variant.price && <del>LKR {variant.regularPrice.toLocaleString('en-LK')} </del>}LKR {variant.price.toLocaleString('en-LK')}</td><td>{variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock'}</td><td><button type="button" className="btn btn-secondary" disabled={variant.stock === 0} aria-pressed={selectedVariantIndex === index} aria-label={`Choose ${variant.label} from size guide`} onClick={() => chooseVariant(index)}>{selectedVariantIndex === index ? 'Selected' : 'Choose'}</button></td></tr>)}</tbody></table><p>Choose by pack size. For feeding or treatment amounts, follow the product label or your vet’s advice.</p></div>
+            ) : activeGalleryView.kind === 'formula' ? (
               <div className="formula-art">
                 <span className="eyebrow eyebrow-muted">Made for daily care</span>
                 <strong>{product.badges.join(' · ')}</strong>
@@ -113,11 +121,7 @@ function ProductDetailContent({ product }) {
                   type="button"
                   className="variant-option"
                   aria-pressed={selectedVariantIndex === index}
-                  onClick={() => {
-                    setSelectedVariantIndex(index)
-                    setQuantity(1)
-                    setAddedToCart(false)
-                  }}
+                  onClick={() => chooseVariant(index)}
                 >
                   <span>{variant.label}</span>
                   <strong>LKR {variant.price.toLocaleString('en-LK')}</strong>

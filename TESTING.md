@@ -78,3 +78,7 @@ The cancellation failure case orders a two-component bundle, removes the later s
 ### Admin product picker coverage
 
 The desktop/mobile browser suite checks case-insensitive product URL search, visible/hidden filters, empty results, clearing filters, and selecting a hidden product. Editing a product name before filtering verifies that filtering preserves the current draft and sends no save request. Explicitly selecting another product opens that product's editor. The fixture supplies hidden products without changing real catalog data. The suite now contains 15 scenarios across two viewports (30 checks).
+
+### Product size guide coverage
+
+The desktop/mobile suite opens the size guide using a three-size fixture, checks current and regular prices, disables a sold-out size, and selects an available size. It verifies that the purchase selection changes and the quantity resets before adding to the cart. The check also rejects horizontal page overflow. The suite now contains 16 scenarios across two viewports (32 checks). This uses fixture catalog responses, not production stock.
