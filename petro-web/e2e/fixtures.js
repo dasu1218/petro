@@ -8,6 +8,8 @@ export async function mockStore(page, role = null, options = {}) {
   let user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
   let cartItems = []
   const reviewRequests = []
+  const wishlistRequests = []
+  const savedSlugs = new Set(options.wishlistSlugs || [])
   const orderRequests = []
   const orders = new Map()
   let firstOrderResponse = true
@@ -27,10 +29,18 @@ export async function mockStore(page, role = null, options = {}) {
     const path = url.pathname.slice(4)
     const method = route.request().method()
     const json = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
-    if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: [] })
+    if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: options.unavailableSlugs || [] })
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
     if (path === '/bundles') return json({ bundles: [] })
-    if (path === '/wishlist') return json({ slugs: [] })
+    if (path === '/wishlist') return json({ slugs: [...savedSlugs] })
+    if (path.startsWith('/wishlist/') && ['PUT', 'DELETE'].includes(method)) {
+      wishlistRequests.push(`${method} ${path}`)
+      if (options.failWishlistRemoval && method === 'DELETE') return json({ message: 'Could not remove saved product. Try again.' }, 503)
+      const slug = path.slice('/wishlist/'.length)
+      if (method === 'DELETE') savedSlugs.delete(slug)
+      else savedSlugs.add(slug)
+      return json({ saved: method === 'PUT' })
+    }
     if (path === '/cart') {
       if (method === 'PUT') cartItems = route.request().postDataJSON().items
       return json({ items: cartItems })
@@ -80,5 +90,5 @@ export async function mockStore(page, role = null, options = {}) {
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
-  return { errors, unexpected, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
+  return { errors, unexpected, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

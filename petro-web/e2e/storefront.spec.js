@@ -201,3 +201,51 @@ test('a fully sold-out product shows its first size without allowing purchase', 
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('wishlist shows the lowest size price, promotion and sold-out availability', async ({ page }) => {
+  const catalog = [
+    { ...products[0], variants: [{ label: '500ml', price: 2000, stock: 0 }, { label: '250ml', price: 900, regularPrice: 1000, stock: 4 }], promotion: { label: 'Care offer', percent: 10 } },
+    { ...products[1], variants: [{ label: '250ml', price: 1100, stock: 0 }] },
+  ]
+  const monitor = await mockStore(page, 'customer', { products: catalog, wishlistSlugs: catalog.map((product) => product.slug) })
+  await page.goto('/wishlist')
+  const first = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Care Product 1', exact: true }) })
+  await expect(first).toContainText('From LKR 900')
+  await expect(first).toContainText('Care offer · 10% off')
+  await expect(first).toContainText('Available sizes in stock')
+  const second = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Care Product 2', exact: true }) })
+  await expect(second).toContainText('Currently out of stock')
+  await first.getByRole('link', { name: 'View sizes for Care Product 1', exact: true }).click()
+  await expect(page).toHaveURL(/products\/care-product-1$/)
+  await expect(page.locator('.variant-option[aria-pressed="true"]')).toContainText('250ml')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+
+test('customers can remove unavailable wishlist entries without changing available products', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer', { wishlistSlugs: ['care-product-1', 'hidden-care'], unavailableSlugs: ['hidden-care'] })
+  await page.goto('/wishlist')
+  const unavailable = page.getByRole('region', { name: 'Unavailable saved products' })
+  await expect(unavailable).toContainText('hidden-care')
+  await unavailable.getByRole('button', { name: 'Remove hidden-care from wishlist', exact: true }).click()
+  await expect(unavailable).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Care Product 1', exact: true })).toBeVisible()
+  expect(monitor.wishlistRequests).toEqual(['DELETE /wishlist/hidden-care'])
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('failed unavailable wishlist removal retains the entry and shows a retryable error', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer', { wishlistSlugs: ['hidden-care'], unavailableSlugs: ['hidden-care'], failWishlistRemoval: true })
+  await page.goto('/wishlist')
+  const remove = page.getByRole('button', { name: 'Remove hidden-care from wishlist', exact: true })
+  await remove.click()
+  await expect(page.getByRole('alert')).toContainText('Could not remove saved product. Try again.')
+  await expect(remove).toBeEnabled()
+  await expect(page.getByRole('region', { name: 'Unavailable saved products' })).toBeVisible()
+  expect(monitor.wishlistRequests).toEqual(['DELETE /wishlist/hidden-care'])
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
