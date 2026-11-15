@@ -98,3 +98,9 @@ Desktop/mobile checks load saved products with multiple sizes and an active prom
 ### Unavailable wishlist removal
 
 Desktop/mobile checks remove an unavailable saved product while retaining an available saved card. A failed DELETE response must leave the unavailable entry visible, show an error, and re-enable its removal button. Missing products are only identified after a successful catalog load. The suite now contains 22 scenarios across two viewports (44 checks). All wishlist writes use fixtures, not real accounts.
+
+### Button and product image styling
+
+The shared styles unify primary/secondary controls, focus outlines, disabled states, variant choices, wishlist controls, photo thumbnails and admin photo actions. Product images use `object-fit: contain` within bounded frames on shop, home, wishlist, detail and admin pages; this retains the entire original image, including any whitespace already in the uploaded photo. Existing image assets are unchanged. Hover effects are limited to hover-capable devices and reduced-motion preferences are respected.
+
+After this styling change all 44 desktop/mobile browser checks, frontend lint and production build passed. Desktop shop and mobile admin screenshots were inspected. Fixture photos are not representative production photography; real uploaded photos should also be reviewed in the deployed catalog.

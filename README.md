@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| UI polish | 2026-11-15 | Consistent red/cream/teal buttons, selected and disabled states, product cards, file picker and proportion-preserving product image frames | 44 browser checks, lint and build pass; desktop shop and mobile admin screenshots reviewed |
 | Unavailable wishlist removal | 2026-11-15 | Saved products missing from the current catalog remain listed by URL with removal controls and recoverable error feedback | Desktop/mobile success and failed-removal coverage; previous uncommitted wishlist card improvements retained |
 | Wishlist product details | 2026-11-14 | Saved cards show the lowest variant price, active promotion, stock availability and a size-selection link | Browser coverage for mixed-size pricing, offers, sold-out products and navigation |
 | Stock-aware size selection | 2026-11-14 | Product pages initially select an available size, label sold-out options and retain selection by size label | Browser coverage for partly and fully sold-out products; server stock validation remains authoritative |
