@@ -90,3 +90,11 @@ The desktop/mobile browser suite loads an existing customer review, changes its 
 ### Stock-aware size selection
 
 Desktop/mobile checks verify that a product whose first size is sold out starts on its first available size. Customers can inspect a sold-out size and its price, but cannot add it to the cart. Switching back to an available size permits purchase. A fully sold-out product keeps its first size selected and disables purchase and size-guide selection. The browser suite now contains 19 scenarios across two viewports (38 checks); stock is fixture data, and production availability is still validated by the API.
+
+### Wishlist product details
+
+Desktop/mobile checks load saved products with multiple sizes and an active promotion. They verify the lowest variant price rather than array order, available/sold-out labels, promotion text, and navigation from a saved card to the product's available size. The suite now contains 20 scenarios across two viewports (40 checks). Wishlist and catalog responses remain fixtures; no real account or saved list is changed.
+
+### Unavailable wishlist removal
+
+Desktop/mobile checks remove an unavailable saved product while retaining an available saved card. A failed DELETE response must leave the unavailable entry visible, show an error, and re-enable its removal button. Missing products are only identified after a successful catalog load. The suite now contains 22 scenarios across two viewports (44 checks). All wishlist writes use fixtures, not real accounts.
