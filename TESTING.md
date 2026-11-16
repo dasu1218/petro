@@ -110,3 +110,7 @@ After this styling change all 44 desktop/mobile browser checks, frontend lint an
 Two new API/service checks validate photo references and descriptions and test public reading, rejected guest/customer publishing, admin publishing, invalid input, and removal. The default suite now has 100 API/service tests plus 39 frontend logic tests (139 total). API persistence remains mocked in these checks.
 
 A desktop/mobile browser scenario uploads a fixture photo, verifies preview alone does not publish, saves its description, visits the homepage to find the image, and removes/saves it to restore the placeholder. The browser suite now contains 23 scenarios across two viewports (46 checks). Uploads and homepage persistence are fixtures; real Cloudinary and MongoDB verification still require configured services.
+
+### Homepage draft recovery
+
+The desktop/mobile suite checks that an unchanged homepage preview cannot be saved, an uploaded preview can be discarded without a publish request, a successful save becomes the new baseline, and description edits or unsaved removal can be reverted. The published-homepage link opens a separate tab. The browser suite now has 24 scenarios across two viewports (48 checks). The refresh/close warning uses the browser's standard `beforeunload` mechanism; browsers control whether it appears, and internal SPA navigation is outside its scope.
