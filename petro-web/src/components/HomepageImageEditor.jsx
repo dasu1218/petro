@@ -54,7 +54,7 @@ export default function HomepageImageEditor() {
       {draft.image && <label className="form-field"><span>Image description</span><input required maxLength={160} value={draft.alt} onChange={(event) => setDraft((current) => ({ ...current, alt: event.target.value }))} /></label>}
       <div className="cta-row"><button type="submit" className="btn btn-primary" disabled={!dirty}>{busy ? 'Please wait…' : 'Save homepage image'}</button>{dirty && <button type="button" className="btn btn-secondary" onClick={() => { setDraft(saved); setError(''); setMessage('Unpublished changes discarded. Your saved homepage image is unchanged.') }}>Discard homepage changes</button>}{draft.image && <button type="button" className="btn btn-secondary" onClick={() => { setDraft({ image: null, alt: '' }); setMessage('Photo removed from preview. Save to restore the placeholder.'); setError('') }}>Remove homepage photo</button>}</div>
     </fieldset></form>}
-    {error && <div role="alert"><p>{error}</p><button type="button" className="btn btn-secondary" onClick={() => { setLoading(true); setAttempt((value) => value + 1) }} disabled={busy}>Reload homepage image</button></div>}
+    {error && <div role="alert"><p>{error}</p>{ready ? <p>Your preview has been kept. You can retry using the controls above or discard unpublished changes.</p> : <button type="button" className="btn btn-secondary" onClick={() => { setError(''); setLoading(true); setAttempt((value) => value + 1) }} disabled={busy}>Reload homepage image</button>}</div>}
     <p role="status">{busy ? 'Uploading or saving homepage image…' : message}</p>
   </section>
 }
