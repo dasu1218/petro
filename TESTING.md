@@ -118,3 +118,11 @@ The desktop/mobile suite checks that an unchanged homepage preview cannot be sav
 ### Homepage error recovery
 
 Desktop/mobile checks return a failed publish response, assert the photo and description remain available with Save enabled, then retry successfully. A second case keeps initial settings requests failing until explicit Reload, checking that uploads/saves are unavailable before a successful load. The browser suite now has 26 scenarios across two viewports (52 checks). Failures are injected HTTP fixtures; these checks do not require Cloudinary or a database.
+
+### Product photo failures
+
+The browser suite blocks one fixture product photo and serves a second. It checks readable placeholders in the shop, homepage, wishlist and detail gallery, then switches to the working gallery photo and back. The loaded photo must have nonzero natural dimensions. Thumbnail failures are decorative; the gallery buttons retain their accessible labels. The suite now has 27 scenarios across two viewports (54 checks). This verifies failed HTTP image rendering without contacting real image services.
+
+### Cart thumbnails
+
+Desktop/mobile scenarios add a product and verify its current catalog photo in both the cart drawer and full cart. A broken-photo case verifies placeholders in both views, quantity updates and removal. Products without a photo and bundle items retain the PETRO placeholder. Thumbnails are decorative because each cart line already has a named product link. Photos are looked up from the current catalog and are not persisted into cart requests. With the preceding photo fallback scenario, the browser suite now contains 29 scenarios across two viewports (58 checks).

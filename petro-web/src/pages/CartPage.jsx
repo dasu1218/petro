@@ -1,3 +1,4 @@
+import CartProductPhoto from '../components/CartProductPhoto'
 import { Link } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
 import DeliveryProgress from '../components/DeliveryProgress'
@@ -38,7 +39,7 @@ function CartPage() {
           {items.map((item) => (
             <li key={item.key} className={`cart-line product-${item.accent}`}>
               <Link to={getCartItemPath(item)} className="cart-line-art" aria-hidden="true" tabIndex={-1}>
-                PETRO
+                <CartProductPhoto slug={item.slug} />
               </Link>
 
               <div className="cart-line-info">

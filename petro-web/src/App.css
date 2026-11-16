@@ -1856,3 +1856,17 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
   }
   .header-cart:hover { box-shadow: 0 7px 18px rgb(185 28 28 / 25%); }
 }
+
+.product-photo-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #faf7f2; color: #887767; text-align: center; }
+.product-photo-fallback > span { font-size: 1.5rem; font-weight: 800; letter-spacing: .15em; }
+.product-photo-fallback small { font-size: .8rem; font-weight: 500; letter-spacing: normal; }
+.photo-thumbnails .product-photo-fallback { width: 100%; height: 100%; gap: 2px; }
+.photo-thumbnails .product-photo-fallback > span { font-size: .6rem; letter-spacing: .03em; }
+.photo-thumbnails .product-photo-fallback small { font-size: .5rem; }
+
+.cart-line-art { overflow: hidden; }
+.cart-product-photo { display: block; width: 100%; height: 100%; object-fit: contain; padding: 6px; background: #faf7f2; }
+.cart-product-photo.product-photo-fallback { display: flex; gap: 2px; }
+.cart-product-photo.product-photo-fallback > span { font-size: .65rem; letter-spacing: .04em; }
+.cart-product-photo.product-photo-fallback small { font-size: .5rem; }
+.cart-photo-brand { font-size: .7rem; font-weight: 800; letter-spacing: .07em; }

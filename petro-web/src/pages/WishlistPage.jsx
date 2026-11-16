@@ -1,3 +1,4 @@
+import ProductPhoto from '../components/ProductPhoto'
 import { Link } from 'react-router-dom'
 import { useWishlist } from '../context/wishlistContext'
 import { useProducts } from '../context/productContext'
@@ -17,7 +18,7 @@ export default function WishlistPage() {
       <div className="product-grid">{products.map((product) => {
         const cheapest = listingVariant(product)
         const available = product.variants.some((variant) => variant.stock > 0)
-        return <article className="product-card" key={product.slug}>{product.images?.[0] && <img loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" src={product.images[0].url} alt={product.name} />}<div className="product-info"><h2><Link to={`/products/${product.slug}`}>{product.name}</Link></h2><p>From {formatLKR(cheapest.price)}</p>
+        return <article className="product-card" key={product.slug}>{product.images?.[0] && <ProductPhoto loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" src={product.images[0].url} alt={product.name} />}<div className="product-info"><h2><Link to={`/products/${product.slug}`}>{product.name}</Link></h2><p>From {formatLKR(cheapest.price)}</p>
           {product.promotion && <p className="chip">{product.promotion.label} · {product.promotion.percent}% off</p>}
           <p className="stock-status">{available ? 'Available sizes in stock' : 'Currently out of stock'}</p>
           <Link className="btn btn-secondary" to={`/products/${product.slug}`}>View sizes for {product.name}</Link><WishlistButton slug={product.slug} /></div></article>})}</div>

@@ -1,3 +1,4 @@
+import CartProductPhoto from './CartProductPhoto'
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
@@ -56,7 +57,7 @@ function CartDrawer({ open, onClose }) {
             <ul className="cart-lines cart-drawer-lines" aria-label="Cart items">
               {items.map((item) => (
                 <li key={item.key} className={`cart-line product-${item.accent}`}>
-                  <Link to={getCartItemPath(item)} className="cart-line-art" onClick={onClose} aria-hidden="true" tabIndex={-1}>PETRO</Link>
+                  <Link to={getCartItemPath(item)} className="cart-line-art" onClick={onClose} aria-hidden="true" tabIndex={-1}><CartProductPhoto slug={item.slug} /></Link>
                   <div className="cart-line-info">
                     <Link to={getCartItemPath(item)} className="cart-line-name" onClick={onClose}>{item.name}</Link>
                     <span className="cart-line-variant">{item.variantLabel} · {formatLKR(item.price)} each</span>
