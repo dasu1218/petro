@@ -16,6 +16,7 @@ export async function mockStore(page, role = null, options = {}) {
   const savedProducts = []
   let homepage = { image: null, alt: '' }
   const homepageSaves = []
+  let homepageSaveFailed = false
   const settings = new Map((options.hiddenSlugs || []).map((slug) => [slug, { isArchived: true, prices: [], images: [] }]))
   const photo = 'https://images.example.test/photo.png'
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j7WQAAAAASUVORK5CYII=', 'base64')
@@ -32,7 +33,13 @@ export async function mockStore(page, role = null, options = {}) {
     const method = route.request().method()
     const json = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
     if (path === '/homepage') {
-      if (method === 'PUT') { homepage = route.request().postDataJSON(); homepageSaves.push(homepage) }
+      if (method === 'PUT') {
+        if (options.failFirstHomepageSave && !homepageSaveFailed) {
+          homepageSaveFailed = true
+          return json({ message: 'Homepage image could not be saved. Try again.' }, 503)
+        }
+        homepage = route.request().postDataJSON(); homepageSaves.push(homepage)
+      }
       return json(homepage)
     }
     if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: options.unavailableSlugs || [] })

@@ -114,3 +114,7 @@ A desktop/mobile browser scenario uploads a fixture photo, verifies preview alon
 ### Homepage draft recovery
 
 The desktop/mobile suite checks that an unchanged homepage preview cannot be saved, an uploaded preview can be discarded without a publish request, a successful save becomes the new baseline, and description edits or unsaved removal can be reverted. The published-homepage link opens a separate tab. The browser suite now has 24 scenarios across two viewports (48 checks). The refresh/close warning uses the browser's standard `beforeunload` mechanism; browsers control whether it appears, and internal SPA navigation is outside its scope.
+
+### Homepage error recovery
+
+Desktop/mobile checks return a failed publish response, assert the photo and description remain available with Save enabled, then retry successfully. A second case keeps initial settings requests failing until explicit Reload, checking that uploads/saves are unavailable before a successful load. The browser suite now has 26 scenarios across two viewports (52 checks). Failures are injected HTTP fixtures; these checks do not require Cloudinary or a database.

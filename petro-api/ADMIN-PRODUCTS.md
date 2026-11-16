@@ -88,3 +88,7 @@ To return to the paw placeholder, click **Remove homepage photo**, then **Save h
 The homepage panel marks unpublished changes and enables Save only when the preview differs from the saved image. **Discard homepage changes** restores the last loaded or successfully saved photo and description without publishing a request. This also reverses an unsaved removal. **Open published homepage** opens a separate tab so you can compare the published image without leaving the editor.
 
 Supported browsers may warn before refreshing or closing the page while there are drafts or an upload/save in progress. This warning does not intercept internal app navigation and does not persist drafts after the page is closed. Discarding does not delete an uploaded Cloudinary asset.
+
+### Retrying failed homepage changes
+
+If upload or publishing fails after the editor has loaded, the current preview and description stay in place. Read the error, then retry the upload or **Save homepage image**, or discard unpublished changes. The error no longer offers a reload that could overwrite the draft. If the initial homepage settings cannot load, editing stays unavailable and **Reload homepage image** retries that initial request.

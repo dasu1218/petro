@@ -305,3 +305,51 @@ test('homepage image drafts can be discarded without overwriting the published i
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('failed homepage saves preserve the photo and description for retry', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin', { failFirstHomepageSave: true })
+  await page.goto('/admin/products')
+  const editor = page.getByRole('region', { name: 'Homepage bundle image', exact: true })
+  await editor.getByLabel('Upload homepage photo', { exact: true }).setInputFiles({ name: 'bundles.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j7WQAAAAASUVORK5CYII=', 'base64') })
+  const description = editor.getByLabel('Image description', { exact: true })
+  await description.fill('Keep this bundle preview')
+  const save = editor.getByRole('button', { name: 'Save homepage image', exact: true })
+  await save.click()
+  await expect(editor.getByRole('alert')).toContainText('Homepage image could not be saved.')
+  await expect(description).toHaveValue('Keep this bundle preview')
+  await expect(editor.getByRole('img')).toBeVisible()
+  await expect(save).toBeEnabled()
+  await expect(editor.getByRole('button', { name: 'Reload homepage image', exact: true })).toHaveCount(0)
+  expect(monitor.homepageSaves).toHaveLength(0)
+  await save.click()
+  await expect(editor.getByText('Homepage image saved.', { exact: true })).toBeVisible()
+  await expect(save).toBeDisabled()
+  expect(monitor.homepageSaves).toHaveLength(1)
+  expect(monitor.homepageSaves[0].alt).toBe('Keep this bundle preview')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('failed initial homepage loading blocks editing and can be retried', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  // Keep both Strict Mode load attempts failing until the explicit retry.
+  let allowLoad = false
+  await page.route('**/api/homepage', async (route) => {
+    if (!allowLoad) return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Homepage image could not be loaded.' }) })
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ image: null, alt: '' }) })
+  })
+  await page.goto('/admin/products')
+  const editor = page.getByRole('region', { name: 'Homepage bundle image', exact: true })
+  await expect(editor.getByRole('alert')).toContainText('Homepage image could not be loaded.')
+  await expect(editor.getByLabel('Upload homepage photo', { exact: true })).toHaveCount(0)
+  await expect(editor.getByRole('button', { name: 'Save homepage image', exact: true })).toHaveCount(0)
+  allowLoad = true
+  await editor.getByRole('button', { name: 'Reload homepage image', exact: true }).click()
+  await expect(editor.getByLabel('Upload homepage photo', { exact: true })).toBeVisible()
+  await expect(editor.getByRole('button', { name: 'Save homepage image', exact: true })).toBeDisabled()
+  await expect(editor.getByRole('alert')).toHaveCount(0)
+  expect(monitor.homepageSaves).toHaveLength(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
