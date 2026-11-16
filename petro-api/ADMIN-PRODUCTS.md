@@ -76,3 +76,9 @@ Cart synchronization drops stale/unavailable product variants and bundle lines w
 Public catalogs refresh every minute and on window focus, so another open browser may show an old product temporarily. The server uses current availability when synchronizing carts and placing orders. No permanent product deletion endpoint has been added.
 
 Availability tests cover admin access, boolean validation, public/admin visibility, preservation/restoration of stock and photos, dependent bundles, stale cart cleanup, strict order normalization, and local cart refresh. The full suite has 108 passing tests, plus lint and build. Live database persistence and browser behavior still need verification.
+
+## Homepage bundle photo
+
+Sign in as an admin and open **Account → Manage products**. The **Homepage bundle image** panel controls the photo above “Everyday Care Bundles” on the homepage. Choose one JPG, PNG or WebP up to 5 MB, wait for the preview, enter an image description, then click **Save homepage image**. Uploading alone does not publish it. Homepage photos use the original uploaded image without automatic product enhancement.
+
+To return to the paw placeholder, click **Remove homepage photo**, then **Save homepage image**. Removing the reference does not delete the Cloudinary asset. The upload endpoint still requires Cloudinary credentials, and both upload and publishing require an admin account. Public GET `/api/homepage` returns only the saved photo reference and description; PUT `/api/homepage` is admin-only. Refresh or revisit the homepage to see newly published changes. Restart the API after pulling this change to mount the new route and initialize its unique index.
