@@ -1,3 +1,4 @@
+import ProductPhoto from '../components/ProductPhoto'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
@@ -60,7 +61,7 @@ function ProductDetailContent({ product }) {
             role={activeGalleryView.kind === 'size' ? 'region' : 'img'}
             aria-label={`${product.name} ${activeGalleryView.label.toLowerCase()} view`}
           >
-            {activeGalleryView.kind === 'product' && product.images?.length ? <img className="detail-photo" src={product.images[photoIndex]?.url || product.images[0].url} alt={product.name} /> : activeGalleryView.kind === 'size' ? (
+            {activeGalleryView.kind === 'product' && product.images?.length ? <ProductPhoto className="detail-photo" src={product.images[photoIndex]?.url || product.images[0].url} alt={product.name} /> : activeGalleryView.kind === 'size' ? (
               <div className="product-size-guide"><table><caption>Sizes and availability</caption><thead><tr><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Availability</th><th scope="col">Selection</th></tr></thead><tbody>{product.variants.map((variant, index) => <tr key={variant.label}><th scope="row">{variant.label}</th><td>{variant.regularPrice > variant.price && <del>LKR {variant.regularPrice.toLocaleString('en-LK')} </del>}LKR {variant.price.toLocaleString('en-LK')}</td><td>{variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock'}</td><td><button type="button" className="btn btn-secondary" disabled={variant.stock === 0} aria-pressed={selectedVariantIndex === index} aria-label={`Choose ${variant.label} from size guide`} onClick={() => chooseVariant(index)}>{selectedVariantIndex === index ? 'Selected' : 'Choose'}</button></td></tr>)}</tbody></table><p>Choose by pack size. For feeding or treatment amounts, follow the product label or your vet’s advice.</p></div>
             ) : activeGalleryView.kind === 'formula' ? (
               <div className="formula-art">
@@ -80,7 +81,7 @@ function ProductDetailContent({ product }) {
             )}
           </div>
 
-          {product.images?.length > 1 && <div className="photo-thumbnails">{product.images.map((photo, index) => <button type="button" key={photo.publicId} aria-label={`Show photo ${index + 1}`} aria-pressed={photoIndex === index} onClick={() => { setPhotoIndex(index); setActiveGalleryIndex(0) }}><img src={photo.url} alt="" /></button>)}</div>}
+          {product.images?.length > 1 && <div className="photo-thumbnails">{product.images.map((photo, index) => <button type="button" key={photo.publicId} aria-label={`Show photo ${index + 1}`} aria-pressed={photoIndex === index} onClick={() => { setPhotoIndex(index); setActiveGalleryIndex(0) }}><ProductPhoto src={photo.url} alt="" /></button>)}</div>}
           <div className="detail-gallery-thumbnails" aria-label="Product gallery">
             {galleryViews.map((view, index) => (
               <button

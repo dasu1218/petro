@@ -1,3 +1,4 @@
+import ProductPhoto from '../components/ProductPhoto'
 import HomepageHeroImage from '../components/HomepageHeroImage'
 import WishlistButton from '../components/WishlistButton'
 import { useEffect, useState } from 'react'
@@ -159,7 +160,7 @@ function HomePage() {
                   className="product-card-link"
                   aria-label={`View ${product.name}`}
                 >
-                  {product.images?.[0] ? <img src={product.images[0].url} alt={product.name} loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
+                  {product.images?.[0] ? <ProductPhoto src={product.images[0].url} alt={product.name} loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
                 </Link>
               </div>
               <div className="product-info">

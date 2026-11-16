@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Cart product thumbnails | 2026-11-16 | Current catalog photos in the cart page and drawer, with decorative placeholders for missing photos and bundles | Desktop/mobile loaded-photo, broken-photo, quantity and removal checks; preceding uncommitted fallback changes preserved |
+| Product photo fallbacks | 2026-11-16 | Shared image fallback for homepage, shop, wishlist and product gallery; alternate gallery photos remain usable | Desktop/mobile broken-image and gallery-recovery coverage; existing uploaded assets unchanged |
 | Homepage save recovery | 2026-11-16 | Failed publishing retains the preview and description for retry; initial-load errors block editing until reloaded | Desktop/mobile failure and retry coverage; Cloudinary and database responses use fixtures |
 | Homepage image drafts | 2026-11-16 | Unpublished-change status, discard-to-saved controls, disabled unchanged save, published homepage link and browser refresh/close warning | Desktop/mobile draft recovery coverage; browser warning does not block internal app navigation |
 | Homepage image management | 2026-11-15 | Admin upload, preview, accessible description, publish/remove controls for Everyday Care Bundles; public homepage image with safe placeholder fallback | 139 logic/API checks, lint and build pass; configure Cloudinary for real uploads |

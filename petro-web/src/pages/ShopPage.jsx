@@ -1,3 +1,4 @@
+import ProductPhoto from '../components/ProductPhoto'
 import WishlistButton from '../components/WishlistButton'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useProducts } from '../context/productContext'
@@ -39,7 +40,7 @@ export default function ShopPage() {
         const variant = listingVariant(product, filters.inStock)
         const available = product.variants.some((entry) => entry.stock > 0)
         return <article className={`product-card product-${product.accent}`} key={product.slug}>
-          <Link to={`/products/${product.slug}`} className="product-art">{product.images?.[0] ? <img loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" src={product.images[0].url} alt={product.name} /> : <span>PETRO</span>}</Link>
+          <Link to={`/products/${product.slug}`} className="product-art">{product.images?.[0] ? <ProductPhoto loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" src={product.images[0].url} alt={product.name} /> : <span>PETRO</span>}</Link>
           <div className="product-info">{product.promotion && <span className="chip">{product.promotion.label}</span>}<h2><Link to={`/products/${product.slug}`}>{product.name}</Link></h2>{variant.regularPrice > variant.price && <del>{formatLKR(variant.regularPrice)}</del>}<strong>From {formatLKR(variant.price)}</strong><p>{product.category} · {available ? 'In stock' : 'Out of stock'}</p><WishlistButton slug={product.slug} /></div>
         </article>
       })}</div>
