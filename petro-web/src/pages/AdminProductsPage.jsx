@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom'
+import HomepageImageEditor from '../components/HomepageImageEditor'
 import ProductAvailability from '../components/ProductAvailability'
 import ProductDetailsEditor from '../components/ProductDetailsEditor'
 import InventoryPanel from '../components/InventoryPanel'
@@ -102,6 +103,7 @@ export default function AdminProductsPage() {
   })
   const selectedMatches = matches.some((entry) => entry.slug === product?.slug)
   return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Products & promotions</h1><p><Link to="/admin">Back to dashboard</Link></p><p>Manage your product photos, size prices, and special offers.</p><button type="button" className="btn btn-primary btn-large" onClick={() => { setCreating(true); setCreatedMessage('') }}>Add new product</button></div>
+    <HomepageImageEditor />
     {createdMessage && <p role="status">{createdMessage}</p>}
     {creating && <NewProductForm onCancel={() => setCreating(false)} onCreated={(product) => { setSelected(product.slug); setCreating(false); setCreatedMessage(`${product.name} created. Upload photos and save your changes below.`); setResult((current) => ({ ...current, loading: true })); setAttempt((value) => value + 1); reload() }} />}
     {creating ? null : result.loading ? <p role="status">Loading products…</p> : result.error ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary btn-large" onClick={() => setAttempt((value) => value + 1)}>Try again</button></div> : <><div className="checkout-fields">

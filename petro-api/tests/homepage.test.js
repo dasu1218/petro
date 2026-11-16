@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import { after, before, test } from 'node:test';
+import express from 'express';
+import Homepage from '../models/Homepage.js';
+import User from '../models/User.js';
+import routes from '../routes/homepageRoutes.js';
+import { validateHomepage } from '../services/homepage.js';
+import { signToken } from '../utils/token.js';
+import { errorHandler } from '../middleware/errorHandler.js';
+const payload = { image: { url: 'https://res.cloudinary.com/demo/image/upload/bundle.jpg', publicId: 'petro/bundle' }, alt: 'Care bundle' };
+test('homepage image validation requires HTTPS, image identifiers and accessible descriptions', () => {
+  for (const body of [null, {}, { image: {} }, { ...payload, alt: '' }, { ...payload, alt: 'x'.repeat(161) }, { ...payload, image: { ...payload.image, url: 'http://example.test/a.jpg' } }, { ...payload, image: { ...payload.image, url: 'https://user:pass@example.test/a.jpg' } }]) assert.throws(() => validateHomepage(body), { status: 400 });
+  assert.deepEqual(validateHomepage({ ...payload, alt: ' Care bundle ', key: 'forged' }), payload);
+  assert.deepEqual(validateHomepage({ image: null, alt: 'old text' }), { image: null, alt: '' });
+});
+let server, base, stored = null, writes = 0;
+const originals = { find: Homepage.findOne, update: Homepage.findOneAndUpdate, user: User.findById };
+before(async () => {
+  process.env.JWT_SECRET = 'homepage-tests-only';
+  Homepage.findOne = () => ({ lean: async () => stored });
+  Homepage.findOneAndUpdate = async (filter, update, options) => { assert.deepEqual(filter, { key: 'home' }); assert.equal(options.runValidators, true); stored = update.$set; writes++; };
+  User.findById = async (id) => ({ _id: id, role: id === 'admin-user' ? 'admin' : 'customer' });
+  const app = express(); app.use(express.json()); app.use('/homepage', routes); app.use(errorHandler);
+  server = await new Promise((resolve) => { const listener = app.listen(0, '127.0.0.1', () => resolve(listener)); });
+  base = `http://127.0.0.1:${server.address().port}/homepage`;
+});
+after(async () => { Homepage.findOne = originals.find; Homepage.findOneAndUpdate = originals.update; User.findById = originals.user; if (server) await new Promise((resolve) => server.close(resolve)); });
+const put = (id, body) => ({ method: 'PUT', headers: { 'Content-Type': 'application/json', ...(id ? { Authorization: `Bearer ${signToken(id)}` } : {}) }, body: JSON.stringify(body) });
+test('homepage is public but only admins can publish and remove an image', async () => {
+  assert.deepEqual(await (await fetch(base)).json(), { image: null, alt: '' });
+  assert.equal((await fetch(base, put(null, payload))).status, 401);
+  assert.equal((await fetch(base, put('customer', payload))).status, 403);
+  assert.equal(writes, 0);
+  assert.equal((await fetch(base, put('admin-user', {}))).status, 400);
+  assert.equal(writes, 0);
+  assert.equal((await fetch(base, put('admin-user', payload))).status, 200);
+  assert.deepEqual(await (await fetch(base)).json(), payload);
+  assert.equal((await fetch(base, put('admin-user', { image: null }))).status, 200);
+  assert.deepEqual(await (await fetch(base)).json(), { image: null, alt: '' });
+});

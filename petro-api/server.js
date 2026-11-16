@@ -23,7 +23,9 @@ import inventoryRoutes from './routes/inventoryRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import homepageRoutes from './routes/homepageRoutes.js';
 import ProductSettings from './models/ProductSettings.js';
+import Homepage from './models/Homepage.js';
 import adminOrderRoutes from './routes/adminOrderRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import { isProductImage } from './services/imageUpload.js';
@@ -58,6 +60,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/homepage', homepageRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/inventory', inventoryRoutes);
@@ -89,7 +92,7 @@ app.use(errorHandler);
 
 try {
   await connectDB();
-  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init(), CatalogProduct.init(), Restock.init()]);
+  await Promise.all([Order.init(), Inventory.init(), ProductSettings.init(), Wishlist.init(), Review.init(), CatalogProduct.init(), Restock.init(), Homepage.init()]);
   app.listen(port, () => {
     console.log(`PETRO API listening on http://localhost:${port}`);
   });

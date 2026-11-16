@@ -14,6 +14,8 @@ export async function mockStore(page, role = null, options = {}) {
   const orders = new Map()
   let firstOrderResponse = true
   const savedProducts = []
+  let homepage = { image: null, alt: '' }
+  const homepageSaves = []
   const settings = new Map((options.hiddenSlugs || []).map((slug) => [slug, { isArchived: true, prices: [], images: [] }]))
   const photo = 'https://images.example.test/photo.png'
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j7WQAAAAASUVORK5CYII=', 'base64')
@@ -29,6 +31,10 @@ export async function mockStore(page, role = null, options = {}) {
     const path = url.pathname.slice(4)
     const method = route.request().method()
     const json = (body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
+    if (path === '/homepage') {
+      if (method === 'PUT') { homepage = route.request().postDataJSON(); homepageSaves.push(homepage) }
+      return json(homepage)
+    }
     if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: options.unavailableSlugs || [] })
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
     if (path === '/bundles') return json({ bundles: [] })
@@ -90,5 +96,5 @@ export async function mockStore(page, role = null, options = {}) {
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
-  return { errors, unexpected, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
+  return { errors, unexpected, homepageSaves, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

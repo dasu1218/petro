@@ -1,3 +1,4 @@
+import HomepageHeroImage from '../components/HomepageHeroImage'
 import WishlistButton from '../components/WishlistButton'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -91,9 +92,7 @@ function HomePage() {
         <div className="hero-visual" aria-label="Featured pet care products">
           <div className="floating-badge">Free standard delivery from LKR 4,500</div>
             <div className="product-showcase card-primary" id="bundles">
-            <div className="product-image product-rose">
-              <span>🐾</span>
-            </div>
+            <HomepageHeroImage />
             <div className="product-meta">
               <span className="chip">Care bundles</span>
               <h2>Everyday Care Bundles</h2>
