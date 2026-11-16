@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Homepage image drafts | 2026-11-16 | Unpublished-change status, discard-to-saved controls, disabled unchanged save, published homepage link and browser refresh/close warning | Desktop/mobile draft recovery coverage; browser warning does not block internal app navigation |
 | Homepage image management | 2026-11-15 | Admin upload, preview, accessible description, publish/remove controls for Everyday Care Bundles; public homepage image with safe placeholder fallback | 139 logic/API checks, lint and build pass; configure Cloudinary for real uploads |
 | UI polish | 2026-11-15 | Consistent red/cream/teal buttons, selected and disabled states, product cards, file picker and proportion-preserving product image frames | 44 browser checks, lint and build pass; desktop shop and mobile admin screenshots reviewed |
 | Unavailable wishlist removal | 2026-11-15 | Saved products missing from the current catalog remain listed by URL with removal controls and recoverable error feedback | Desktop/mobile success and failed-removal coverage; previous uncommitted wishlist card improvements retained |

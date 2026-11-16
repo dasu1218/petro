@@ -82,3 +82,9 @@ Availability tests cover admin access, boolean validation, public/admin visibili
 Sign in as an admin and open **Account → Manage products**. The **Homepage bundle image** panel controls the photo above “Everyday Care Bundles” on the homepage. Choose one JPG, PNG or WebP up to 5 MB, wait for the preview, enter an image description, then click **Save homepage image**. Uploading alone does not publish it. Homepage photos use the original uploaded image without automatic product enhancement.
 
 To return to the paw placeholder, click **Remove homepage photo**, then **Save homepage image**. Removing the reference does not delete the Cloudinary asset. The upload endpoint still requires Cloudinary credentials, and both upload and publishing require an admin account. Public GET `/api/homepage` returns only the saved photo reference and description; PUT `/api/homepage` is admin-only. Refresh or revisit the homepage to see newly published changes. Restart the API after pulling this change to mount the new route and initialize its unique index.
+
+### Reviewing and discarding homepage drafts
+
+The homepage panel marks unpublished changes and enables Save only when the preview differs from the saved image. **Discard homepage changes** restores the last loaded or successfully saved photo and description without publishing a request. This also reverses an unsaved removal. **Open published homepage** opens a separate tab so you can compare the published image without leaving the editor.
+
+Supported browsers may warn before refreshing or closing the page while there are drafts or an upload/save in progress. This warning does not intercept internal app navigation and does not persist drafts after the page is closed. Discarding does not delete an uploaded Cloudinary asset.
