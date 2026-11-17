@@ -6,7 +6,7 @@ import { getCatalog } from './catalog.js';
 const { products } = JSON.parse(readFileSync(new URL('../seed-data.json', import.meta.url), 'utf8'));
 const accents = ['rose', 'gold', 'teal'];
 
-export function normalizeCartItems(items, bundles = [], catalog = products) {
+export function normalizeCartItems(items, bundles = [], catalog = products, { dropUnavailable = false } = {}) {
   if (!Array.isArray(items) || items.length > 100) {
     throw Object.assign(new Error('Cart must contain at most 100 product variants'), { status: 400 });
   }
@@ -19,7 +19,10 @@ export function normalizeCartItems(items, bundles = [], catalog = products) {
     const bundle = bundles.find((entry) => entry.slug === item.slug);
     const product = bundle || catalog[productIndex];
     const variant = product?.variants.find((entry) => entry.label === item.variantLabel);
-    if (!variant) throw Object.assign(new Error('Product variant not found'), { status: 400 });
+    if (!variant) {
+      if (dropUnavailable) continue;
+      throw Object.assign(new Error('Product variant not found'), { status: 400 });
+    }
     if (variant.stock <= 0) continue;
     const key = `${product.slug}:${variant.label}`;
     lines.set(key, {
@@ -35,5 +38,5 @@ export function normalizeCartItems(items, bundles = [], catalog = products) {
 export async function normalizeCartRequest(items) {
   const catalog = await getCatalog();
   const needsBundles = Array.isArray(items) && items.some((item) => item?.variantLabel === BUNDLE_VARIANT);
-  return normalizeCartItems(items, needsBundles ? await getBundleOffers(catalog) : [], catalog);
+  return normalizeCartItems(items, needsBundles ? await getBundleOffers(catalog) : [], catalog, { dropUnavailable: true });
 }

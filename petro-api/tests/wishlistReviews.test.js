@@ -1,3 +1,4 @@
+import CatalogProduct from '../models/CatalogProduct.js';
 import assert from 'node:assert/strict';
 import { before, beforeEach, after, test } from 'node:test';
 import express from 'express';
@@ -13,7 +14,11 @@ const slug = 'petal-cleanse-shampoo';
 let saved, reviews, server, base;
 const original = { user: User.findById, wf: Wishlist.find, wu: Wishlist.updateOne, wd: Wishlist.deleteOne, rf: Review.find, ro: Review.findOne, ru: Review.findOneAndUpdate, rd: Review.deleteOne, ra: Review.aggregate };
 beforeEach(() => { saved = new Map(); reviews = new Map(); });
+const originalCatalogFind = CatalogProduct.find;
+const originalCatalogExists = CatalogProduct.exists;
 before(async () => {
+  CatalogProduct.find = () => ({ sort: () => ({ session: () => ({ lean: async () => [] }) }) });
+  CatalogProduct.exists = async ({ slug }) => slug === 'new-custom-product';
   process.env.JWT_SECRET = 'wishlist-review-tests';
   User.findById = async (id) => ({ _id: id, name: `Customer ${id}` });
   Wishlist.find = ({ user }) => ({ sort: () => ({ lean: async () => [...saved.values()].filter((item) => item.user === user) }) });
@@ -28,7 +33,9 @@ before(async () => {
   server = await new Promise((resolve, reject) => { const listener = app.listen(0, '127.0.0.1', (error) => error ? reject(error) : resolve(listener)); listener.on('error', reject); });
   base = `http://127.0.0.1:${server.address().port}`;
 });
-after(async () => { User.findById=original.user; Wishlist.find=original.wf; Wishlist.updateOne=original.wu; Wishlist.deleteOne=original.wd; Review.find=original.rf; Review.findOne=original.ro; Review.findOneAndUpdate=original.ru; Review.deleteOne=original.rd; Review.aggregate=original.ra; if(server) await new Promise((resolve)=>server.close(resolve)); });
+after(async () => {
+  CatalogProduct.find = originalCatalogFind;
+  CatalogProduct.exists = originalCatalogExists; User.findById=original.user; Wishlist.find=original.wf; Wishlist.updateOne=original.wu; Wishlist.deleteOne=original.wd; Review.find=original.rf; Review.findOne=original.ro; Review.findOneAndUpdate=original.ru; Review.deleteOne=original.rd; Review.aggregate=original.ra; if(server) await new Promise((resolve)=>server.close(resolve)); });
 const request = (path, method='GET', user, body) => fetch(base+path, { method, headers: { 'Content-Type':'application/json', ...(user ? {Authorization:`Bearer ${signToken(user)}`} : {}) }, body:body===undefined?undefined:JSON.stringify(body) });
 test('review validation rejects invalid scores and blank or oversized comments', () => {
   for (const input of [null,{rating:0,comment:'x'},{rating:6,comment:'x'},{rating:4.5,comment:'x'},{rating:4,comment:' '},{rating:4,comment:'x'.repeat(1001)}]) assert.throws(()=>validateReview(input),{status:400});
@@ -58,4 +65,9 @@ test('empty reviews have no fabricated rating and invalid pages/products are rej
   const data=await(await request(`/reviews/${slug}`)).json();assert.equal(data.rating,null);assert.equal(data.count,0);
   assert.equal((await request(`/reviews/${slug}?page=-1`)).status,400);
   assert.equal((await request('/reviews/unknown')).status,404);
+});
+
+test('wishlists and review lookups accept persisted products outside the seed catalog', async () => {
+  assert.equal((await request('/wishlist/new-custom-product', 'PUT', 'alice')).status, 200);
+  assert.equal((await request('/reviews/new-custom-product')).status, 200);
 });

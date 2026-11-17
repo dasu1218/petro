@@ -1,3 +1,4 @@
+import CatalogProduct from '../models/CatalogProduct.js';
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import express from 'express';
@@ -40,7 +41,11 @@ let server;
 let base;
 let stored = [];
 const original = { settings: ProductSettings.find, update: ProductSettings.findOneAndUpdate, inventory: Inventory.find, user: User.findById };
+const originalCatalogFind = CatalogProduct.find;
+const originalCatalogExists = CatalogProduct.exists;
 before(async () => {
+  CatalogProduct.find = () => ({ sort: () => ({ session: () => ({ lean: async () => [] }) }) });
+  CatalogProduct.exists = async () => false;
   process.env.JWT_SECRET = 'products-tests-only';
   ProductSettings.find = () => ({ lean: async () => stored, session: () => ({ lean: async () => stored }) });
   ProductSettings.findOneAndUpdate = async ({ slug }, { $set }) => { stored = [{ slug, ...$set }]; };
@@ -51,6 +56,8 @@ before(async () => {
   base = `http://127.0.0.1:${server.address().port}/api/products`;
 });
 after(async () => {
+  CatalogProduct.find = originalCatalogFind;
+  CatalogProduct.exists = originalCatalogExists;
   ProductSettings.find = original.settings; ProductSettings.findOneAndUpdate = original.update; Inventory.find = original.inventory; User.findById = original.user;
   if (server) await new Promise((resolve) => server.close(resolve));
 });

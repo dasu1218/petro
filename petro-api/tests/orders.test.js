@@ -152,3 +152,12 @@ test('saved legacy orders replay without adding COD or reserving stock again', a
   assert.equal(state.stock.size, 0);
   await assert.rejects(placeOrder('alice', body(), dependencies), { status: 409 });
 });
+
+test('new non-seed products reserve their own initial stock and can be ordered', async () => {
+  const { state, dependencies } = fakeDatabase();
+  dependencies.getCatalog = async () => [{ slug: 'new-product', name: 'New Product', variants: [{ label: '100g', price: 1000, stock: 5 }] }];
+  dependencies.getBundleOffers = async () => [];
+  const result = await placeOrder('alice', { ...body(), items: [{ slug: 'new-product', variantLabel: '100g', quantity: 2 }], expectedTotal: 2350 }, dependencies);
+  assert.equal(result.order.items[0].slug, 'new-product');
+  assert.equal(state.stock.get('new-product:100g'), 3);
+});

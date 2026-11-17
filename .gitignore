@@ -5,3 +5,5 @@ dist/
 !.env.example
 .DS_Store
 npm-debug.log*
+petro-web/test-results/
+petro-web/playwright-report/

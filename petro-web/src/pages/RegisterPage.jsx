@@ -1,3 +1,4 @@
+import PasswordField from '../components/PasswordField'
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
@@ -87,31 +88,25 @@ function RegisterPage() {
             />
           </label>
 
-          <label className="form-field">
-            <span>Password</span>
-            <input
-              type="password"
+          <PasswordField label="Password"
               name="password"
               autoComplete="new-password"
               minLength={MIN_PASSWORD_LENGTH}
               value={form.password}
               onChange={updateField}
               required
-            />
+            >
             <small>At least {MIN_PASSWORD_LENGTH} characters</small>
-          </label>
+          </PasswordField>
 
-          <label className="form-field">
-            <span>Confirm password</span>
-            <input
-              type="password"
+          <PasswordField label="Confirm password"
               name="confirmPassword"
               autoComplete="new-password"
               value={form.confirmPassword}
               onChange={updateField}
               required
-            />
-          </label>
+            >
+          </PasswordField>
 
           <button type="submit" className="btn btn-primary btn-large" disabled={isSubmitting}>
             {isSubmitting ? 'Creating account…' : 'Create account'}

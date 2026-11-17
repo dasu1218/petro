@@ -1,3 +1,5 @@
+import ClearCartButton from '../components/ClearCartButton'
+import CartProductPhoto from '../components/CartProductPhoto'
 import { Link } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
 import DeliveryProgress from '../components/DeliveryProgress'
@@ -38,7 +40,7 @@ function CartPage() {
           {items.map((item) => (
             <li key={item.key} className={`cart-line product-${item.accent}`}>
               <Link to={getCartItemPath(item)} className="cart-line-art" aria-hidden="true" tabIndex={-1}>
-                PETRO
+                <CartProductPhoto slug={item.slug} />
               </Link>
 
               <div className="cart-line-info">
@@ -92,9 +94,7 @@ function CartPage() {
           <Link to="/checkout" className="btn btn-primary btn-large cart-checkout">
             Continue to checkout
           </Link>
-          <button type="button" className="cart-clear" onClick={clearCart}>
-            Clear cart
-          </button>
+          <ClearCartButton itemCount={itemCount} onClear={clearCart} />
         </aside>
       </div>
     </section>

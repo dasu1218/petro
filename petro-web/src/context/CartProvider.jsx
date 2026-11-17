@@ -48,7 +48,7 @@ function cartReducer(items, action) {
 }
 
 function CartSession({ children, token, userId }) {
-  const { products } = useProducts()
+  const { products, unavailableSlugs } = useProducts()
   const { logout } = useAuth()
   const pendingKey = userId ? `petro_cart_pending_${userId}` : CART_KEY
   const [items, dispatch] = useReducer(cartReducer, undefined, () => readCart(pendingKey))
@@ -59,6 +59,7 @@ function CartSession({ children, token, userId }) {
   const [attempt, setAttempt] = useState(0)
   const queue = useRef(Promise.resolve())
   const latestRevision = useRef(0)
+  const skipSavedItems = useRef(null)
   const orderLock = useRef(false)
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const beginOrder = useCallback(() => {
@@ -103,6 +104,7 @@ function CartSession({ children, token, userId }) {
       return
     }
     if (revision === 0) return
+    if (skipSavedItems.current === items) { skipSavedItems.current = null; return }
     try { localStorage.setItem(pendingKey, JSON.stringify(items)) } catch { /* In-memory cart still works. */ }
     let cancelled = false
     queue.current = queue.current.catch(() => {}).then(async () => {
@@ -110,9 +112,13 @@ function CartSession({ children, token, userId }) {
         setSaving(true)
         setError('')
       }
-      await apiRequest('/cart', { method: 'PUT', token, body: { items } })
+      const data = await apiRequest('/cart', { method: 'PUT', token, body: { items } })
       if (!cancelled && latestRevision.current === revision) {
         try { localStorage.removeItem(pendingKey) } catch { /* Storage may be unavailable. */ }
+        if (JSON.stringify(data.items) !== JSON.stringify(items)) {
+          skipSavedItems.current = data.items
+          dispatch({ type: 'replace', items: data.items })
+        }
         setSaving(false)
       }
     }).catch((failure) => {
@@ -133,9 +139,9 @@ function CartSession({ children, token, userId }) {
 
   useEffect(() => {
     if (!ready || orderLock.current) return
-    const refreshed = refreshCartProducts(items, products)
+    const refreshed = refreshCartProducts(items, products, unavailableSlugs)
     if (refreshed !== items) change({ type: 'replace', items: refreshed })
-  }, [items, products, ready, change])
+  }, [items, products, unavailableSlugs, ready, change])
 
   const addItem = useCallback((product, variant, quantity = 1) => {
     if (variant.stock <= 0) {

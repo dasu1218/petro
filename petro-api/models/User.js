@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
       enum: ['customer', 'admin'],
       default: 'customer',
     },
+    tokenVersion: { type: Number, default: 0, min: 0, validate: Number.isSafeInteger },
     addresses: { type: [addressSchema], default: [] },
     defaultAddressId: { type: mongoose.Schema.Types.ObjectId, default: null },
   },

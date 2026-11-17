@@ -1,6 +1,6 @@
 # Product photos, prices, and promotions
 
-The admin page is `/admin/products`, also linked from My Account for admins. It manages the existing eight catalog products. Creating new products, changing inventory, and admin order management are separate features.
+The admin page is `/admin/products`, also linked from My Account for admins. It manages the seed products and products added by admins. Existing product settings cover photos, prices, and promotions. Click Add new product to create another catalog item. Restocking is available in the Stock management panel; see RESTOCKING.md. Names, descriptions, categories, and badges can be changed in Product details. Admin order management is available separately at /admin/orders.
 
 ## Access and setup
 
@@ -43,3 +43,52 @@ The response includes `url`, `publicId`, `originalUrl`, and (when enhanced) `enh
 Enhancement failures leave the product unchanged and show an error. Retry or disable enhancement for another upload. The original asset may already exist in Cloudinary after a failed transformation. Cloudinary transformation usage applies to generated copies. See the official transformation reference: https://cloudinary.com/documentation/transformation_reference#improve
 
 Enhancement tests mock Cloudinary and check eager upload options, result selection, preserved originals, validation, and error propagation. A real upload still needs verification against the configured Cloudinary account.
+
+
+## Add a new product
+
+On Manage products, click Add new product. Enter its name, a unique lowercase URL name, description, category, optional badges, and 1–10 sizes. Each size needs a unique label, whole-LKR price, and nonnegative initial stock. Products appear in the shop immediately after creation; use zero stock if you are not ready to sell. Then upload photos, choose the main photo, set any promotion, and Save product in the existing editor.
+
+`POST /api/products` is admin-only. It validates and whitelists fields, rejects duplicate seed/custom/bundle URL names, and stores products in CatalogProduct documents with a unique slug index. The public and admin catalogs combine these documents with the existing seed products. Actual .env values, user roles, and request-supplied internal fields cannot be set through creation. Product URLs and size labels are fixed after creation; the editors update descriptive details, photos, prices, and offers.
+
+Cart normalization, wishlist/review existence checks, bundle component lookup, and transactional stock reservation all support persisted products outside the seed file. Initial inventory is taken from the product's variant when first reserved. Orders retain their original product and price snapshots. Existing seed commands do not delete CatalogProduct documents.
+
+New-product tests mock database persistence and cover admin access, validation, duplicate/reserved URLs, catalog visibility, promotions, and ordering a non-seed product. Live persistence, creation forms, uploads, and concurrent last-unit checks still require verification.
+
+
+## Edit product details
+
+Choose a product and use Product details to edit its name, description, category, and badges. Click Save product details. This separate action does not save or discard unsaved photo/price edits in the other editor. The live catalog refreshes after saving; names also refresh in current product cart lines. Existing order snapshots remain unchanged.
+
+`PATCH /api/products/:slug/details` accepts the complete name, description, category, and badges payload. It requires admin access and whitelists only those fields. Overrides are stored under ProductSettings.details for both seed and admin-created products. Saving details preserves photos, base prices, promotions, stock records, and product/size identifiers. Saving photo/price settings also preserves saved descriptive overrides. Unknown products return 404.
+
+Five new regression tests cover descriptive validation and whitelisting, existing nested defaults, preservation of other settings, public/admin catalog updates, admin-only access, bundle component names, and cart name refresh. The complete verification run passes 104 tests, lint, and build. Database persistence and rendered browser interactions still require a live check.
+
+
+## Hide or restore products
+
+Use Shop visibility in the admin product editor. Hide from shop removes a product from public product listings and details; Restore to shop makes it available again. Hidden products remain in the admin selector with a Hidden label and can still be edited or restocked. This action preserves photos, prices, descriptions, promotions, inventory, reviews, wishlists, and historical order snapshots.
+
+`PATCH /api/products/:slug/availability` requires admin access and a boolean `isArchived` payload. Only the visibility flag changes. Public catalog responses include available products and unavailableSlugs for refreshing saved carts. Bundles containing hidden components are omitted because their included products are unavailable. Restoring a product restores eligible bundles according to their current settings and stock.
+
+Cart synchronization drops stale/unavailable product variants and bundle lines while preserving validation of malformed quantities. Final order validation stays strict and never silently creates an order without a requested line. Guest carts drop explicitly hidden products on catalog refresh. A guest bundle line may remain visible until authenticated synchronization; final order validation still rejects unavailable bundles. Wishlist entries remain saved and show a notice when their products are unavailable. Existing review records remain accessible through the reviews API; hiding a product is not a privacy control.
+
+Public catalogs refresh every minute and on window focus, so another open browser may show an old product temporarily. The server uses current availability when synchronizing carts and placing orders. No permanent product deletion endpoint has been added.
+
+Availability tests cover admin access, boolean validation, public/admin visibility, preservation/restoration of stock and photos, dependent bundles, stale cart cleanup, strict order normalization, and local cart refresh. The full suite has 108 passing tests, plus lint and build. Live database persistence and browser behavior still need verification.
+
+## Homepage bundle photo
+
+Sign in as an admin and open **Account → Manage products**. The **Homepage bundle image** panel controls the photo above “Everyday Care Bundles” on the homepage. Choose one JPG, PNG or WebP up to 5 MB, wait for the preview, enter an image description, then click **Save homepage image**. Uploading alone does not publish it. Homepage photos use the original uploaded image without automatic product enhancement.
+
+To return to the paw placeholder, click **Remove homepage photo**, then **Save homepage image**. Removing the reference does not delete the Cloudinary asset. The upload endpoint still requires Cloudinary credentials, and both upload and publishing require an admin account. Public GET `/api/homepage` returns only the saved photo reference and description; PUT `/api/homepage` is admin-only. Refresh or revisit the homepage to see newly published changes. Restart the API after pulling this change to mount the new route and initialize its unique index.
+
+### Reviewing and discarding homepage drafts
+
+The homepage panel marks unpublished changes and enables Save only when the preview differs from the saved image. **Discard homepage changes** restores the last loaded or successfully saved photo and description without publishing a request. This also reverses an unsaved removal. **Open published homepage** opens a separate tab so you can compare the published image without leaving the editor.
+
+Supported browsers may warn before refreshing or closing the page while there are drafts or an upload/save in progress. This warning does not intercept internal app navigation and does not persist drafts after the page is closed. Discarding does not delete an uploaded Cloudinary asset.
+
+### Retrying failed homepage changes
+
+If upload or publishing fails after the editor has loaded, the current preview and description stay in place. Read the error, then retry the upload or **Save homepage image**, or discard unpublished changes. The error no longer offers a reload that could overwrite the draft. If the initial homepage settings cannot load, editing stays unavailable and **Reload homepage image** retries that initial request.

@@ -25,11 +25,8 @@ function Layout() {
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <header className="topbar">
         <Link to="/" className="brand-block" aria-label="PETRO home">
-          <div className="brand-mark">P</div>
-          <div>
-            <div className="brand-name">PETRO</div>
-            <div className="brand-tag">pet care essentials</div>
-          </div>
+          <span className="petro-logo-frame"><img src="/petro-logo.jpeg" width="520" height="636" alt="Petro" className="petro-logo" fetchPriority="high" /></span>
+          <span className="brand-tag">pet care essentials</span>
         </Link>
 
         <nav className="main-nav" aria-label="Main navigation">
@@ -77,7 +74,7 @@ function Layout() {
 
       <footer className="site-footer">
         <div>
-          <strong>PETRO</strong>
+          <Link to="/" className="footer-brand" aria-label="PETRO home"><span className="petro-logo-frame"><img src="/petro-logo.jpeg" width="520" height="636" alt="Petro" className="petro-logo" loading="lazy" /></span></Link>
           <span>Premium pet care essentials</span>
         </div>
         <div>

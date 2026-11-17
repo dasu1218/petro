@@ -1,3 +1,6 @@
+import BrandEntrance from '../components/BrandEntrance'
+import ProductPhoto from '../components/ProductPhoto'
+import HomepageHeroImage from '../components/HomepageHeroImage'
 import WishlistButton from '../components/WishlistButton'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -27,7 +30,8 @@ function HomePage() {
   const { products } = useProducts()
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [justAddedSlug, setJustAddedSlug] = useState(null)
-  const { addItem } = useCart()
+  const { addItem, items } = useCart()
+  const quickAddVariant = (product) => product.variants.find((variant) => variant.stock > (items.find((item) => item.slug === product.slug && item.variantLabel === variant.label)?.quantity || 0))
 
   useEffect(() => {
     if (!justAddedSlug) {
@@ -39,7 +43,7 @@ function HomePage() {
   }, [justAddedSlug])
 
   const handleQuickAdd = (product) => {
-    const variant = product.variants.find((item) => item.stock > 0)
+    const variant = quickAddVariant(product)
 
     if (!variant) {
       return
@@ -54,6 +58,7 @@ function HomePage() {
 
   return (
     <>
+      <BrandEntrance />
       <section className="hero-section" id="home">
         <div className="hero-copy">
           <span className="eyebrow">Everyday pet care</span>
@@ -91,9 +96,7 @@ function HomePage() {
         <div className="hero-visual" aria-label="Featured pet care products">
           <div className="floating-badge">Free standard delivery from LKR 4,500</div>
             <div className="product-showcase card-primary" id="bundles">
-            <div className="product-image product-rose">
-              <span>🐾</span>
-            </div>
+            <HomepageHeroImage />
             <div className="product-meta">
               <span className="chip">Care bundles</span>
               <h2>Everyday Care Bundles</h2>
@@ -152,15 +155,18 @@ function HomePage() {
 
           <ProductStatus />
           <div className="product-grid">
-          {visibleProducts.map((product) => (
-            <article key={product.name} className={`product-card product-${product.accent}`}>
+          {visibleProducts.map((product) => {
+            const quickVariant = quickAddVariant(product)
+            const displayVariant = quickVariant || product.variants.find((variant) => variant.stock > 0) || product.variants[0]
+            const available = product.variants.some((variant) => variant.stock > 0)
+            return <article key={product.name} className={`product-card product-${product.accent}`}>
               <div className="product-art">
                 <Link
                   to={`/products/${product.slug}`}
                   className="product-card-link"
                   aria-label={`View ${product.name}`}
                 >
-                  {product.images?.[0] ? <img src={product.images[0].url} alt={product.name} loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
+                  {product.images?.[0] ? <ProductPhoto src={product.images[0].url} alt={product.name} loading="lazy" decoding="async" width="300" height="220" className="catalog-photo" /> : <span>{product.packageType === 'bottle' ? '🐶' : '🐱'}</span>}
                 </Link>
               </div>
               <div className="product-info">
@@ -172,11 +178,12 @@ function HomePage() {
                   </Link>
                 </h3>
                 <div className="product-bottom">
-                  <div>{product.variants[0].regularPrice > product.variants[0].price && <del>LKR {product.variants[0].regularPrice.toLocaleString('en-LK')}</del>}<strong>LKR {product.variants[0].price.toLocaleString('en-LK')}</strong></div>
+                  <div>{displayVariant.regularPrice > displayVariant.price && <del>LKR {displayVariant.regularPrice.toLocaleString('en-LK')}</del>}<strong>LKR {displayVariant.price.toLocaleString('en-LK')}</strong><small className="quick-add-size">{quickVariant ? `Quick add: ${quickVariant.label}` : available ? 'All available units are in your cart' : 'Out of stock'}</small></div>
                   <button
                     type="button"
                     className={`icon-btn${justAddedSlug === product.slug ? ' is-added' : ''}`}
-                    aria-label={`Add ${product.name} to cart`}
+                    aria-label={quickVariant ? `Add ${product.name} ${quickVariant.label} to cart` : `${product.name}: ${available ? 'all available stock is in your cart' : 'out of stock'}`}
+                    disabled={!quickVariant}
                     onClick={() => handleQuickAdd(product)}
                   >
                     {justAddedSlug === product.slug ? '✓' : '+'}
@@ -184,7 +191,7 @@ function HomePage() {
                 </div>
               </div>
             </article>
-          ))}
+          })}
         </div>
           {visibleProducts.length === 0 && (
             <p className="empty-products">No featured products in this category yet.</p>

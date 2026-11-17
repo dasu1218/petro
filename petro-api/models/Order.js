@@ -17,9 +17,12 @@ const schema = new mongoose.Schema({
   totals: { subtotal: Number, delivery: Number, total: Number },
   status: { type: String, enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'placed' },
   paymentStatus: { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' },
+  cancellation: { reason: String, cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, cancelledAt: Date, stockRestored: Boolean },
+  tracking: { carrier: String, number: String, url: String, updatedAt: Date, updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } },
   paidAt: Date,
   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   statusHistory: [{ _id: false, status: String, changedAt: Date, changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
 }, { timestamps: true });
 schema.index({ user: 1, requestId: 1 }, { unique: true });
+schema.index({ user: 1, createdAt: -1, _id: -1 });
 export default mongoose.models.Order || mongoose.model('Order', schema);

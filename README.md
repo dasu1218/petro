@@ -197,6 +197,7 @@ Base URL: `/api`
 | POST | `/auth/register` | Create account | – |
 | POST | `/auth/login` | Login, returns JWT | – |
 | GET | `/auth/me` | Current user | ✅ |
+| PUT | `/profile/password` | Change password and invalidate previous sessions | ✅ |
 | PUT | `/profile` | Edit name and email (current password required for email changes) | ✅ |
 | POST | `/profile/addresses` | Save a delivery address | ✅ |
 | PUT / DELETE | `/profile/addresses/:id` | Edit or delete an owned address | ✅ |
@@ -310,7 +311,7 @@ Tick items off as you finish them. The branch for each task is shown in brackets
 - [x] **Day 25:** Order history, profile editing, and saved addresses `[feature/orders]` `[feature/profile]` — admin order status updates remain pending.
 - [x] **Day 26:** Admin product management, order fulfilment, and COD cash collection `[feature/admin-dashboard]`
 - [x] **Day 27:** Account wishlists and customer reviews `[feature/wishlist-reviews]`
-- [ ] **Day 28:** Testing — automated API/frontend verification and CI complete; responsive browser checks pending `[feature/testing]`
+- [ ] **Day 28:** API/frontend verification and Chromium desktop/mobile smoke checks complete; wider live-service/browser verification pending `[feature/testing]`
 - [ ] **Day 29:** Render/Vercel configuration ready; publish and verify live deployments `[release/v1.0.0]`
 - [ ] **Day 30:** Polish, SEO meta tags, screenshots, tag `v1.0.0` `[release/v1.0.0]`
 
@@ -395,6 +396,45 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Bundle product photos | 2026-11-17 | Bundle cards show up to two uploaded component-product photos, preserve image fallbacks and link included products to their details | Desktop/mobile photo, broken-image, link, cart and no-photo coverage |
+| Animated brand entrance | 2026-11-17 | Brief logo reveal on the first homepage visit per tab session, with Enter/Skip/Escape and automatic store reveal; respects reduced motion | Desktop/mobile session, keyboard and reduced-motion checks; direct product/order links stay uninterrupted |
+| Homepage quick-add stock | 2026-11-17 | Homepage cards show the quick-add size and matching price, skip sold-out/cart-full sizes and disable adding when no units remain | Desktop/mobile price, next-size, cart-removal and sold-out checks |
+| Cart-aware stock limits | 2026-11-17 | Product purchase quantities subtract units already in cart, report actual requested additions and disable adding at the stock limit | Desktop/mobile repeated-add, size-switch and removal coverage; API remains authoritative for checkout stock |
+| Share order links | 2026-11-17 | Device share controls beside order QR when supported, plus copy-link fallback, cancellation/error feedback and print exclusions | Desktop/mobile shared-payload and recovery checks; recipients still need the owning account |
+| Order QR codes | 2026-11-17 | Locally generated order-link QR, PNG download and printable code on customer order details; login and owner-scoped API retained | Independent image decoding and guest redirect tested; use a published or phone-reachable website address |
+| Password visibility | 2026-11-17 | Independent show/hide controls for login, registration, password changes and email-change password confirmation | Desktop/mobile value preservation and keyboard checks; fields start masked and retain autocomplete metadata |
+| Copy order references | 2026-11-17 | Copy order and courier tracking references with success feedback, clipboard-denial recovery and print exclusions | Desktop/mobile browser coverage; manual selection remains available when clipboard access is blocked |
+| Printable order summary | 2026-11-17 | Customer print action, placed date and print-specific layout retaining order products, address, totals and payment state | Browser print-media coverage; PDF saving uses the browser print dialog |
+| Order history previews | 2026-11-17 | Saved product names, quantities and sizes on customer order cards; three-product preview and full-detail link | Desktop/mobile snapshot, pagination and fulfilment-filter checks; current catalog changes do not rewrite past names |
+| Shop active filters | 2026-11-17 | Removable chips for search, category, price bounds, stock and promotions; preserves other selections and sort while resetting pagination | Desktop/mobile URL and result-count checks; uncommitted clear-cart work retained |
+| Clear-cart confirmation | 2026-11-16 | Inline confirmation before clearing all cart items, with keep-items action and Escape cancellation | Desktop/mobile keyboard, cancellation and persisted-clear coverage |
+| Cart product thumbnails | 2026-11-16 | Current catalog photos in the cart page and drawer, with decorative placeholders for missing photos and bundles | Desktop/mobile loaded-photo, broken-photo, quantity and removal checks; preceding uncommitted fallback changes preserved |
+| Product photo fallbacks | 2026-11-16 | Shared image fallback for homepage, shop, wishlist and product gallery; alternate gallery photos remain usable | Desktop/mobile broken-image and gallery-recovery coverage; existing uploaded assets unchanged |
+| Homepage save recovery | 2026-11-16 | Failed publishing retains the preview and description for retry; initial-load errors block editing until reloaded | Desktop/mobile failure and retry coverage; Cloudinary and database responses use fixtures |
+| Homepage image drafts | 2026-11-16 | Unpublished-change status, discard-to-saved controls, disabled unchanged save, published homepage link and browser refresh/close warning | Desktop/mobile draft recovery coverage; browser warning does not block internal app navigation |
+| Homepage image management | 2026-11-15 | Admin upload, preview, accessible description, publish/remove controls for Everyday Care Bundles; public homepage image with safe placeholder fallback | 139 logic/API checks, lint and build pass; configure Cloudinary for real uploads |
+| UI polish | 2026-11-15 | Consistent red/cream/teal buttons, selected and disabled states, product cards, file picker and proportion-preserving product image frames | 44 browser checks, lint and build pass; desktop shop and mobile admin screenshots reviewed |
+| Unavailable wishlist removal | 2026-11-15 | Saved products missing from the current catalog remain listed by URL with removal controls and recoverable error feedback | Desktop/mobile success and failed-removal coverage; previous uncommitted wishlist card improvements retained |
+| Wishlist product details | 2026-11-14 | Saved cards show the lowest variant price, active promotion, stock availability and a size-selection link | Browser coverage for mixed-size pricing, offers, sold-out products and navigation |
+| Stock-aware size selection | 2026-11-14 | Product pages initially select an available size, label sold-out options and retain selection by size label | Browser coverage for partly and fully sold-out products; server stock validation remains authoritative |
+| Review draft preservation | 2026-11-14 | Separate public pagination and own-review loading so browsing reviews preserves unsaved comments and ratings; own-review retry feedback | Desktop/mobile draft checks; account/product changes still open a fresh editor |
+| Product size guide | 2026-11-14 | Live size, price and availability table with available-size selection and quantity reset | Browser checks cover selection, sold-out sizes and mobile overflow; pack sizes do not imply dosage advice |
+| Admin product search | 2026-11-13 | Product picker search by name/URL, visible/hidden filters, match counts and explicit selection that preserves the current draft while filtering | Desktop/mobile browser coverage; admin authorization unchanged |
+| Custom-product transactions | 2026-11-13 | Real database coverage for custom-product stock, archival snapshots, restock retries and failed cancellation recovery | Nine integration tests pass; no production behaviour changes; deployed database verification remains |
+| Inventory integration | 2026-11-13 | Isolated real MongoDB replica-set tests for stock competition, retries, rollback, restocking and cancellation; dedicated CI job | Six integration tests pass; production Atlas verification remains; see TESTING.md |
+| Session sync | 2026-11-13 | Cross-tab account/logout sync, role refresh, matching-token expiry and verification retry controls | 137 logic/API tests, 28 browser checks, lint and build pass; live integration remains |
+| Checkout browser checks | 2026-11-13 | Desktop/mobile validation, express COD confirmation, unchanged-payload retry and empty-cart coverage | 16 browser checks pass; APIs/orders mocked; real checkout verification remains |
+| Browser smoke | 2026-11-13 | Chromium desktop/mobile layout, shop/cart, role navigation and photo select/save checks; CI artifacts | 136 existing tests plus 10 browser checks, lint and build pass; APIs/uploads mocked; live checks remain |
+| Admin overview | 2026-11-13 | Operational order/payment summaries, low-stock cards and management shortcuts | 136 tests, lint and build pass; live database/browser verification remains |
+| Customer history | 2026-11-13 | Owner-scoped order pagination, fulfilment/payment filters and URL navigation | 132 tests, lint and build pass; live index and browser checks remain |
+| Password changes | 2026-11-13 | Current-password-confirmed changes, bcrypt hashing, token-version session invalidation and login feedback | 127 tests, lint and build pass; live checks remain; email password recovery not implemented |
+| Order tracking | 2026-11-12 | Admin courier/reference/link editing and customer progress timelines with recorded milestone dates | 121 tests, lint and build pass; manual courier details, no provider integration; live checks remain |
+| Order cancellation | 2026-11-12 | Admin cancellation of unpaid unshipped orders, snapshot-based transactional stock restoration and audit trail | 115 tests, lint and build pass; live checks remain; paid/shipped cancellations and refunds unsupported |
+| Product visibility | 2026-11-12 | Admin hide/restore controls, dependent bundle availability, saved cart recovery | 108 tests, lint and build pass; live checks remain; product records and past orders preserved |
+| Product details | 2026-11-12 | Admin name, description, category and badge editing; live catalog and cart-name refresh | 104 tests, lint and build pass; live checks remain; URLs and size labels stay fixed |
+| Restocking | 2026-11-12 | Admin stock additions, remaining stock per size, transactional audit history and retry protection | 99 tests, lint and build pass; live MongoDB and browser checks remain |
+| Product creation | 2026-11-12 | Admin product creation, live catalog integration, custom-product cart/orders/wishlist/reviews support | 92 tests, lint and build pass; live checks remain; restocking and product removal are separate work |
+| Shop browsing | 2026-11-12 | Live catalog search, category/price/stock/promotion filters, sorting and URL-based pagination | 87 tests, lint and build pass; client-side filtering for the current catalog; browser checks and publishing remain |
 | 29 preparation | 2026-11-12 | Render blueprint, Vercel SPA routing, production environment checks, exact-origin CORS and deployment guide | 77 tests, lint and build pass; hosting accounts, production URLs and live checks still required |
 | 28 | 2026-11-11 | Auth regression coverage, stricter input validation, root verify command and CI workflow | 74 tests, lint and build pass; live database/browser checks remain; CI awaits push |
 | 27 | 2026-11-11 | Persistent wishlists, save controls, own review editing/deletion, public real review summaries | 68 tests, build and lint pass; live MongoDB and browser verification remain |

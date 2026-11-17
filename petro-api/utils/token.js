@@ -8,8 +8,8 @@ const getSecret = () => {
   return process.env.JWT_SECRET;
 };
 
-export const signToken = (userId) =>
-  jwt.sign({ id: userId }, getSecret(), {
+export const signToken = (userId, version = 0) =>
+  jwt.sign({ id: userId, version }, getSecret(), {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 

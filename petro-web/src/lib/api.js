@@ -1,3 +1,4 @@
+export const SESSION_EXPIRED_EVENT = 'petro:session-expired'
 const API_URL = (import.meta.env?.VITE_API_URL || 'http://localhost:5001/api').replace(/\/+$/, '')
 
 export async function apiRequest(path, { method = 'GET', body, token, timeoutMs = 30000 } = {}) {
@@ -31,6 +32,8 @@ export async function apiRequest(path, { method = 'GET', body, token, timeoutMs 
   }
 
   const data = await response.json().catch(() => ({}))
+
+  if (response.status === 401 && token && typeof window !== 'undefined') window.dispatchEvent(new window.CustomEvent(SESSION_EXPIRED_EVENT, { detail: { token } }))
 
   if (!response.ok) {
     const error = new Error(data.message || 'Something went wrong')

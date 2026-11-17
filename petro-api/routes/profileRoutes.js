@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth.js';
+import { changePassword } from '../controllers/passwordController.js';
 import { addAddress, deleteAddress, setDefaultAddress, updateAddress, updateProfile } from '../controllers/profileController.js';
 const router = Router();
 router.use(protect);
 router.put('/', updateProfile);
+router.put('/password', changePassword);
 router.post('/addresses', addAddress);
 router.put('/addresses/:id', updateAddress);
 router.delete('/addresses/:id', deleteAddress);
