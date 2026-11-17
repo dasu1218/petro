@@ -3,6 +3,9 @@ import { mockStore } from './fixtures.js'
 
 test('logo entrance can be skipped and appears only once in a tab session', async ({ page }, info) => {
   const monitor = await mockStore(page)
+  // Keep the production auto-dismiss timer from racing screenshot/keyboard assertions.
+  await page.clock.install({ time: new Date('2026-11-17T00:00:00Z') })
+  await page.clock.pauseAt(new Date('2026-11-17T00:00:01Z'))
   await page.goto('/')
   const intro = page.getByRole('dialog', { name: 'Welcome to their happy place.', exact: true })
   await expect(intro).toBeVisible()
@@ -24,10 +27,16 @@ test('logo entrance can be skipped and appears only once in a tab session', asyn
 
 test('entrance automatically reveals the store and Escape also dismisses it', async ({ page }) => {
   const monitor = await mockStore(page)
+  // Keep the production auto-dismiss timer from racing screenshot/keyboard assertions.
+  await page.clock.install({ time: new Date('2026-11-17T00:00:00Z') })
+  await page.clock.pauseAt(new Date('2026-11-17T00:00:01Z'))
   await page.goto('/')
   const intro = page.getByRole('dialog', { name: 'Welcome to their happy place.', exact: true })
   await expect(intro).toBeVisible()
-  await expect(intro).toHaveCount(0, { timeout: 5000 })
+  await page.clock.runFor(2300)
+  await expect(intro).toBeVisible()
+  await page.clock.runFor(200)
+  await expect(intro).toHaveCount(0)
   await page.evaluate(() => sessionStorage.removeItem('petro_welcome_seen_v1'))
   await page.reload()
   await expect(intro).toBeVisible()

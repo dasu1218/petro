@@ -5,11 +5,16 @@ const bundle = { slug: 'test-care-duo', name: 'Everyday Care Duo', description: 
 test('bundle cards use uploaded product photos with fallbacks and product links', async ({ page }) => {
   const catalog = products.map((product, index) => ({ ...product, images: index < 2 ? [{ url: index === 0 ? 'https://images.example.test/photo.png' : 'https://images.example.test/missing-bundle-photo.jpg', publicId: `test/bundle-${index}` }] : [] }))
   const monitor = await mockStore(page, null, { products: catalog, bundles: [bundle] })
+  let releaseBrokenPhoto
+  const pendingPhoto = new Promise((resolve) => { releaseBrokenPhoto = resolve })
+  await page.route('https://images.example.test/missing-bundle-photo.jpg', async (route) => { await pendingPhoto; await route.abort() })
   await page.goto('/bundles')
   const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: bundle.name, exact: true }) })
-  const image = card.locator('img.bundle-product-photo')
+  const image = card.getByRole('img', { name: 'Care Product 1', exact: true })
   await expect(image).toBeVisible()
   await expect.poll(() => image.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true)
+  await expect(card.locator('img.bundle-product-photo')).toHaveCount(2)
+  releaseBrokenPhoto()
   await expect(card.getByRole('img', { name: 'Care Product 2: photo unavailable', exact: true })).toBeVisible()
   const contents = card.getByRole('list', { name: 'Included in Everyday Care Duo', exact: true })
   await expect(contents.getByRole('link', { name: 'Care Product 1', exact: true })).toHaveAttribute('href', '/products/care-product-1')
