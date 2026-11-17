@@ -1,3 +1,4 @@
+import PasswordField from '../components/PasswordField'
 import ChangePasswordForm from '../components/ChangePasswordForm'
 import { useState } from 'react'
 import AddressBook from '../components/AddressBook'
@@ -44,7 +45,7 @@ function AccountPage() {
           <div className="checkout-fields">
             <label className="form-field"><span>Name</span><input name="name" autoComplete="name" value={details.name} required maxLength={80} onChange={(event) => setDetails((current) => ({ ...current, name: event.target.value }))} /></label>
             <label className="form-field"><span>Email</span><input name="email" type="email" autoComplete="email" value={details.email} required maxLength={254} onChange={(event) => setDetails((current) => ({ ...current, email: event.target.value }))} /></label>
-            {details.email.trim().toLowerCase() !== user.email && <label className="form-field checkout-field-wide"><span>Current password</span><input name="currentPassword" type="password" autoComplete="current-password" value={details.currentPassword} required aria-describedby="email-password-note" onChange={(event) => setDetails((current) => ({ ...current, currentPassword: event.target.value }))} /><small id="email-password-note">Confirm your current password to change your login email.</small></label>}
+            {details.email.trim().toLowerCase() !== user.email && <PasswordField className="checkout-field-wide" label="Current password" name="currentPassword" autoComplete="current-password" value={details.currentPassword} required aria-describedby="email-password-note" onChange={(event) => setDetails((current) => ({ ...current, currentPassword: event.target.value }))} ><small id="email-password-note">Confirm your current password to change your login email.</small></PasswordField>}
           </div>
           <p>Account type: <strong>{user.role === 'admin' ? 'Admin' : 'Customer'}</strong></p>
           <button type="submit" className="btn btn-primary btn-large">Save profile</button>

@@ -146,3 +146,13 @@ Desktop/mobile scenarios complete a fixture COD checkout and verify the print ac
 ### Copying order and tracking references
 
 Desktop/mobile scenarios confirm a fixture order, refresh it with courier details, and verify that each copy button writes the correct reference. Print media hides both controls while keeping the tracking number. A denied clipboard write shows manual-copy guidance, retains the reference, re-enables the control, and succeeds on retry. Clipboard APIs are stubbed; actual operating-system clipboard permissions are not exercised. The browser suite now contains 35 scenarios across two viewports (70 checks).
+
+### Password visibility controls
+
+Desktop/mobile scenarios toggle login and registration password fields, retain typed values, exercise keyboard activation, and verify toggling confirmation does not reveal the primary password. Account checks independently toggle current/new/confirmation passwords and the password required to change email. Controls use `type="button"` and explicit labels; toggling sends no auth/profile requests. The browser suite now contains 37 scenarios across two viewports (74 checks). Password visibility is local input state and is not persisted.
+
+### Order QR codes
+
+Desktop/mobile tests independently decode generated PNG pixels with `jsqr` and assert the exact order-page URL without query parameters, tokens or address data. They verify PNG download, print visibility, and that a guest opening the scanned destination is redirected to login without order details. The QR encoder (`qrcode`) is loaded only when the order page needs it; codes are generated in the browser without a third-party QR service. Encoder documentation: https://github.com/soldair/node-qrcode
+
+The suite now contains 39 scenarios across two viewports (78 checks), including the retained password-visibility scenarios. The existing 139 API/logic checks, lint and build also pass. Physical phone-camera behavior is not automated. For real scanning, open Petro at its deployed URL or a LAN address reachable by the phone before downloading/printing; a localhost QR points at the scanning device's own localhost. Scanning opens the protected order page; it does not grant access to another customer's order. The existing API still requires authentication and queries by both order ID and user ID.
