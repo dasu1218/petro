@@ -535,3 +535,40 @@ test('product quantity accounts for units already in the cart and reports actual
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('homepage quick add shows its size and price and stops at cart stock limits', async ({ page }) => {
+  const monitor = await mockStore(page, null, { products: [{ ...products[0], variants: [
+    { label: '100ml', price: 700, stock: 0 },
+    { label: '250ml', price: 1000, stock: 1 },
+    { label: '500ml', price: 1800, stock: 1 },
+  ] }] })
+  await page.goto('/')
+  const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Care Product 1', exact: true }) })
+  await expect(card).toContainText('Quick add: 250ml')
+  await expect(card.locator('.product-bottom strong')).toHaveText('LKR 1,000')
+  await card.getByRole('button', { name: 'Add Care Product 1 250ml to cart', exact: true }).click()
+  await expect(card).toContainText('Quick add: 500ml')
+  await expect(card.locator('.product-bottom strong')).toHaveText('LKR 1,800')
+  await card.getByRole('button', { name: 'Add Care Product 1 500ml to cart', exact: true }).click()
+  await expect(card.getByRole('button', { name: 'Care Product 1: all available stock is in your cart', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Cart, 2 items', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Cart, 2 items', exact: true }).click()
+  const drawer = page.getByRole('dialog', { name: 'Your cart (2)', exact: true })
+  await drawer.getByRole('button', { name: 'Remove Care Product 1 250ml from cart', exact: true }).click()
+  await page.getByRole('button', { name: 'Close cart', exact: true }).click()
+  await expect(card.getByRole('button', { name: 'Add Care Product 1 250ml to cart', exact: true })).toBeEnabled()
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('homepage sold-out products cannot be quick-added', async ({ page }) => {
+  const monitor = await mockStore(page, null, { products: [{ ...products[0], variants: [{ label: '250ml', price: 1000, stock: 0 }] }] })
+  await page.goto('/')
+  const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Care Product 1', exact: true }) })
+  await expect(card.getByRole('button', { name: 'Care Product 1: out of stock', exact: true })).toBeDisabled()
+  await expect(card.locator('.quick-add-size')).toHaveText('Out of stock')
+  await expect(page.getByRole('button', { name: 'Cart, 0 items', exact: true })).toBeVisible()
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Animated brand entrance | 2026-11-17 | Brief logo reveal on the first homepage visit per tab session, with Enter/Skip/Escape and automatic store reveal; respects reduced motion | Desktop/mobile session, keyboard and reduced-motion checks; direct product/order links stay uninterrupted |
+| Homepage quick-add stock | 2026-11-17 | Homepage cards show the quick-add size and matching price, skip sold-out/cart-full sizes and disable adding when no units remain | Desktop/mobile price, next-size, cart-removal and sold-out checks |
 | Cart-aware stock limits | 2026-11-17 | Product purchase quantities subtract units already in cart, report actual requested additions and disable adding at the stock limit | Desktop/mobile repeated-add, size-switch and removal coverage; API remains authoritative for checkout stock |
 | Share order links | 2026-11-17 | Device share controls beside order QR when supported, plus copy-link fallback, cancellation/error feedback and print exclusions | Desktop/mobile shared-payload and recovery checks; recipients still need the owning account |
 | Order QR codes | 2026-11-17 | Locally generated order-link QR, PNG download and printable code on customer order details; login and owner-scoped API retained | Independent image decoding and guest redirect tested; use a published or phone-reachable website address |
