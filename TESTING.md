@@ -172,3 +172,17 @@ Desktop/mobile checks start with a sold-out first size, verify the next purchasa
 ### Animated homepage entrance
 
 Desktop/mobile scenarios inspect the supplied logo entrance, skip it, and verify navigation and reload do not repeat it within the tab session. They check automatic dismissal after 2.4 seconds, Escape dismissal, restored page scrolling, reduced-motion bypass, and direct-product navigation without an intro. The browser suite now contains 47 scenarios across two viewports (94 checks), including the retained homepage quick-add work. The intro uses a native modal dialog to keep keyboard focus inside it; browser session storage controls repeat visits. If storage is blocked it still works, but can repeat on a later homepage visit. Failed logo loading dismisses the intro. It does not load external animation services or replace existing store routes.
+
+### Bundle product photography
+
+Desktop/mobile scenarios load a two-product bundle with one working photo and one broken image. They verify the loaded image has natural dimensions, the failed image has a placeholder, included products link to their detail pages, and the bundle can still be added to the cart. A second scenario verifies original package artwork remains when neither product has an uploaded photo. Cards use at most two unique component products and their current main photos, without storing duplicate assets. The browser suite now contains 49 scenarios across two viewports (98 checks).
+
+### Browser CI timing and failure diagnostics
+
+A CI-mode run reproduced an intermittent strict-selector failure in the bundle-photo test: both images were still present when the test used a selector that assumed only the successfully loaded image remained. The test now selects the intended product image by accessible name and holds the broken photo request open until the successful photo is verified, then explicitly releases it to check the fallback. This exercises both images being present without relying on request timing.
+
+The entrance tests pause Playwright's clock before visiting the page, keeping the production 2.4-second dismissal timer from racing screenshots and Skip/Escape assertions. The automatic-dismissal test explicitly advances through 2.3 seconds (still visible) and then 2.5 seconds (dismissed). The gallery image check polls until decoding completes. Production animation timing is unchanged.
+
+CI enables Playwright's GitHub reporter alongside the existing list and HTML reports, so future test failures appear as named source annotations. The original remote push failure's full log was unavailable; the reproduced local bundle-test failure was verified directly rather than assuming the screenshot proved a specific cause.
+
+After these changes, all 98 browser checks passed locally with `CI=1` and retries disabled. The bundle scenarios also passed 12 repeated checks with no retries, and the entrance/image timing scenarios passed 18 repeats. Frontend lint passed. GitHub checks require a new pushed commit before their result changes.

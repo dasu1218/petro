@@ -1976,3 +1976,10 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 @media (max-height: 660px) { .entrance-logo-stage { height: 190px; margin-bottom: 12px; } .entrance-orbit { display: none; } .entrance-content { padding: 12px 0; } .entrance-enter { margin-top: 18px; } .entrance-progress { margin-top: 18px; } }
 @media (prefers-reduced-motion: reduce) { .brand-entrance * { animation: none; } }
 @media print { .brand-entrance { display: none !important; } }
+
+.bundle-product-photos { gap: 14px; padding: 22px; align-items: stretch; }
+.bundle-photo-link { display: flex; align-items: center; justify-content: center; flex: 1 1 0; min-width: 0; max-width: 240px; background: #fffdf9; border: 1px solid #eee4d8; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px rgb(80 60 42 / 5%); }
+.bundle-product-photo { display: block; width: 100%; height: 210px; object-fit: contain; padding: 14px; }
+.bundle-product-photo.product-photo-fallback { display: flex; }
+.bundle-contents a { color: #0f766e; text-underline-offset: 3px; }
+@media (max-width: 560px) { .bundle-product-photos { padding: 16px; gap: 10px; } .bundle-product-photo { height: 170px; padding: 10px; } .bundle-product-photo.product-photo-fallback > span { font-size: 1rem; } }

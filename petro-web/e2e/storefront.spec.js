@@ -368,7 +368,7 @@ test('broken product photos show a placeholder and another gallery photo can sti
   const photo = page.locator('img.detail-photo')
   await expect(photo).toBeVisible()
   await expect(photo).toHaveAttribute('src', 'https://images.example.test/photo.png')
-  expect(await photo.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true)
+  await expect.poll(() => photo.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true)
   await page.getByRole('button', { name: 'Show photo 1', exact: true }).click()
   await expect(page.locator('.detail-gallery-main .product-photo-fallback')).toBeVisible()
   await page.goto('/wishlist')

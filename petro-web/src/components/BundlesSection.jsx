@@ -1,3 +1,5 @@
+import ProductPhoto from './ProductPhoto'
+import { useProducts } from '../context/productContext'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext'
@@ -9,6 +11,7 @@ function BundlesSection({ preview = false }) {
   const [attempt, setAttempt] = useState(0)
   const [feedback, setFeedback] = useState('')
   const { addItem } = useCart()
+  const { products } = useProducts()
 
   useEffect(() => {
     let ignore = false
@@ -42,18 +45,19 @@ function BundlesSection({ preview = false }) {
       <div className="bundle-grid">
         {result.bundles.map((bundle) => {
           const variant = bundle.variants[0]
+          const photographed = [...new Set(bundle.items.map((item) => item.slug))].map((slug) => products.find((product) => product.slug === slug)).filter((product) => product?.images?.[0]).slice(0, 2)
           return (
             <article key={bundle.slug} id={preview ? undefined : bundle.slug} className={`bundle-card product-${bundle.accent}`}>
-              <div className="bundle-art" aria-hidden="true">
+              {photographed.length ? <div className="bundle-art bundle-product-photos" aria-label={`Product photos for ${bundle.name}`}>{photographed.map((product) => <Link key={product.slug} to={`/products/${product.slug}`} className="bundle-photo-link"><ProductPhoto src={product.images[0].url} alt={product.name} className="bundle-product-photo" width="200" height="220" loading="lazy" decoding="async" /></Link>)}</div> : <div className="bundle-art" aria-hidden="true">
                 <span className="bundle-package">PETRO<br /><small>CARE</small></span>
                 <span className="bundle-package">PETRO<br /><small>DAILY</small></span>
-              </div>
+              </div>}
               <div className="bundle-info">
                 <span className="chip">{bundle.savings > 0 ? `Save ${formatLKR(bundle.savings)}` : 'Care bundle'}</span>
                 <h2>{bundle.name}</h2>
                 <p>{bundle.description}</p>
                 <ul className="bundle-contents" aria-label={`Included in ${bundle.name}`}>
-                  {bundle.items.map((item) => <li key={`${item.slug}:${item.variantLabel}`}>{item.quantity} × {item.name} <span>({item.variantLabel})</span></li>)}
+                  {bundle.items.map((item) => <li key={`${item.slug}:${item.variantLabel}`}>{item.quantity} × <Link to={`/products/${item.slug}`}>{item.name}</Link> <span>({item.variantLabel})</span></li>)}
                 </ul>
                 <div className="bundle-price"><strong>{formatLKR(variant.price)}</strong>{bundle.savings > 0 && <span>Bought separately: <del>{formatLKR(bundle.regularPrice)}</del></span>}</div>
                 <p className="bundle-stock">{variant.stock > 0 ? `${variant.stock} bundles available` : 'Currently out of stock'}</p>
