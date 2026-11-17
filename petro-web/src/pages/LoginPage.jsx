@@ -1,3 +1,4 @@
+import PasswordField from '../components/PasswordField'
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
@@ -60,17 +61,14 @@ function LoginPage() {
             />
           </label>
 
-          <label className="form-field">
-            <span>Password</span>
-            <input
-              type="password"
+          <PasswordField label="Password"
               name="password"
               autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
-            />
-          </label>
+            >
+          </PasswordField>
 
           <button type="submit" className="btn btn-primary btn-large" disabled={isSubmitting}>
             {isSubmitting ? 'Logging in…' : 'Log in'}

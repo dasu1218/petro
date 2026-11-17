@@ -1913,3 +1913,26 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 
 .reference-copy-control { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
 .reference-copy-control [role='status'] { max-width: 40rem; color: #536176; font-size: .9rem; line-height: 1.5; }
+
+.password-input-control { display: flex; align-items: stretch; min-width: 0; border: 1px solid #e2dcd5; border-radius: 10px; background: #faf8f5; overflow: hidden; }
+.form-field .password-input-control input { flex: 1 1 0; width: 0; min-width: 0; border: 0; border-radius: 0; background: transparent; }
+.password-input-control button { flex: 0 0 auto; min-width: 64px; min-height: 44px; border: 0; border-left: 1px solid #e2dcd5; border-radius: 0; background: #f1eee8; color: #334155; padding: 10px 12px; font: inherit; font-size: .85rem; font-weight: 700; }
+.password-input-control:focus-within { outline: 2px solid #0f766e; outline-offset: 2px; }
+.password-input-control :is(input, button):focus-visible { outline-offset: -3px; }
+
+.order-qr-panel { display: flex; align-items: center; gap: 28px; }
+.order-qr-image, .order-qr-placeholder { flex: 0 0 200px; width: 200px; height: 200px; background: #fff; }
+.order-qr-image { display: block; object-fit: contain; }
+.order-qr-placeholder { display: grid; place-items: center; padding: 16px; color: #64748b; text-align: center; border: 1px solid #e8e0d7; }
+.order-qr-information { min-width: 0; }
+.order-qr-information h2 { margin-top: 0; }
+.order-qr-information p { line-height: 1.6; }
+.order-qr-link { color: #0f766e; overflow-wrap: anywhere; }
+.order-qr-information .order-screen-actions { margin-top: 16px; }
+@media (max-width: 560px) { .order-qr-panel { flex-direction: column; align-items: flex-start; gap: 18px; } .order-qr-image { align-self: center; } }
+@media print {
+  .order-detail-page .order-qr-panel { display: flex; flex-direction: row; align-items: center; gap: 12pt; break-inside: avoid; }
+  .order-qr-image, .order-qr-placeholder { flex: 0 0 36mm; width: 36mm; height: 36mm; }
+  .order-qr-information p { margin: 6pt 0; }
+  .order-qr-link { color: #111; }
+}

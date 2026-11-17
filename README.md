@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Order QR codes | 2026-11-17 | Locally generated order-link QR, PNG download and printable code on customer order details; login and owner-scoped API retained | Independent image decoding and guest redirect tested; use a published or phone-reachable website address |
+| Password visibility | 2026-11-17 | Independent show/hide controls for login, registration, password changes and email-change password confirmation | Desktop/mobile value preservation and keyboard checks; fields start masked and retain autocomplete metadata |
 | Copy order references | 2026-11-17 | Copy order and courier tracking references with success feedback, clipboard-denial recovery and print exclusions | Desktop/mobile browser coverage; manual selection remains available when clipboard access is blocked |
 | Printable order summary | 2026-11-17 | Customer print action, placed date and print-specific layout retaining order products, address, totals and payment state | Browser print-media coverage; PDF saving uses the browser print dialog |
 | Order history previews | 2026-11-17 | Saved product names, quantities and sizes on customer order cards; three-product preview and full-detail link | Desktop/mobile snapshot, pagination and fulfilment-filter checks; current catalog changes do not rewrite past names |
