@@ -1,3 +1,4 @@
+import ClearCartButton from '../components/ClearCartButton'
 import CartProductPhoto from '../components/CartProductPhoto'
 import { Link } from 'react-router-dom'
 import QuantityStepper from '../components/QuantityStepper'
@@ -93,9 +94,7 @@ function CartPage() {
           <Link to="/checkout" className="btn btn-primary btn-large cart-checkout">
             Continue to checkout
           </Link>
-          <button type="button" className="cart-clear" onClick={clearCart}>
-            Clear cart
-          </button>
+          <ClearCartButton itemCount={itemCount} onClear={clearCart} />
         </aside>
       </div>
     </section>

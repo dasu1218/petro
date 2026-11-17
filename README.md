@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Shop active filters | 2026-11-17 | Removable chips for search, category, price bounds, stock and promotions; preserves other selections and sort while resetting pagination | Desktop/mobile URL and result-count checks; uncommitted clear-cart work retained |
+| Clear-cart confirmation | 2026-11-16 | Inline confirmation before clearing all cart items, with keep-items action and Escape cancellation | Desktop/mobile keyboard, cancellation and persisted-clear coverage |
 | Cart product thumbnails | 2026-11-16 | Current catalog photos in the cart page and drawer, with decorative placeholders for missing photos and bundles | Desktop/mobile loaded-photo, broken-photo, quantity and removal checks; preceding uncommitted fallback changes preserved |
 | Product photo fallbacks | 2026-11-16 | Shared image fallback for homepage, shop, wishlist and product gallery; alternate gallery photos remain usable | Desktop/mobile broken-image and gallery-recovery coverage; existing uploaded assets unchanged |
 | Homepage save recovery | 2026-11-16 | Failed publishing retains the preview and description for retry; initial-load errors block editing until reloaded | Desktop/mobile failure and retry coverage; Cloudinary and database responses use fixtures |

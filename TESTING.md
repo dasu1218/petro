@@ -126,3 +126,11 @@ The browser suite blocks one fixture product photo and serves a second. It check
 ### Cart thumbnails
 
 Desktop/mobile scenarios add a product and verify its current catalog photo in both the cart drawer and full cart. A broken-photo case verifies placeholders in both views, quantity updates and removal. Products without a photo and bundle items retain the PETRO placeholder. Thumbnails are decorative because each cart line already has a named product link. Photos are looked up from the current catalog and are not persisted into cart requests. With the preceding photo fallback scenario, the browser suite now contains 29 scenarios across two viewports (58 checks).
+
+### Clearing the cart
+
+Desktop/mobile checks verify that Clear cart opens an inline confirmation without removing items. Focus moves to Keep my items; either that button or Escape cancels and restores focus to Clear cart. Confirming removes all items, and a reload retains the empty guest cart. The suite now contains 30 scenarios across two viewports (60 checks). Existing per-item removal stays immediate; only the full-cart clear action has confirmation.
+
+### Active shop filters
+
+Desktop/mobile checks open a URL with search, category, minimum/maximum price, stock, sort and page selections. Removing category preserves the other filters and sort, resets pagination, and updates results. Removing maximum price expands results; Clear filters removes all chips and URL selections. The browser suite now contains 31 scenarios across two viewports (62 checks), including the preceding uncommitted clear-cart scenario.
