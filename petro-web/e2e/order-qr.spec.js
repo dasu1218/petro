@@ -43,3 +43,47 @@ test('opening a scanned link as a guest requires login instead of exposing the o
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('order links can be shared and copied without adding private details', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer')
+  monitor.orders.set('fixture-order', order)
+  await page.addInitScript(() => {
+    window.sharedOrderLinks = []
+    Object.defineProperty(navigator, 'share', { configurable: true, value: async (data) => { window.sharedOrderLinks.push(data) } })
+    window.copiedOrderLinks = []
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (value) => { window.copiedOrderLinks.push(value) } } })
+  })
+  await page.goto(`/orders/${id}?private=ignored`)
+  const panel = page.getByRole('region', { name: 'Scan your order', exact: true })
+  await panel.getByRole('button', { name: 'Share order link', exact: true }).click()
+  await expect(panel.getByText('Order link shared.', { exact: true })).toBeVisible()
+  expect(await page.evaluate(() => window.sharedOrderLinks)).toEqual([{ title: `Petro order ${id}`, url: `http://127.0.0.1:4175/orders/${id}` }])
+  await panel.getByRole('button', { name: 'Copy order link', exact: true }).click()
+  await expect(panel.getByText('Order link copied.', { exact: true })).toBeVisible()
+  expect(await page.evaluate(() => window.copiedOrderLinks)).toEqual([`http://127.0.0.1:4175/orders/${id}`])
+  await page.emulateMedia({ media: 'print' })
+  await expect(panel.getByRole('button', { name: 'Share order link', exact: true })).toBeHidden()
+  await expect(panel.getByRole('button', { name: 'Copy order link', exact: true })).toBeHidden()
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+
+test('cancelled or blocked native sharing keeps the order link available', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer')
+  monitor.orders.set('fixture-order', order)
+  await page.addInitScript(() => Object.defineProperty(navigator, 'share', { configurable: true, value: async () => { throw new DOMException('Cancelled', 'AbortError') } }))
+  await page.goto(`/orders/${id}`)
+  const panel = page.getByRole('region', { name: 'Scan your order', exact: true })
+  const share = panel.getByRole('button', { name: 'Share order link', exact: true })
+  await share.click()
+  await expect(panel.getByText('Sharing cancelled.', { exact: true })).toBeVisible()
+  await expect(share).toBeEnabled()
+  await page.evaluate(() => Object.defineProperty(navigator, 'share', { configurable: true, value: async () => { throw new Error('Blocked') } }))
+  await share.click()
+  await expect(panel.getByText('Sharing is unavailable right now. Copy the order link instead.', { exact: true })).toBeVisible()
+  await expect(panel.getByRole('button', { name: 'Copy order link', exact: true })).toBeEnabled()
+  await expect(panel.getByRole('link', { name: 'Open this order on Petro', exact: true })).toHaveAttribute('href', `http://127.0.0.1:4175/orders/${id}`)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
