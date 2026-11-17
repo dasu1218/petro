@@ -134,3 +134,7 @@ Desktop/mobile checks verify that Clear cart opens an inline confirmation withou
 ### Active shop filters
 
 Desktop/mobile checks open a URL with search, category, minimum/maximum price, stock, sort and page selections. Removing category preserves the other filters and sort, resets pagination, and updates results. Removing maximum price expands results; Clear filters removes all chips and URL selections. The browser suite now contains 31 scenarios across two viewports (62 checks), including the preceding uncommitted clear-cart scenario.
+
+### Order history product previews
+
+Desktop/mobile checks load 21 saved orders. The first card shows three saved products and sizes, the total purchased quantity across all items, and a link to the complete order. Its historical product name differs from the current catalog to ensure the order snapshot is displayed. Pagination shows the remaining order, and changing the status filter resets to page one. The suite now contains 32 scenarios across two viewports (64 checks). History responses are fixtures; backend ownership checks are unchanged.

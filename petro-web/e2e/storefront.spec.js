@@ -470,3 +470,38 @@ test('active shop filters can be removed individually without losing other selec
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+test('order history previews saved products and quantities across pages and filters', async ({ page }) => {
+  const historyOrders = Array.from({ length: 21 }, (_, index) => ({
+    _id: `saved-order-${index + 1}`, status: index === 20 ? 'cancelled' : 'delivered',
+    paymentMethod: 'cod', paymentStatus: index === 20 ? 'unpaid' : 'paid',
+    createdAt: '2026-11-16T10:00:00Z', totals: { total: 5000 },
+    items: index === 0 ? [
+      { slug: 'care-product-1', name: 'Original shampoo name', variantLabel: '250ml', quantity: 2 },
+      { slug: 'care-product-2', name: 'Saved tonic', variantLabel: '120ml', quantity: 1 },
+      { slug: 'care-product-3', name: 'Saved treats', variantLabel: '100g', quantity: 1 },
+      { slug: 'care-product-4', name: 'Fourth saved product', variantLabel: '1kg', quantity: 3 },
+    ] : [{ slug: 'care-product-1', name: `Past product ${index + 1}`, variantLabel: '250ml', quantity: 1 }],
+  }))
+  const monitor = await mockStore(page, 'customer', { historyOrders })
+  await page.goto('/orders')
+  const first = page.locator('.order-history > li').first()
+  await expect(first).toContainText('7 items purchased')
+  await expect(first.getByRole('list', { name: 'Purchased products', exact: true }).getByRole('listitem')).toHaveCount(3)
+  await expect(first).toContainText('2 × Original shampoo name')
+  await expect(first).toContainText('250ml')
+  await expect(first).not.toContainText('Fourth saved product')
+  await expect(first).toContainText('View order details for the full product list.')
+  await expect(first.getByRole('link', { name: 'View details and tracking', exact: true })).toHaveAttribute('href', '/orders/saved-order-1')
+  const pages = page.getByRole('navigation', { name: 'Order history pages', exact: true })
+  await pages.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(page).toHaveURL(/page=2/)
+  await expect(page.locator('.order-history')).toContainText('1 × Past product 21')
+  await expect(page.locator('.order-history')).toContainText('1 item purchased')
+  await page.getByRole('combobox', { name: 'Order status', exact: true }).selectOption('cancelled')
+  await expect(pages).toContainText('Page 1')
+  await expect(page.locator('.order-history > li')).toHaveCount(1)
+  await expect(page.locator('.order-history')).toContainText('Past product 21')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

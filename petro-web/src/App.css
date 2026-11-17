@@ -1882,3 +1882,10 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .shop-filter-chip { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; min-height: 44px; padding: 8px 14px; background: #eef6f3; border: 1px solid #c9dfd7; color: #195e52; border-radius: 999px; font: inherit; font-size: .85rem; text-align: left; overflow-wrap: anywhere; }
 .shop-filter-chip > span { flex-shrink: 0; font-size: 1.15rem; }
 @media (hover: hover) { .shop-filter-chip:hover { background: #dfede7; border-color: #8eb7a7; } }
+
+.order-product-preview { margin: 18px 0; padding: 16px; border: 1px solid #e8e0d7; border-radius: 14px; background: #faf7f2; }
+.order-product-preview > p { margin: 0 0 10px; font-size: .9rem; font-weight: 650; color: #475569; }
+.order-product-preview ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.order-product-preview li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; overflow-wrap: anywhere; }
+.order-product-preview li span { color: #64748b; font-size: .9rem; }
+.order-product-preview .order-preview-more { margin: 12px 0 0; font-weight: 400; font-size: .85rem; }

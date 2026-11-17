@@ -77,6 +77,11 @@ export async function mockStore(page, role = null, options = {}) {
       }
       return json({ order }, orderRequests.length === 1 ? 201 : 200)
     }
+    if (path === '/orders/my' && method === 'GET') {
+      const matching = (options.historyOrders || []).filter((order) => (!url.searchParams.get('status') || order.status === url.searchParams.get('status')) && (!url.searchParams.get('payment') || order.paymentStatus === url.searchParams.get('payment')))
+      const start = (Number(url.searchParams.get('page') || 1) - 1) * 20
+      return json({ orders: matching.slice(start, start + 20), hasMore: matching.length > start + 20 })
+    }
     if (path.startsWith('/orders/') && method === 'GET') {
       const order = [...orders.values()].find((entry) => path === `/orders/${entry._id}`)
       return order ? json({ order }) : json({ message: 'Order not found' }, 404)
