@@ -160,3 +160,7 @@ The suite now contains 39 scenarios across two viewports (78 checks), including 
 ### Sharing order links
 
 Desktop/mobile scenarios stub the device share and clipboard APIs to verify only the clean order URL and reference title are passed, excluding current-page query parameters and private order content. They check copy-link feedback, cancelled and failed sharing, retained manual navigation and print exclusions. Unsupported browsers retain the copy-link action. Device share interfaces and actual delivery to another app are controlled by the operating system and are not automated. The browser suite now contains 41 scenarios across two viewports (82 checks). Sharing a link does not bypass login or backend order ownership checks.
+
+### Cart-aware product stock
+
+Desktop/mobile checks add two units of a three-unit size, verify only one more can be added and that the second feedback reports one added unit, then verify further adding is disabled. Another size remains purchasable, and removing the original cart line re-enables its Add to cart button. The browser suite now contains 42 scenarios across two viewports (84 checks). These are fixture availability limits, not inventory reservations; checkout still performs authoritative server-side stock validation.

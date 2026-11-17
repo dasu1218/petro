@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Cart-aware stock limits | 2026-11-17 | Product purchase quantities subtract units already in cart, report actual requested additions and disable adding at the stock limit | Desktop/mobile repeated-add, size-switch and removal coverage; API remains authoritative for checkout stock |
 | Share order links | 2026-11-17 | Device share controls beside order QR when supported, plus copy-link fallback, cancellation/error feedback and print exclusions | Desktop/mobile shared-payload and recovery checks; recipients still need the owning account |
 | Order QR codes | 2026-11-17 | Locally generated order-link QR, PNG download and printable code on customer order details; login and owner-scoped API retained | Independent image decoding and guest redirect tested; use a published or phone-reachable website address |
 | Password visibility | 2026-11-17 | Independent show/hide controls for login, registration, password changes and email-change password confirmation | Desktop/mobile value preservation and keyboard checks; fields start masked and retain autocomplete metadata |

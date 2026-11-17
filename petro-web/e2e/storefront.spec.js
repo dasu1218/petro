@@ -505,3 +505,33 @@ test('order history previews saved products and quantities across pages and filt
   expect(monitor.errors).toEqual([])
   expect(monitor.unexpected).toEqual([])
 })
+
+
+test('product quantity accounts for units already in the cart and reports actual additions', async ({ page }) => {
+  const monitor = await mockStore(page, null, { products: [{ ...products[0], variants: [
+    { label: '250ml', price: 1000, stock: 3 },
+    { label: '500ml', price: 1800, stock: 2 },
+  ] }] })
+  await page.goto('/products/care-product-1')
+  await page.getByRole('button', { name: 'Increase quantity', exact: true }).click()
+  await page.getByRole('button', { name: 'Add to cart', exact: true }).click()
+  await expect(page.locator('.detail-cart-feedback')).toContainText('2 × Care Product 1 (250ml) added.')
+  await expect(page.locator('.product-cart-stock')).toHaveText('2 already in your cart. You can add up to 1 more.')
+  await expect(page.getByRole('button', { name: 'Increase quantity', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Added to cart', exact: true }).click()
+  await expect(page.locator('.detail-cart-feedback')).toContainText('1 × Care Product 1 (250ml) added.')
+  await expect(page.getByRole('button', { name: 'Already in your cart', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Cart, 3 items', exact: true })).toBeVisible()
+  await page.locator('.variant-option').filter({ hasText: '500ml' }).click()
+  await expect(page.getByRole('button', { name: 'Add to cart', exact: true })).toBeEnabled()
+  await page.locator('.variant-option').filter({ hasText: '250ml' }).click()
+  await expect(page.getByRole('button', { name: 'Already in your cart', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: 'Cart, 3 items', exact: true }).click()
+  const drawer = page.getByRole('dialog', { name: 'Your cart (3)', exact: true })
+  await drawer.getByRole('button', { name: 'Remove Care Product 1 250ml from cart', exact: true }).click()
+  await page.getByRole('button', { name: 'Close cart', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Add to cart', exact: true })).toBeEnabled()
+  await expect(page.locator('.product-cart-stock')).toHaveCount(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

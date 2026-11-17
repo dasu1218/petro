@@ -19,8 +19,8 @@ function ProductDetailContent({ product }) {
   const [selectedVariantLabel, setSelectedVariantLabel] = useState(() => (product?.variants.find((variant) => variant.stock > 0) || product?.variants[0])?.label)
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [addedToCart, setAddedToCart] = useState(false)
-  const { addItem } = useCart()
+  const [addedQuantity, setAddedQuantity] = useState(0)
+  const { addItem, items } = useCart()
 
   if (!product) {
     return (
@@ -36,12 +36,15 @@ function ProductDetailContent({ product }) {
 
   const selectedVariantIndex = Math.max(0, product.variants.findIndex((variant) => variant.label === selectedVariantLabel))
   const selectedVariant = product.variants[selectedVariantIndex]
+  const cartQuantity = items.find((item) => item.slug === product.slug && item.variantLabel === selectedVariant.label)?.quantity || 0
+  const remainingStock = Math.max(0, selectedVariant.stock - cartQuantity)
+  const purchaseQuantity = Math.max(1, Math.min(quantity, remainingStock))
   const activeGalleryView = galleryViews[activeGalleryIndex]
 
   const chooseVariant = (index) => {
     setSelectedVariantLabel(product.variants[index].label)
     setQuantity(1)
-    setAddedToCart(false)
+    setAddedQuantity(0)
   }
 
   return (
@@ -144,33 +147,34 @@ function ProductDetailContent({ product }) {
             </span>
           </div>
 
+          {cartQuantity > 0 && selectedVariant.stock > 0 && <p className="product-cart-stock" role="status">{remainingStock > 0 ? `${cartQuantity} already in your cart. You can add up to ${remainingStock} more.` : 'All available stock for this size is already in your cart.'}</p>}
           <div className="detail-add-row">
-            {selectedVariant.stock > 0 && (
+            {remainingStock > 0 && (
               <QuantityStepper
-                value={quantity}
-                max={selectedVariant.stock}
+                value={purchaseQuantity}
+                max={remainingStock}
                 onChange={(nextQuantity) => {
                   setQuantity(nextQuantity)
-                  setAddedToCart(false)
+                  setAddedQuantity(0)
                 }}
               />
             )}
             <button
               type="button"
               className="btn btn-primary btn-large detail-add-button"
-              disabled={selectedVariant.stock === 0}
+              disabled={remainingStock === 0}
               onClick={() => {
-                addItem(product, selectedVariant, quantity)
-                setAddedToCart(true)
+                addItem(product, selectedVariant, purchaseQuantity)
+                setAddedQuantity(purchaseQuantity)
               }}
             >
-              {addedToCart ? 'Added to cart' : 'Add to cart'}
+              {selectedVariant.stock > 0 && remainingStock === 0 ? 'Already in your cart' : addedQuantity && cartQuantity > 0 ? 'Added to cart' : 'Add to cart'}
             </button>
           </div>
           <p className="detail-cart-feedback" aria-live="polite">
-            {addedToCart && (
+            {addedQuantity > 0 && cartQuantity > 0 && (
               <>
-                {quantity} × {product.name} ({selectedVariant.label}) added.{' '}
+                {addedQuantity} × {product.name} ({selectedVariant.label}) added.{' '}
                 <Link to="/cart">View cart</Link>
               </>
             )}
