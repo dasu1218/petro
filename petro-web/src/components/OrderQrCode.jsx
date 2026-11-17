@@ -1,3 +1,4 @@
+import OrderShareActions from './OrderShareActions'
 import { useEffect, useState } from 'react'
 export default function OrderQrCode({ orderId }) {
   const url = new URL(`/orders/${encodeURIComponent(orderId)}`, window.location.origin).href
@@ -17,6 +18,7 @@ export default function OrderQrCode({ orderId }) {
     {ready ? <img className="order-qr-image" src={result.image} width="320" height="320" alt={`Scan to open order ${orderId}`} /> : <div className="order-qr-placeholder" role="status">{error ? 'QR unavailable' : 'Preparing your order QR code…'}</div>}
     <div className="order-qr-information"><h2 id="order-qr-title">Scan your order</h2><p>Scan with your phone’s camera to open order details and tracking. Sign in with the account that placed this order.</p>
       <a className="order-qr-link" href={url}>Open this order on Petro</a>
+      <OrderShareActions key={url} url={url} orderId={orderId} />
       {ready && <div className="order-screen-actions"><a className="btn btn-secondary" href={result.image} download={`petro-order-${orderId}.png`}>Download order QR</a></div>}
       {local && <p className="checkout-note order-screen-actions">For scanning on a phone, open Petro using its published website address or a network address your phone can reach.</p>}
       {error && <div role="alert"><p>{error}</p><button className="btn btn-secondary order-screen-actions" type="button" onClick={() => { setResult({ url: '', image: '', error: '' }); setAttempt((value) => value + 1) }}>Retry QR code</button></div>}

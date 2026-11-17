@@ -1936,3 +1936,8 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
   .order-qr-information p { margin: 6pt 0; }
   .order-qr-link { color: #111; }
 }
+
+.order-share-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+.order-share-actions .reference-copy-control { margin: 0; }
+.order-share-actions > div > [role='status'] { margin: 8px 0 0; max-width: 28rem; color: #536176; font-size: .9rem; }
+.order-share-actions .reference-copy-control { flex-wrap: wrap; }

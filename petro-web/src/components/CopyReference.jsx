@@ -1,5 +1,5 @@
 import { useState } from 'react'
-export default function CopyReference({ value, label }) {
+export default function CopyReference({ value, label, copiedMessage = 'Reference copied.' }) {
   const [result, setResult] = useState({ value: '', message: '' })
   const [busy, setBusy] = useState(false)
   const copy = async () => {
@@ -7,7 +7,7 @@ export default function CopyReference({ value, label }) {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
       await navigator.clipboard.writeText(value)
-      setResult({ value, message: 'Reference copied.' })
+      setResult({ value, message: copiedMessage })
     } catch {
       setResult({ value, message: 'Could not copy automatically. Select and copy the reference above, or try again.' })
     } finally { setBusy(false) }
