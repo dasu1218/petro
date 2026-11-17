@@ -1889,3 +1889,24 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .order-product-preview li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; overflow-wrap: anywhere; }
 .order-product-preview li span { color: #64748b; font-size: .9rem; }
 .order-product-preview .order-preview-more { margin: 12px 0 0; font-weight: 400; font-size: .85rem; }
+
+.order-print-brand { display: none; }
+.order-screen-actions { flex-wrap: wrap; }
+@media print {
+  body:has(.order-detail-page) { background: #fff; color: #111; }
+  body:has(.order-detail-page) :is(.topbar, .site-footer, .skip-link, .cart-drawer, .cart-sync-notice) { display: none !important; }
+  body:has(.order-detail-page) .app-shell { min-height: 0; background: #fff; }
+  body:has(.order-detail-page) .page-content { width: 100%; margin: 0; padding: 0; }
+  .order-detail-page { padding: 0; }
+  .order-detail-page .order-screen-actions { display: none !important; }
+  .order-print-brand { display: block; font-size: 16pt; font-weight: 800; color: #111; margin: 0 0 12pt; }
+  .order-detail-page .page-header { margin-bottom: 14pt; }
+  .order-detail-page h1 { font-size: 22pt; line-height: 1.2; }
+  .order-detail-page h2 { font-size: 15pt; }
+  .order-detail-page .checkout-layout { display: block; }
+  .order-detail-page .checkout-panel { margin-bottom: 12pt; padding: 12pt; border: 1px solid #ccc; border-radius: 0; box-shadow: none; background: #fff; }
+  .order-detail-page :is(.checkout-items li, .checkout-totals > div, .order-payment, .order-address) { break-inside: avoid; }
+  .order-detail-page .checkout-grand-total { color: #111; }
+  .order-detail-page .order-timeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8pt; }
+  .order-detail-page a { color: #111; }
+}

@@ -25,8 +25,9 @@ function OrderPage() {
   const order = result.order
   const payment = getOrderPayment(order)
   return (
-    <section className="page-panel">
-      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult({ order: null, error: '' }); setAttempt((value) => value + 1) }}>Refresh order updates</button></div>
+    <section className="page-panel order-detail-page">
+      <p className="order-print-brand">PETRO · Order summary</p>
+      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p>{order.createdAt && <p>Placed: <time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<div className="cta-row order-screen-actions"><button type="button" className="btn btn-primary btn-large" onClick={() => window.print()}>Print order summary</button><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult({ order: null, error: '' }); setAttempt((value) => value + 1) }}>Refresh order updates</button></div></div>
       <OrderTracking order={order} />
       <div className="checkout-layout">
         <section className="checkout-panel">
@@ -45,7 +46,7 @@ function OrderPage() {
         <section className="checkout-panel"><h2>Order summary</h2><ul className="checkout-items">{order.items.map((item) => <li key={`${item.slug}:${item.variantLabel}`}><div>{item.name}<small>{item.variantLabel} · Qty {item.quantity}</small></div><strong>{formatLKR(item.price * item.quantity)}</strong></li>)}</ul>
           <dl className="checkout-totals"><div><dt>Subtotal</dt><dd>{formatLKR(order.totals.subtotal)}</dd></div><div><dt>Delivery</dt><dd>{order.totals.delivery === 0 ? 'Free' : formatLKR(order.totals.delivery)}</dd></div><div className="checkout-grand-total"><dt>Total</dt><dd>{formatLKR(order.totals.total)}</dd></div></dl>
         </section>
-      </div><p><Link to="/orders">View your orders</Link> · <Link to="/shop">Continue shopping</Link></p>
+      </div><p className="order-screen-actions"><Link to="/orders">View your orders</Link> · <Link to="/shop">Continue shopping</Link></p>
     </section>
   )
 }

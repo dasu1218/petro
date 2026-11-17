@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Printable order summary | 2026-11-17 | Customer print action, placed date and print-specific layout retaining order products, address, totals and payment state | Browser print-media coverage; PDF saving uses the browser print dialog |
 | Order history previews | 2026-11-17 | Saved product names, quantities and sizes on customer order cards; three-product preview and full-detail link | Desktop/mobile snapshot, pagination and fulfilment-filter checks; current catalog changes do not rewrite past names |
 | Shop active filters | 2026-11-17 | Removable chips for search, category, price bounds, stock and promotions; preserves other selections and sort while resetting pagination | Desktop/mobile URL and result-count checks; uncommitted clear-cart work retained |
 | Clear-cart confirmation | 2026-11-16 | Inline confirmation before clearing all cart items, with keep-items action and Escape cancellation | Desktop/mobile keyboard, cancellation and persisted-clear coverage |

@@ -138,3 +138,7 @@ Desktop/mobile checks open a URL with search, category, minimum/maximum price, s
 ### Order history product previews
 
 Desktop/mobile checks load 21 saved orders. The first card shows three saved products and sizes, the total purchased quantity across all items, and a link to the complete order. Its historical product name differs from the current catalog to ensure the order snapshot is displayed. Pagination shows the remaining order, and changing the status filter resets to page one. The suite now contains 32 scenarios across two viewports (64 checks). History responses are fixtures; backend ownership checks are unchanged.
+
+### Printable order summaries
+
+Desktop/mobile scenarios complete a fixture COD checkout and verify the print action invokes `window.print`. With print media enabled, site chrome and action controls are hidden while the order reference, address, products, quantities, unpaid amount due and total remain visible. Returning to screen media restores the controls. The suite now contains 33 scenarios across two viewports (66 checks). Print-dialog invocation is stubbed; physical printer output and operating-system PDF settings are not exercised.
