@@ -164,3 +164,11 @@ Desktop/mobile scenarios stub the device share and clipboard APIs to verify only
 ### Cart-aware product stock
 
 Desktop/mobile checks add two units of a three-unit size, verify only one more can be added and that the second feedback reports one added unit, then verify further adding is disabled. Another size remains purchasable, and removing the original cart line re-enables its Add to cart button. The browser suite now contains 42 scenarios across two viewports (84 checks). These are fixture availability limits, not inventory reservations; checkout still performs authoritative server-side stock validation.
+
+### Homepage quick-add availability
+
+Desktop/mobile checks start with a sold-out first size, verify the next purchasable size and its price, add its last unit, and verify quick-add moves to the next available size. Once all available units are in the cart, the action disables; removing a line re-enables its size. A fully sold-out product is also disabled. The browser suite now contains 44 scenarios across two viewports (88 checks). The selected size is shown before quick-add; cart contents still do not reserve inventory.
+
+### Animated homepage entrance
+
+Desktop/mobile scenarios inspect the supplied logo entrance, skip it, and verify navigation and reload do not repeat it within the tab session. They check automatic dismissal after 2.4 seconds, Escape dismissal, restored page scrolling, reduced-motion bypass, and direct-product navigation without an intro. The browser suite now contains 47 scenarios across two viewports (94 checks), including the retained homepage quick-add work. The intro uses a native modal dialog to keep keyboard focus inside it; browser session storage controls repeat visits. If storage is blocked it still works, but can repeat on a later homepage visit. Failed logo loading dismisses the intro. It does not load external animation services or replace existing store routes.
