@@ -1,3 +1,4 @@
+import CopyReference from '../components/CopyReference'
 import OrderTracking from '../components/OrderTracking'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -27,7 +28,7 @@ function OrderPage() {
   return (
     <section className="page-panel order-detail-page">
       <p className="order-print-brand">PETRO · Order summary</p>
-      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p>{order.createdAt && <p>Placed: <time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<div className="cta-row order-screen-actions"><button type="button" className="btn btn-primary btn-large" onClick={() => window.print()}>Print order summary</button><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult({ order: null, error: '' }); setAttempt((value) => value + 1) }}>Refresh order updates</button></div></div>
+      <div className="page-header"><span className="eyebrow eyebrow-muted">{order.status === 'cancelled' ? 'Order cancelled' : 'Order received'}</span><h1>{order.status === 'cancelled' ? 'Your order has been cancelled.' : 'Thank you for your order.'}</h1><p>Order reference: {order._id}</p><CopyReference key={order._id} value={order._id} label="Copy order reference" />{order.createdAt && <p>Placed: <time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<div className="cta-row order-screen-actions"><button type="button" className="btn btn-primary btn-large" onClick={() => window.print()}>Print order summary</button><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult({ order: null, error: '' }); setAttempt((value) => value + 1) }}>Refresh order updates</button></div></div>
       <OrderTracking order={order} />
       <div className="checkout-layout">
         <section className="checkout-panel">

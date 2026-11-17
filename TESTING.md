@@ -142,3 +142,7 @@ Desktop/mobile checks load 21 saved orders. The first card shows three saved pro
 ### Printable order summaries
 
 Desktop/mobile scenarios complete a fixture COD checkout and verify the print action invokes `window.print`. With print media enabled, site chrome and action controls are hidden while the order reference, address, products, quantities, unpaid amount due and total remain visible. Returning to screen media restores the controls. The suite now contains 33 scenarios across two viewports (66 checks). Print-dialog invocation is stubbed; physical printer output and operating-system PDF settings are not exercised.
+
+### Copying order and tracking references
+
+Desktop/mobile scenarios confirm a fixture order, refresh it with courier details, and verify that each copy button writes the correct reference. Print media hides both controls while keeping the tracking number. A denied clipboard write shows manual-copy guidance, retains the reference, re-enables the control, and succeeds on retry. Clipboard APIs are stubbed; actual operating-system clipboard permissions are not exercised. The browser suite now contains 35 scenarios across two viewports (70 checks).
