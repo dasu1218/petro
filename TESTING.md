@@ -172,3 +172,7 @@ Desktop/mobile checks start with a sold-out first size, verify the next purchasa
 ### Animated homepage entrance
 
 Desktop/mobile scenarios inspect the supplied logo entrance, skip it, and verify navigation and reload do not repeat it within the tab session. They check automatic dismissal after 2.4 seconds, Escape dismissal, restored page scrolling, reduced-motion bypass, and direct-product navigation without an intro. The browser suite now contains 47 scenarios across two viewports (94 checks), including the retained homepage quick-add work. The intro uses a native modal dialog to keep keyboard focus inside it; browser session storage controls repeat visits. If storage is blocked it still works, but can repeat on a later homepage visit. Failed logo loading dismisses the intro. It does not load external animation services or replace existing store routes.
+
+### Bundle product photography
+
+Desktop/mobile scenarios load a two-product bundle with one working photo and one broken image. They verify the loaded image has natural dimensions, the failed image has a placeholder, included products link to their detail pages, and the bundle can still be added to the cart. A second scenario verifies original package artwork remains when neither product has an uploaded photo. Cards use at most two unique component products and their current main photos, without storing duplicate assets. The browser suite now contains 49 scenarios across two viewports (98 checks).

@@ -44,7 +44,7 @@ export async function mockStore(page, role = null, options = {}) {
     }
     if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: options.unavailableSlugs || [] })
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
-    if (path === '/bundles') return json({ bundles: [] })
+    if (path === '/bundles') return json({ bundles: options.bundles || [] })
     if (path === '/wishlist') return json({ slugs: [...savedSlugs] })
     if (path.startsWith('/wishlist/') && ['PUT', 'DELETE'].includes(method)) {
       wishlistRequests.push(`${method} ${path}`)
