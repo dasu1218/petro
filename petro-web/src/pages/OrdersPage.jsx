@@ -1,3 +1,4 @@
+import OrderProductPreview from '../components/OrderProductPreview'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
@@ -33,7 +34,7 @@ function OrdersPage() {
     {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult((current) => ({ ...current, key: '' })); setAttempt((value) => value + 1) }}>Try again</button></div> : <>
       <p role="status">{result.orders.length ? `${result.orders.length} orders on page ${filters.page}` : 'No orders on this page match your filters.'}</p>
       {result.orders.length === 0 && <p><button type="button" className="shop-reset" onClick={clear}>View all orders from page one</button> · <Link to="/shop">Browse products</Link></p>}
-      <ul className="order-history">{result.orders.map((order) => <li key={order._id} className="checkout-panel"><Link to={`/orders/${order._id}`}>Order {order._id}</Link>{order.createdAt && <p><time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<p>{order.status} · {getOrderPayment(order).statusLabel}</p><p>{getOrderPayment(order).methodLabel}</p><strong>{formatLKR(order.totals.total)}</strong><p><Link to={`/orders/${order._id}`}>View details and tracking</Link></p></li>)}</ul>
+      <ul className="order-history">{result.orders.map((order) => <li key={order._id} className="checkout-panel"><Link to={`/orders/${order._id}`}>Order {order._id}</Link>{order.createdAt && <p><time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<OrderProductPreview items={order.items} /><p>{order.status} · {getOrderPayment(order).statusLabel}</p><p>{getOrderPayment(order).methodLabel}</p><strong>{formatLKR(order.totals.total)}</strong><p><Link to={`/orders/${order._id}`}>View details and tracking</Link></p></li>)}</ul>
       <nav className="shop-pagination" aria-label="Order history pages"><button type="button" className="btn btn-secondary btn-large" disabled={filters.page === 1} onClick={() => change('page', filters.page - 1)}>Previous</button><span aria-current="page">Page {filters.page}</span><button type="button" className="btn btn-secondary btn-large" disabled={!result.hasMore || filters.page >= 10000} onClick={() => change('page', filters.page + 1)}>Next</button></nav>
     </>}
   </section>
