@@ -20,6 +20,14 @@ export default function ShopPage() {
       return next
     }, { replace, preventScrollReset: true })
   }
+  const activeFilters = [
+    filters.query && { key: 'q', label: `Search: ${filters.query}`, name: 'search' },
+    filters.category && { key: 'category', label: `Category: ${filters.category}`, name: 'category' },
+    filters.min !== null && { key: 'min', label: `Minimum: ${formatLKR(filters.min)}`, name: 'minimum price' },
+    filters.max !== null && { key: 'max', label: `Maximum: ${formatLKR(filters.max)}`, name: 'maximum price' },
+    filters.inStock && { key: 'stock', label: 'In stock only', name: 'stock' },
+    filters.offersOnly && { key: 'offers', label: 'Active promotions only', name: 'promotion' },
+  ].filter(Boolean)
   const ready = !catalog.loading && !catalog.error
   return <section className="page-panel">
     <div className="page-header"><span className="eyebrow eyebrow-muted">Shop</span><h1>Pet care essentials</h1><p>Find the right care by category, price, and availability.</p></div>
@@ -32,6 +40,7 @@ export default function ShopPage() {
       <div className="shop-filter-options"><label><input type="checkbox" checked={filters.inStock} onChange={(event) => update('stock', event.target.checked ? '1' : '')} />In stock only</label><label><input type="checkbox" checked={filters.offersOnly} onChange={(event) => update('offers', event.target.checked ? '1' : '')} />Active promotions only</label><button type="button" className="btn btn-secondary" onClick={() => setParams({})}>Clear filters</button></div>
       {result.rangeError && <p id="price-range-error" className="form-error shop-filter-options" role="alert">Maximum price must be at least the minimum price.</p>}
     </form>
+    {activeFilters.length > 0 && <section className="shop-active-filters" aria-label="Active product filters"><span>Selected filters</span><div>{activeFilters.map((filter) => <button type="button" key={filter.key} className="shop-filter-chip" aria-label={`Remove ${filter.name} filter: ${filter.label}`} onClick={() => update(filter.key, '')}>{filter.label}<span aria-hidden="true">×</span></button>)}</div></section>}
     <ProductStatus />
     {ready && <>
       <p role="status" className="shop-results">{result.total ? `Showing ${result.start + 1}–${result.start + result.products.length} of ${result.total} products` : 'No products match your filters.'}</p>
