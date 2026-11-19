@@ -194,3 +194,7 @@ Desktop/mobile checks add the last two copies of a fixture bundle, verify the re
 ### Review deletion confirmation
 
 Desktop/mobile scenarios load a saved review, open deletion confirmation, verify no DELETE request is sent before confirmation, and cancel by button and Escape with focus restored. Confirming deletes once and refreshes to an empty review form. An injected failed DELETE keeps the existing review and confirmation available, then succeeds on retry. Review fixtures now retain PUT/DELETE state. The browser suite contains 53 scenarios across two viewports (106 checks); actual review ownership enforcement remains in the API tests.
+
+### Review draft recovery
+
+Desktop/mobile scenarios edit a saved review, inject one failed save, and verify the edited comment/rating remain for a successful retry. A second scenario keeps the public review list unavailable while allowing the customer's own review to load, edits a draft, then reloads only the public list and verifies the draft survives without another private-review request. Public, private-load and mutation errors now have separate recovery paths. The browser suite contains 55 scenarios across two viewports (110 checks). Successful saves/deletes intentionally refresh both datasets; account/product changes still reset the editor.
