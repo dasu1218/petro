@@ -1983,3 +1983,5 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .bundle-product-photo.product-photo-fallback { display: flex; }
 .bundle-contents a { color: #0f766e; text-underline-offset: 3px; }
 @media (max-width: 560px) { .bundle-product-photos { padding: 16px; gap: 10px; } .bundle-product-photo { height: 170px; padding: 10px; } .bundle-product-photo.product-photo-fallback > span { font-size: 1rem; } }
+
+.bundle-info .bundle-cart-stock { padding: 10px 14px; border: 1px solid #cee2d9; border-radius: 12px; background: #edf6f2; color: #285b4b; font-size: .85rem; line-height: 1.5; }

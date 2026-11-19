@@ -186,3 +186,7 @@ The entrance tests pause Playwright's clock before visiting the page, keeping th
 CI enables Playwright's GitHub reporter alongside the existing list and HTML reports, so future test failures appear as named source annotations. The original remote push failure's full log was unavailable; the reproduced local bundle-test failure was verified directly rather than assuming the screenshot proved a specific cause.
 
 After these changes, all 98 browser checks passed locally with `CI=1` and retries disabled. The bundle scenarios also passed 12 repeated checks with no retries, and the entrance/image timing scenarios passed 18 repeats. Frontend lint passed. GitHub checks require a new pushed commit before their result changes.
+
+### Per-bundle cart limits
+
+Desktop/mobile checks add the last two copies of a fixture bundle, verify the remaining quantity message and disabled add control, remove its cart line, then add it again. A separate case verifies sold-out bundles stay disabled. The suite now contains 51 scenarios across two viewports (102 checks). This is a per-bundle UI limit based on fetched availability; it does not reserve stock or subtract other products/bundles using the same components. The API still aggregates all component demand and validates real inventory during checkout.
