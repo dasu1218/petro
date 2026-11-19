@@ -15,5 +15,9 @@ export function orderHistoryQuery(query = {}) {
     if (!['paid', 'unpaid'].includes(query.payment)) fail('Invalid payment status filter');
     filter.paymentStatus = query.payment;
   }
+  if (query.reference !== undefined && query.reference !== '') {
+    if (typeof query.reference !== 'string' || !/^[a-fA-F0-9]{24}$/.test(query.reference.trim())) fail('Enter the full 24-character order reference');
+    filter._id = query.reference.trim().toLowerCase();
+  }
   return { page, filter };
 }

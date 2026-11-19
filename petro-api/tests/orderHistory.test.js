@@ -12,7 +12,7 @@ test('order history validates paging and whitelists filters without accepting ow
  for(const query of [{page:'0'},{page:'-1'},{page:'1.5'},{page:'10001'},{page:['1','2']},{status:'unknown'},{payment:'pending'}])assert.throws(()=>orderHistoryQuery(query),{status:400});
 });
 let server,base,lastFilter;
-const records=Array.from({length:24},(_,index)=>({_id:`alice-${index}`,user:'alice',status:index%2?'processing':'delivered',paymentStatus:index%3?'unpaid':'paid',requestHash:'private',requestId:'private'})).concat([{_id:'bob-1',user:'bob',status:'placed',paymentStatus:'unpaid'}]);
+const records=Array.from({length:24},(_,index)=>({_id:index === 0 ? '507f1f77bcf86cd799439011' : `alice-${index}`,user:'alice',status:index%2?'processing':'delivered',paymentStatus:index%3?'unpaid':'paid',requestHash:'private',requestId:'private'})).concat([{_id:'507f1f77bcf86cd799439022',user:'bob',status:'placed',paymentStatus:'unpaid'}]);
 const original={user:User.findById,find:Order.find};
 before(async()=>{
  process.env.JWT_SECRET='order-history-tests';User.findById=async(id)=>({_id:id});
@@ -24,14 +24,26 @@ after(async()=>{User.findById=original.user;Order.find=original.find;if(server)a
 const request=(query='',user='alice')=>fetch(base+query,{headers:user?{Authorization:`Bearer ${signToken(user)}`}:{}});
 test('paged history returns all owner pages without leaking another account or retry secrets',async()=>{
  assert.equal((await request('',null)).status,401);
- const first=await(await request('?page=1&user=bob')).json();assert.equal(first.orders.length,10);assert.equal(first.hasMore,true);assert.equal(first.orders[0]._id,'alice-0');assert.equal(first.orders[0].requestHash,undefined);assert.equal(lastFilter.user,'alice');
+ const first=await(await request('?page=1&user=bob')).json();assert.equal(first.orders.length,10);assert.equal(first.hasMore,true);assert.equal(first.orders[0]._id,'507f1f77bcf86cd799439011');assert.equal(first.orders[0].requestHash,undefined);assert.equal(lastFilter.user,'alice');
  const second=await(await request('?page=2')).json();assert.equal(second.orders.length,10);assert.equal(second.orders[0]._id,'alice-10');
  const third=await(await request('?page=3')).json();assert.equal(third.orders.length,4);assert.equal(third.hasMore,false);
  assert.equal((await(await request('?page=4')).json()).orders.length,0);
- const bob=await(await request('', 'bob')).json();assert.deepEqual(bob.orders.map((order)=>order._id),['bob-1']);
+ const bob=await(await request('', 'bob')).json();assert.deepEqual(bob.orders.map((order)=>order._id),['507f1f77bcf86cd799439022']);
 });
 test('status and payment filters combine and invalid queries are rejected',async()=>{
  const data=await(await request('?status=delivered&payment=paid')).json();assert.equal(data.orders.length,4);assert.ok(data.orders.every((order)=>order.status==='delivered'&&order.paymentStatus==='paid'));
  assert.deepEqual(lastFilter,{status:'delivered',paymentStatus:'paid',user:'alice'});
  assert.equal((await request('?status=invalid')).status,400);assert.equal((await request('?page=0')).status,400);
+});
+
+test('reference search normalizes IDs and remains scoped to the authenticated owner',async()=>{
+ const own='507f1f77bcf86cd799439011', other='507f1f77bcf86cd799439022';
+ const found=await(await request(`?reference=${own.toUpperCase()}&status=delivered&payment=paid`)).json();
+ assert.deepEqual(found.orders.map((order)=>order._id),[own]);assert.equal(found.hasMore,false);
+ assert.deepEqual(lastFilter,{status:'delivered',paymentStatus:'paid',_id:own,user:'alice'});
+ const hidden=await(await request(`?reference=${other}&user=bob`)).json();assert.deepEqual(hidden.orders,[]);assert.equal(lastFilter.user,'alice');
+ assert.equal((await request('?reference=short')).status,400);
+ assert.equal((await request(`?reference=${own}&reference=${other}`)).status,400);
+ assert.throws(()=>orderHistoryQuery({reference:{$ne:'x'}}),{status:400});
+ assert.equal((await request(`?reference=${own}`,null)).status,401);
 });

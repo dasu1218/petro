@@ -1,8 +1,10 @@
 export const HISTORY_STATUSES = ['placed', 'processing', 'shipped', 'delivered', 'cancelled']
 export function readHistoryFilters(params) {
+  const reference = (params.get('reference') || '').trim()
   const page = Number(params.get('page') || 1)
   return {
     page: Number.isSafeInteger(page) && page > 0 && page <= 10000 ? page : 1,
+    reference: /^[a-fA-F0-9]{24}$/.test(reference) ? reference.toLowerCase() : '',
     status: HISTORY_STATUSES.includes(params.get('status')) ? params.get('status') : '',
     payment: ['paid', 'unpaid'].includes(params.get('payment')) ? params.get('payment') : '',
   }
@@ -10,6 +12,7 @@ export function readHistoryFilters(params) {
 export function historyApiQuery(filters) {
   const params = new URLSearchParams({ page: String(filters.page) })
   if (filters.status) params.set('status', filters.status)
+  if (filters.reference) params.set('reference', filters.reference)
   if (filters.payment) params.set('payment', filters.payment)
   return params.toString()
 }
