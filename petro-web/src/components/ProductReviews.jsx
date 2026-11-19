@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
@@ -8,6 +8,11 @@ function ReviewsContent({ slug }) {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [feedback, setFeedback] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const deleteTrigger = useRef(null)
+  const deleteCancel = useRef(null)
+  useEffect(() => { if (confirmDelete) deleteCancel.current?.focus() }, [confirmDelete])
+  const cancelDelete = () => { setConfirmDelete(false); requestAnimationFrame(() => deleteTrigger.current?.focus()) }
   const [busy, setBusy] = useState(false)
   const [page, setPage] = useState(1)
   const [version, setVersion] = useState(0)
@@ -31,14 +36,16 @@ function ReviewsContent({ slug }) {
     }).catch((failure) => { if (!ignore) setMine({ loading: false, review: null, error: failure.message }) })
     return () => { ignore = true }
   }, [slug, version, user, token])
-  const refresh = () => { setResult(null); setMine((current) => ({ ...current, loading: Boolean(user), error: '' })); setVersion((value) => value + 1) }
+  const refresh = () => { setConfirmDelete(false); setResult(null); setMine((current) => ({ ...current, loading: Boolean(user), error: '' })); setVersion((value) => value + 1) }
   const save = async (event) => {
     event.preventDefault()
+    if (busy || confirmDelete) return
     if (!draft.comment.trim()) { setError('Please write your review.'); return }
     setBusy(true); setError(''); setFeedback('')
     try { await apiRequest(`/reviews/${slug}`, { method: 'PUT', token, body: draft }); setFeedback('Your review was saved.'); refresh() } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
   const remove = async () => {
+    if (busy || !confirmDelete) return
     setBusy(true); setError(''); setFeedback('')
     try { await apiRequest(`/reviews/${slug}`, { method: 'DELETE', token }); setFeedback('Your review was deleted.'); refresh() } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
@@ -48,7 +55,7 @@ function ReviewsContent({ slug }) {
       <p>{result.count ? `${result.rating} / 5 from ${result.count} reviews` : 'No reviews yet. Be the first to share your experience.'}</p>
       <ul className="review-list">{result.reviews.map((review) => <li key={review.id} className="checkout-panel"><strong>{review.authorName}</strong><p aria-label={`${review.rating} out of 5 stars`}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p><p className="review-comment">{review.comment}</p></li>)}</ul>
       <div className="cta-row"><button type="button" className="btn btn-secondary btn-large" disabled={busy || page === 1} onClick={() => { setResult(null); setPage((value) => value - 1) }}>Previous</button><span>Page {page}</span><button type="button" className="btn btn-secondary btn-large" disabled={busy || !result.hasMore} onClick={() => { setResult(null); setPage((value) => value + 1) }}>Next</button></div>
-      {user ? mine.loading ? <p role="status">Loading your review…</p> : mine.error ? <div role="alert"><p>{mine.error}</p><button type="button" className="btn btn-secondary" onClick={refresh}>Reload your review</button></div> : <form className="checkout-form" onSubmit={save}><fieldset className="checkout-panel" disabled={busy}><legend>{mine.review ? 'Edit your review' : 'Write a review'}</legend><p>Your display name and review will be public. One review per product.</p><label className="form-field"><span>Rating</span><select value={draft.rating} onChange={(event) => setDraft((current) => ({ ...current, rating: Number(event.target.value) }))}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} stars</option>)}</select></label><label className="form-field"><span>Your review</span><textarea required maxLength={1000} rows={4} value={draft.comment} onChange={(event) => setDraft((current) => ({ ...current, comment: event.target.value }))} /></label><div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Saving…' : 'Save review'}</button>{mine.review && <button type="button" className="btn btn-secondary btn-large" onClick={remove}>Delete my review</button>}</div></fieldset></form> : <p><Link to="/login" state={{ from: location }}>Log in to write a review</Link></p>}
+      {user ? mine.loading ? <p role="status">Loading your review…</p> : mine.error ? <div role="alert"><p>{mine.error}</p><button type="button" className="btn btn-secondary" onClick={refresh}>Reload your review</button></div> : <form className="checkout-form" onSubmit={save}><fieldset className="checkout-panel" disabled={busy}><legend>{mine.review ? 'Edit your review' : 'Write a review'}</legend><p>Your display name and review will be public. One review per product.</p><label className="form-field"><span>Rating</span><select value={draft.rating} onChange={(event) => setDraft((current) => ({ ...current, rating: Number(event.target.value) }))}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} stars</option>)}</select></label><label className="form-field"><span>Your review</span><textarea required maxLength={1000} rows={4} value={draft.comment} onChange={(event) => setDraft((current) => ({ ...current, comment: event.target.value }))} /></label><div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large" disabled={confirmDelete}>{busy ? 'Please wait…' : 'Save review'}</button>{mine.review && !confirmDelete && <button ref={deleteTrigger} type="button" className="btn btn-secondary btn-large" onClick={() => setConfirmDelete(true)}>Delete my review</button>}{mine.review && confirmDelete && <div className="review-delete-confirmation" role="group" aria-label="Confirm review deletion" onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); if (!busy) cancelDelete() } }}><p>Delete your review for this product? This removes your published rating and comment.</p><div className="cta-row"><button ref={deleteCancel} type="button" className="btn btn-secondary" onClick={cancelDelete}>Keep my review</button><button type="button" className="btn btn-primary" onClick={remove}>{busy ? 'Deleting…' : 'Confirm delete review'}</button></div></div>}</div></fieldset></form> : <p><Link to="/login" state={{ from: location }}>Log in to write a review</Link></p>}
     </>}
   </section>
 }
