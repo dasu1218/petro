@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Order CSV download | 2026-11-19 | Customer order-details download with saved product names, sizes, quantities, prices, totals and payment state; hidden from printing | 142 API/logic tests plus browser download coverage; CSV uses historical order snapshots |
 | Review draft recovery | 2026-11-19 | Independent public-list and own-review retries, retained comment/rating after failed save, and editor availability during public-list failures | Desktop/mobile failed-save retry and public-reload draft-preservation checks |
 | Review deletion confirmation | 2026-11-19 | Confirm before deleting a published review, cancel by button/Escape, and retain the review for retry on failure | Desktop/mobile focus, no-delete-on-cancel, success and failure-retry coverage |
 | Bundle cart stock limits | 2026-11-19 | Bundle add controls account for existing copies, show remaining add quantity and disable at the published bundle stock limit | Desktop/mobile repeated-add, removal recovery and sold-out coverage; checkout still checks shared component demand |

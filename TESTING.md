@@ -198,3 +198,9 @@ Desktop/mobile scenarios load a saved review, open deletion confirmation, verify
 ### Review draft recovery
 
 Desktop/mobile scenarios edit a saved review, inject one failed save, and verify the edited comment/rating remain for a successful retry. A second scenario keeps the public review list unavailable while allowing the customer's own review to load, edits a draft, then reloads only the public list and verifies the draft survives without another private-review request. Public, private-load and mutation errors now have separate recovery paths. The browser suite contains 55 scenarios across two viewports (110 checks). Successful saves/deletes intentionally refresh both datasets; account/product changes still reset the editor.
+
+### Order CSV downloads
+
+Three logic checks verify historical line values, totals, unpaid COD amount due, CSV punctuation/newline escaping, spreadsheet formula neutralization, and omission of a COD amount due for paid/cancelled/unknown-method orders. The default suite now contains 100 API/service and 42 frontend logic checks (142 total).
+
+Desktop/mobile browser checks open a fixture order, download the CSV, read its contents, verify the filename and saved line/totals, and confirm the download control is hidden in print media. The suite now contains 56 scenarios across two viewports (112 checks). The export is generated locally from the already-authorized order response; it does not read the current catalog or send an extra API request. It includes products and order/payment metadata, not shipping contact details or session credentials.
