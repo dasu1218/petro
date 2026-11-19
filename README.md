@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Wishlist search and filters | 2026-11-19 | Search saved products by name/URL/category, sort by lowest size price or name, and filter by stock/promotions with URL persistence | Filter-only actions leave saved entries unchanged; unavailable entries retain removal controls |
 | Order history sorting | 2026-11-19 | Newest/oldest date ordering with stable ID tie-breaks, preserved filters and page reset; selection survives URL reloads | API sort whitelist/owner checks and desktop/mobile pagination/reset coverage |
 | Customer reference search | 2026-11-19 | Find a customer order by full reference, combine with status/payment filters and reset pagination; API retains owner scope | API ownership/malformed-input checks and desktop/mobile search/clear coverage |
 | Order CSV download | 2026-11-19 | Customer order-details download with saved product names, sizes, quantities, prices, totals and payment state; hidden from printing | 142 API/logic tests plus browser download coverage; CSV uses historical order snapshots |
