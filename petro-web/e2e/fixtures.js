@@ -10,6 +10,7 @@ export async function mockStore(page, role = null, options = {}) {
   const reviewRequests = []
   let ownReview = options.ownReview || null
   let reviewDeleteFailed = false
+  let reviewSaveFailed = false
   const wishlistRequests = []
   const savedSlugs = new Set(options.wishlistSlugs || [])
   const orderRequests = []
@@ -103,6 +104,7 @@ export async function mockStore(page, role = null, options = {}) {
     if (path.startsWith('/reviews/')) {
       reviewRequests.push(`${method} ${path}${url.search}`)
       if (path.endsWith('/mine')) return json({ review: ownReview })
+      if (method === 'PUT' && options.failFirstReviewSave && !reviewSaveFailed) { reviewSaveFailed = true; return json({ message: 'Review could not be saved. Try again.' }, 503) }
       if (method === 'PUT') { ownReview = { id: 'own-review', ...route.request().postDataJSON() }; return json({ review: ownReview }) }
       if (method === 'DELETE') {
         if (options.failFirstReviewDelete && !reviewDeleteFailed) { reviewDeleteFailed = true; return json({ message: 'Review could not be deleted. Try again.' }, 503) }

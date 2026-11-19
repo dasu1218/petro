@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Review draft recovery | 2026-11-19 | Independent public-list and own-review retries, retained comment/rating after failed save, and editor availability during public-list failures | Desktop/mobile failed-save retry and public-reload draft-preservation checks |
 | Review deletion confirmation | 2026-11-19 | Confirm before deleting a published review, cancel by button/Escape, and retain the review for retry on failure | Desktop/mobile focus, no-delete-on-cancel, success and failure-retry coverage |
 | Bundle cart stock limits | 2026-11-19 | Bundle add controls account for existing copies, show remaining add quantity and disable at the published bundle stock limit | Desktop/mobile repeated-add, removal recovery and sold-out coverage; checkout still checks shared component demand |
 | Bundle product photos | 2026-11-17 | Bundle cards show up to two uploaded component-product photos, preserve image fallbacks and link included products to their details | Desktop/mobile photo, broken-image, link, cart and no-photo coverage |
