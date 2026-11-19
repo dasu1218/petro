@@ -1995,3 +1995,9 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .order-reference-search p { grid-column: 1 / -1; margin: 0; font-size: .88rem; color: #64748b; }
 .order-reference-search .form-error { color: #b91c1c; }
 @media (max-width: 560px) { .order-reference-search { grid-template-columns: minmax(0, 1fr); } }
+
+.wishlist-filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; margin-bottom: 20px; }
+.wishlist-filter-options { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+.wishlist-filter-options label { display: inline-flex; align-items: center; gap: 8px; color: #475569; }
+.wishlist-filter-options .btn { margin-left: auto; }
+@media (max-width: 560px) { .wishlist-filters { grid-template-columns: minmax(0, 1fr); } .wishlist-filter-options { align-items: flex-start; flex-direction: column; } .wishlist-filter-options .btn { margin-left: 0; width: 100%; } }

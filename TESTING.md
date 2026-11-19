@@ -216,3 +216,9 @@ Desktop/mobile checks submit a reference, retain the status filter, reset pagina
 API checks verify oldest-first direction, deterministic creation-date/ID sorting, owner scope, pagination and rejection of unsupported/repeated sort values. Frontend logic checks verify URL round trips and newest-first fallback. The default suite now contains 102 API/service and 44 frontend logic checks (146 total).
 
 Desktop/mobile scenarios change sorting from page two with active fulfilment/payment filters, verify the page resets, reload to retain oldest-first selection, browse the next page, then clear back to newest-first. Browser history fixtures are supplied newest-first and reverse for oldest-first. The suite now contains 59 scenarios across two viewports (118 checks).
+
+### Wishlist search, sorting and filters
+
+Three logic checks cover multi-term case-insensitive search, combined stock/promotions, lowest-size price sorting, preserving input lists, bounded queries and safe defaults for unsupported URL values. The default suite now contains 102 API/service and 47 frontend logic checks (149 total).
+
+Desktop/mobile scenarios sort saved products by price, search a product URL, reload to retain selections, clear filters and combine stock/promotion filters. They verify unavailable saved entries remain removable even when no visible products match, and filtering sends no wishlist mutation requests. The browser suite contains 61 scenarios across two viewports (122 checks). Results are drawn only from the customer's existing saved list, and clearing filters does not remove saved products.
