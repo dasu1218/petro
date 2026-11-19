@@ -19,5 +19,8 @@ export function orderHistoryQuery(query = {}) {
     if (typeof query.reference !== 'string' || !/^[a-fA-F0-9]{24}$/.test(query.reference.trim())) fail('Enter the full 24-character order reference');
     filter._id = query.reference.trim().toLowerCase();
   }
-  return { page, filter };
+  const choice = query.sort === undefined || query.sort === '' ? 'newest' : query.sort;
+  if (!['newest', 'oldest'].includes(choice)) fail('Invalid order sort');
+  const direction = choice === 'oldest' ? 1 : -1;
+  return { page, filter, sort: { createdAt: direction, _id: direction } };
 }

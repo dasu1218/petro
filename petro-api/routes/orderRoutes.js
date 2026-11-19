@@ -12,8 +12,8 @@ router.post('/', async (request, response) => {
   response.status(result.replayed ? 200 : 201).json({ order: publicOrder(result.order) });
 });
 router.get('/my', async (request, response) => {
-  const { page, filter } = orderHistoryQuery(request.query);
-  const orders = await Order.find({ ...filter, user: request.user._id }).sort({ createdAt: -1, _id: -1 }).skip((page - 1) * HISTORY_PAGE_SIZE).limit(HISTORY_PAGE_SIZE + 1);
+  const { page, filter, sort } = orderHistoryQuery(request.query);
+  const orders = await Order.find({ ...filter, user: request.user._id }).sort(sort).skip((page - 1) * HISTORY_PAGE_SIZE).limit(HISTORY_PAGE_SIZE + 1);
   response.json({ orders: orders.slice(0, HISTORY_PAGE_SIZE).map(publicOrder), page, hasMore: orders.length > HISTORY_PAGE_SIZE });
 });
 router.get('/:id', async (request, response) => {

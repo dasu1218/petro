@@ -83,6 +83,7 @@ export async function mockStore(page, role = null, options = {}) {
     if (path === '/orders/my' && method === 'GET') {
       const matching = (options.historyOrders || []).filter((order) => (!url.searchParams.get('reference') || order._id === url.searchParams.get('reference')) && (!url.searchParams.get('status') || order.status === url.searchParams.get('status')) && (!url.searchParams.get('payment') || order.paymentStatus === url.searchParams.get('payment')))
       const start = (Number(url.searchParams.get('page') || 1) - 1) * 10
+      if (url.searchParams.get('sort') === 'oldest') matching.reverse()
       return json({ orders: matching.slice(start, start + 10), hasMore: matching.length > start + 10 })
     }
     if (path.startsWith('/orders/') && method === 'GET') {

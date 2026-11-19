@@ -210,3 +210,9 @@ Desktop/mobile browser checks open a fixture order, download the CSV, read its c
 The API test searches an uppercase reference, combines fulfilment/payment filters, rejects malformed and repeated values, and verifies another customer's reference is not returned even with a forged user parameter. Frontend logic tests cover normalization, URL serialization and invalid-reference fallback. The default suite contains 101 API/service and 43 frontend logic checks (144 total).
 
 Desktop/mobile checks submit a reference, retain the status filter, reset pagination, clear search, reject short input before submission, and show empty results for an unmatched reference. History fixtures now use the real API's 10-order page size; the existing preview/pagination case uses 11 records to cover the next page. The browser suite contains 58 scenarios across two viewports (116 checks).
+
+### Customer order-history sorting
+
+API checks verify oldest-first direction, deterministic creation-date/ID sorting, owner scope, pagination and rejection of unsupported/repeated sort values. Frontend logic checks verify URL round trips and newest-first fallback. The default suite now contains 102 API/service and 44 frontend logic checks (146 total).
+
+Desktop/mobile scenarios change sorting from page two with active fulfilment/payment filters, verify the page resets, reload to retain oldest-first selection, browse the next page, then clear back to newest-first. Browser history fixtures are supplied newest-first and reverse for oldest-first. The suite now contains 59 scenarios across two viewports (118 checks).

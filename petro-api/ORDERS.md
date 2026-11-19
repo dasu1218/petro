@@ -46,3 +46,7 @@ Three new API tests cover validated filters, multiple pages, hasMore boundaries,
 ## Customer order reference search
 
 `GET /api/orders/my?reference=<24-character-order-id>` searches the authenticated customer's history by exact order reference. Uppercase hex is normalized to lowercase; malformed/repeated references return 400. It can be combined with `status` and `payment` filters and uses the existing 10-order pagination. The API always adds the authenticated user's ID, so a reference belonging to another customer returns an empty history result. Arbitrary user parameters do not change ownership scope.
+
+## Customer history ordering
+
+`GET /api/orders/my?sort=oldest` returns oldest orders first. Omit `sort` or use `newest` for the existing newest-first order. Both directions sort by `createdAt` and `_id` together for stable pagination, and combine with reference/status/payment filters while retaining authenticated ownership scope. Unsupported or repeated sort values return 400.

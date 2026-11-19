@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Order history sorting | 2026-11-19 | Newest/oldest date ordering with stable ID tie-breaks, preserved filters and page reset; selection survives URL reloads | API sort whitelist/owner checks and desktop/mobile pagination/reset coverage |
 | Customer reference search | 2026-11-19 | Find a customer order by full reference, combine with status/payment filters and reset pagination; API retains owner scope | API ownership/malformed-input checks and desktop/mobile search/clear coverage |
 | Order CSV download | 2026-11-19 | Customer order-details download with saved product names, sizes, quantities, prices, totals and payment state; hidden from printing | 142 API/logic tests plus browser download coverage; CSV uses historical order snapshots |
 | Review draft recovery | 2026-11-19 | Independent public-list and own-review retries, retained comment/rating after failed save, and editor availability during public-list failures | Desktop/mobile failed-save retry and public-reload draft-preservation checks |
