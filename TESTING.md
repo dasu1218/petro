@@ -190,3 +190,7 @@ After these changes, all 98 browser checks passed locally with `CI=1` and retrie
 ### Per-bundle cart limits
 
 Desktop/mobile checks add the last two copies of a fixture bundle, verify the remaining quantity message and disabled add control, remove its cart line, then add it again. A separate case verifies sold-out bundles stay disabled. The suite now contains 51 scenarios across two viewports (102 checks). This is a per-bundle UI limit based on fetched availability; it does not reserve stock or subtract other products/bundles using the same components. The API still aggregates all component demand and validates real inventory during checkout.
+
+### Review deletion confirmation
+
+Desktop/mobile scenarios load a saved review, open deletion confirmation, verify no DELETE request is sent before confirmation, and cancel by button and Escape with focus restored. Confirming deletes once and refreshes to an empty review form. An injected failed DELETE keeps the existing review and confirmation available, then succeeds on retry. Review fixtures now retain PUT/DELETE state. The browser suite contains 53 scenarios across two viewports (106 checks); actual review ownership enforcement remains in the API tests.

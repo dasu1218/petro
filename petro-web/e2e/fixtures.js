@@ -8,6 +8,8 @@ export async function mockStore(page, role = null, options = {}) {
   let user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
   let cartItems = []
   const reviewRequests = []
+  let ownReview = options.ownReview || null
+  let reviewDeleteFailed = false
   const wishlistRequests = []
   const savedSlugs = new Set(options.wishlistSlugs || [])
   const orderRequests = []
@@ -100,8 +102,13 @@ export async function mockStore(page, role = null, options = {}) {
     if (path.startsWith('/admin/inventory/')) return json({ variants: [{ label: '250ml', stock: 10 }], history: [] })
     if (path.startsWith('/reviews/')) {
       reviewRequests.push(`${method} ${path}${url.search}`)
-      if (path.endsWith('/mine')) return json({ review: options.ownReview || null })
-      if (method === 'PUT') return json({ review: { id: 'own-review', ...route.request().postDataJSON() } })
+      if (path.endsWith('/mine')) return json({ review: ownReview })
+      if (method === 'PUT') { ownReview = { id: 'own-review', ...route.request().postDataJSON() }; return json({ review: ownReview }) }
+      if (method === 'DELETE') {
+        if (options.failFirstReviewDelete && !reviewDeleteFailed) { reviewDeleteFailed = true; return json({ message: 'Review could not be deleted. Try again.' }, 503) }
+        ownReview = null
+        return json({ deleted: true })
+      }
       return json(options.reviewPages?.[url.searchParams.get('page') || '1'] || { reviews: [], count: 0, rating: null, hasMore: false })
     }
     unexpected.push(`${method} ${path}`)
