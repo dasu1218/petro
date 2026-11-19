@@ -8,15 +8,15 @@ import { orderHistoryQuery } from '../services/orderHistory.js';
 import { signToken } from '../utils/token.js';
 import { errorHandler } from '../middleware/errorHandler.js';
 test('order history validates paging and whitelists filters without accepting ownership',()=>{
- assert.deepEqual(orderHistoryQuery({page:'2',status:'shipped',payment:'paid',user:'other'}),{page:2,filter:{status:'shipped',paymentStatus:'paid'}});
+ assert.deepEqual(orderHistoryQuery({page:'2',status:'shipped',payment:'paid',user:'other'}),{page:2,filter:{status:'shipped',paymentStatus:'paid'},sort:{createdAt:-1,_id:-1}});
  for(const query of [{page:'0'},{page:'-1'},{page:'1.5'},{page:'10001'},{page:['1','2']},{status:'unknown'},{payment:'pending'}])assert.throws(()=>orderHistoryQuery(query),{status:400});
 });
-let server,base,lastFilter;
-const records=Array.from({length:24},(_,index)=>({_id:`alice-${index}`,user:'alice',status:index%2?'processing':'delivered',paymentStatus:index%3?'unpaid':'paid',requestHash:'private',requestId:'private'})).concat([{_id:'bob-1',user:'bob',status:'placed',paymentStatus:'unpaid'}]);
+let server,base,lastFilter,lastSort;
+const records=Array.from({length:24},(_,index)=>({_id:index === 0 ? '507f1f77bcf86cd799439011' : `alice-${index}`,user:'alice',status:index%2?'processing':'delivered',paymentStatus:index%3?'unpaid':'paid',requestHash:'private',requestId:'private'})).concat([{_id:'507f1f77bcf86cd799439022',user:'bob',status:'placed',paymentStatus:'unpaid'}]);
 const original={user:User.findById,find:Order.find};
 before(async()=>{
  process.env.JWT_SECRET='order-history-tests';User.findById=async(id)=>({_id:id});
- Order.find=(filter)=>{lastFilter=filter;return{sort:(sort)=>{assert.deepEqual(sort,{createdAt:-1,_id:-1});return{skip:(skip)=>({limit:async(limit)=>records.filter((record)=>Object.entries(filter).every(([key,value])=>record[key]===value)).slice(skip,skip+limit)})};}};};
+ Order.find=(filter)=>{lastFilter=filter;return{sort:(sort)=>{lastSort=sort;assert.ok([1,-1].includes(sort.createdAt));assert.equal(sort._id,sort.createdAt);return{skip:(skip)=>({limit:async(limit)=>{const matches=records.filter((record)=>Object.entries(filter).every(([key,value])=>record[key]===value));return (sort.createdAt===1?matches.reverse():matches).slice(skip,skip+limit);}})};}};};
  const app=express();app.use(express.json());app.use('/orders',routes);app.use(errorHandler);
  server=await new Promise((resolve,reject)=>{const s=app.listen(0,'127.0.0.1',(error)=>error?reject(error):resolve(s));s.on('error',reject);});base=`http://127.0.0.1:${server.address().port}/orders/my`;
 });
@@ -24,14 +24,35 @@ after(async()=>{User.findById=original.user;Order.find=original.find;if(server)a
 const request=(query='',user='alice')=>fetch(base+query,{headers:user?{Authorization:`Bearer ${signToken(user)}`}:{}});
 test('paged history returns all owner pages without leaking another account or retry secrets',async()=>{
  assert.equal((await request('',null)).status,401);
- const first=await(await request('?page=1&user=bob')).json();assert.equal(first.orders.length,10);assert.equal(first.hasMore,true);assert.equal(first.orders[0]._id,'alice-0');assert.equal(first.orders[0].requestHash,undefined);assert.equal(lastFilter.user,'alice');
+ const first=await(await request('?page=1&user=bob')).json();assert.equal(first.orders.length,10);assert.equal(first.hasMore,true);assert.equal(first.orders[0]._id,'507f1f77bcf86cd799439011');assert.equal(first.orders[0].requestHash,undefined);assert.equal(lastFilter.user,'alice');
  const second=await(await request('?page=2')).json();assert.equal(second.orders.length,10);assert.equal(second.orders[0]._id,'alice-10');
  const third=await(await request('?page=3')).json();assert.equal(third.orders.length,4);assert.equal(third.hasMore,false);
  assert.equal((await(await request('?page=4')).json()).orders.length,0);
- const bob=await(await request('', 'bob')).json();assert.deepEqual(bob.orders.map((order)=>order._id),['bob-1']);
+ const bob=await(await request('', 'bob')).json();assert.deepEqual(bob.orders.map((order)=>order._id),['507f1f77bcf86cd799439022']);
 });
 test('status and payment filters combine and invalid queries are rejected',async()=>{
  const data=await(await request('?status=delivered&payment=paid')).json();assert.equal(data.orders.length,4);assert.ok(data.orders.every((order)=>order.status==='delivered'&&order.paymentStatus==='paid'));
  assert.deepEqual(lastFilter,{status:'delivered',paymentStatus:'paid',user:'alice'});
  assert.equal((await request('?status=invalid')).status,400);assert.equal((await request('?page=0')).status,400);
+});
+
+test('reference search normalizes IDs and remains scoped to the authenticated owner',async()=>{
+ const own='507f1f77bcf86cd799439011', other='507f1f77bcf86cd799439022';
+ const found=await(await request(`?reference=${own.toUpperCase()}&status=delivered&payment=paid`)).json();
+ assert.deepEqual(found.orders.map((order)=>order._id),[own]);assert.equal(found.hasMore,false);
+ assert.deepEqual(lastFilter,{status:'delivered',paymentStatus:'paid',_id:own,user:'alice'});
+ const hidden=await(await request(`?reference=${other}&user=bob`)).json();assert.deepEqual(hidden.orders,[]);assert.equal(lastFilter.user,'alice');
+ assert.equal((await request('?reference=short')).status,400);
+ assert.equal((await request(`?reference=${own}&reference=${other}`)).status,400);
+ assert.throws(()=>orderHistoryQuery({reference:{$ne:'x'}}),{status:400});
+ assert.equal((await request(`?reference=${own}`,null)).status,401);
+});
+
+test('oldest-first sorting is whitelisted, stable and still owner-scoped across pages',async()=>{
+ const first=await(await request('?sort=oldest&user=bob')).json();assert.equal(first.orders[0]._id,'alice-23');assert.equal(first.hasMore,true);
+ assert.deepEqual(lastSort,{createdAt:1,_id:1});assert.equal(lastFilter.user,'alice');
+ const second=await(await request('?sort=oldest&page=2')).json();assert.equal(second.orders[0]._id,'alice-13');
+ assert.equal((await request('?sort=price')).status,400);
+ assert.equal((await request('?sort=oldest&sort=newest')).status,400);
+ assert.throws(()=>orderHistoryQuery({sort:{$gt:1}}),{status:400});
 });

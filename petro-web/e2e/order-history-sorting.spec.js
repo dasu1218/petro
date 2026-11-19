@@ -1,0 +1,28 @@
+import { test, expect } from '@playwright/test'
+import { mockStore } from './fixtures.js'
+const historyOrders = Array.from({ length: 11 }, (_, index) => ({ _id: `order-${index + 1}`, createdAt: new Date(Date.UTC(2026, 10, 19 - index)).toISOString(), status: 'delivered', paymentMethod: 'cod', paymentStatus: 'paid', totals: { total: 1000 }, items: [{ name: `Saved product ${index + 1}`, variantLabel: '250ml', quantity: 1 }] }))
+test('order sorting resets pagination, preserves filters and survives a reload', async ({ page }) => {
+  const monitor = await mockStore(page, 'customer', { historyOrders })
+  await page.goto('/orders?page=2&status=delivered&payment=paid')
+  await expect(page.locator('.order-history > li').first()).toContainText('Saved product 11')
+  const sort = page.getByRole('combobox', { name: 'Sort orders', exact: true })
+  await sort.selectOption('oldest')
+  await expect(page.locator('.order-history > li').first()).toContainText('Saved product 11')
+  const params = new URL(page.url()).searchParams
+  expect(params.get('sort')).toBe('oldest')
+  expect(params.get('status')).toBe('delivered')
+  expect(params.get('payment')).toBe('paid')
+  expect(params.get('page')).toBeNull()
+  await page.reload()
+  await expect(sort).toHaveValue('oldest')
+  await expect(page.locator('.order-history > li').first()).toContainText('Saved product 11')
+  await page.getByRole('navigation', { name: 'Order history pages', exact: true }).getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(page.locator('.order-history > li')).toHaveCount(1)
+  await expect(page.locator('.order-history > li').first()).toContainText('Saved product 1')
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click()
+  await expect(sort).toHaveValue('newest')
+  await expect(page.locator('.order-history > li').first()).toContainText('Saved product 1')
+  expect([...new URL(page.url()).searchParams]).toEqual([])
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

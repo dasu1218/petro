@@ -1,5 +1,5 @@
 import OrderProductPreview from '../components/OrderProductPreview'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
@@ -12,6 +12,8 @@ function OrdersPage() {
   const filters = readHistoryFilters(params)
   const query = historyApiQuery(filters)
   const [result, setResult] = useState({ key: '', orders: [], hasMore: false, error: '' })
+  const searchForm = useRef(null)
+  const [searchError, setSearchError] = useState('')
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let ignore = false
@@ -28,9 +30,12 @@ function OrdersPage() {
     return next
   })
   const loading = result.key !== query
-  const clear = () => setParams({})
-  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">My orders</span><h1>Your order history</h1><p>Browse your orders, newest first, and filter by fulfilment or payment status.</p></div>
-    <div className="checkout-panel history-filters"><label className="form-field"><span>Order status</span><select value={filters.status} onChange={(event) => change('status', event.target.value)}><option value="">All statuses</option>{HISTORY_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label><label className="form-field"><span>Payment status</span><select value={filters.payment} onChange={(event) => change('payment', event.target.value)}><option value="">All payments</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></label><button type="button" className="btn btn-secondary btn-large" onClick={clear}>Clear filters</button></div>
+  const clear = () => { searchForm.current?.reset(); setSearchError(''); setParams({}) }
+  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">My orders</span><h1>Your order history</h1><p>Browse your purchases by date and filter by fulfilment or payment status.</p></div>
+    <form ref={searchForm} key={filters.reference} className="checkout-panel order-reference-search" role="search" aria-label="Find your order" onSubmit={(event) => { event.preventDefault(); setSearchError(''); change('reference', event.currentTarget.elements.reference.value.trim().toLowerCase()) }} onInvalidCapture={() => setSearchError('Enter the full 24-character order reference from your confirmation.')}>
+      <label className="form-field"><span>Order reference</span><input type="search" name="reference" defaultValue={filters.reference} maxLength={24} pattern="[a-fA-F0-9]{24}" placeholder="Paste your full order reference" aria-describedby="order-reference-help" aria-invalid={Boolean(searchError)} onChange={() => setSearchError('')} /></label><button type="submit" className="btn btn-primary">Search orders</button><p id="order-reference-help">Find the reference on your order confirmation. Only your own orders can be shown.</p>{searchError && <p className="form-error" role="alert">{searchError}</p>}
+    </form>
+    <div className="checkout-panel history-filters"><label className="form-field"><span>Order status</span><select value={filters.status} onChange={(event) => change('status', event.target.value)}><option value="">All statuses</option>{HISTORY_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label><label className="form-field"><span>Payment status</span><select value={filters.payment} onChange={(event) => change('payment', event.target.value)}><option value="">All payments</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></label><label className="form-field"><span>Sort orders</span><select value={filters.sort} onChange={(event) => change('sort', event.target.value === 'newest' ? '' : event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label><button type="button" className="btn btn-secondary btn-large" onClick={clear}>Clear filters</button></div>
     {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult((current) => ({ ...current, key: '' })); setAttempt((value) => value + 1) }}>Try again</button></div> : <>
       <p role="status">{result.orders.length ? `${result.orders.length} orders on page ${filters.page}` : 'No orders on this page match your filters.'}</p>
       {result.orders.length === 0 && <p><button type="button" className="shop-reset" onClick={clear}>View all orders from page one</button> · <Link to="/shop">Browse products</Link></p>}

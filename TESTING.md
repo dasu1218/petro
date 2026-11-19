@@ -137,7 +137,7 @@ Desktop/mobile checks open a URL with search, category, minimum/maximum price, s
 
 ### Order history product previews
 
-Desktop/mobile checks load 21 saved orders. The first card shows three saved products and sizes, the total purchased quantity across all items, and a link to the complete order. Its historical product name differs from the current catalog to ensure the order snapshot is displayed. Pagination shows the remaining order, and changing the status filter resets to page one. The suite now contains 32 scenarios across two viewports (64 checks). History responses are fixtures; backend ownership checks are unchanged.
+Desktop/mobile checks load 11 saved orders. The first card shows three saved products and sizes, the total purchased quantity across all items, and a link to the complete order. Its historical product name differs from the current catalog to ensure the order snapshot is displayed. Pagination shows the remaining order, and changing the status filter resets to page one. The suite now contains 32 scenarios across two viewports (64 checks). History responses are fixtures; backend ownership checks are unchanged.
 
 ### Printable order summaries
 
@@ -204,3 +204,15 @@ Desktop/mobile scenarios edit a saved review, inject one failed save, and verify
 Three logic checks verify historical line values, totals, unpaid COD amount due, CSV punctuation/newline escaping, spreadsheet formula neutralization, and omission of a COD amount due for paid/cancelled/unknown-method orders. The default suite now contains 100 API/service and 42 frontend logic checks (142 total).
 
 Desktop/mobile browser checks open a fixture order, download the CSV, read its contents, verify the filename and saved line/totals, and confirm the download control is hidden in print media. The suite now contains 56 scenarios across two viewports (112 checks). The export is generated locally from the already-authorized order response; it does not read the current catalog or send an extra API request. It includes products and order/payment metadata, not shipping contact details or session credentials.
+
+### Searching customer order references
+
+The API test searches an uppercase reference, combines fulfilment/payment filters, rejects malformed and repeated values, and verifies another customer's reference is not returned even with a forged user parameter. Frontend logic tests cover normalization, URL serialization and invalid-reference fallback. The default suite contains 101 API/service and 43 frontend logic checks (144 total).
+
+Desktop/mobile checks submit a reference, retain the status filter, reset pagination, clear search, reject short input before submission, and show empty results for an unmatched reference. History fixtures now use the real API's 10-order page size; the existing preview/pagination case uses 11 records to cover the next page. The browser suite contains 58 scenarios across two viewports (116 checks).
+
+### Customer order-history sorting
+
+API checks verify oldest-first direction, deterministic creation-date/ID sorting, owner scope, pagination and rejection of unsupported/repeated sort values. Frontend logic checks verify URL round trips and newest-first fallback. The default suite now contains 102 API/service and 44 frontend logic checks (146 total).
+
+Desktop/mobile scenarios change sorting from page two with active fulfilment/payment filters, verify the page resets, reload to retain oldest-first selection, browse the next page, then clear back to newest-first. Browser history fixtures are supplied newest-first and reverse for oldest-first. The suite now contains 59 scenarios across two viewports (118 checks).

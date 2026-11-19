@@ -42,3 +42,11 @@ My Orders now shows ten orders per page with order-status and payment-status fil
 The account is always derived from authentication. Supplied user IDs, unknown ownership query fields, and frontend state cannot select another customer's orders. Retry request IDs/hashes remain excluded from order responses. Existing clients still receive an orders array; the default result size is now ten rather than fifty.
 
 Three new API tests cover validated filters, multiple pages, hasMore boundaries, empty pages, owner isolation, and private-field stripping. Two frontend tests check filter URL handling and exclusion of ownership parameters. The full verification run passes 132 tests, lint, and build. Live database indexing, persistence, and browser navigation remain to be verified.
+
+## Customer order reference search
+
+`GET /api/orders/my?reference=<24-character-order-id>` searches the authenticated customer's history by exact order reference. Uppercase hex is normalized to lowercase; malformed/repeated references return 400. It can be combined with `status` and `payment` filters and uses the existing 10-order pagination. The API always adds the authenticated user's ID, so a reference belonging to another customer returns an empty history result. Arbitrary user parameters do not change ownership scope.
+
+## Customer history ordering
+
+`GET /api/orders/my?sort=oldest` returns oldest orders first. Omit `sort` or use `newest` for the existing newest-first order. Both directions sort by `createdAt` and `_id` together for stable pagination, and combine with reference/status/payment filters while retaining authenticated ownership scope. Unsupported or repeated sort values return 400.
