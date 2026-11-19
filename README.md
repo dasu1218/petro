@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Bundle cart stock limits | 2026-11-19 | Bundle add controls account for existing copies, show remaining add quantity and disable at the published bundle stock limit | Desktop/mobile repeated-add, removal recovery and sold-out coverage; checkout still checks shared component demand |
 | Bundle product photos | 2026-11-17 | Bundle cards show up to two uploaded component-product photos, preserve image fallbacks and link included products to their details | Desktop/mobile photo, broken-image, link, cart and no-photo coverage |
 | Animated brand entrance | 2026-11-17 | Brief logo reveal on the first homepage visit per tab session, with Enter/Skip/Escape and automatic store reveal; respects reduced motion | Desktop/mobile session, keyboard and reduced-motion checks; direct product/order links stay uninterrupted |
 | Homepage quick-add stock | 2026-11-17 | Homepage cards show the quick-add size and matching price, skip sold-out/cart-full sizes and disable adding when no units remain | Desktop/mobile price, next-size, cart-removal and sold-out checks |

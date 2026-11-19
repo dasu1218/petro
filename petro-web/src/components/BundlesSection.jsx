@@ -10,7 +10,7 @@ function BundlesSection({ preview = false }) {
   const [result, setResult] = useState({ status: 'loading', bundles: [], error: '' })
   const [attempt, setAttempt] = useState(0)
   const [feedback, setFeedback] = useState('')
-  const { addItem } = useCart()
+  const { addItem, items } = useCart()
   const { products } = useProducts()
 
   useEffect(() => {
@@ -45,6 +45,8 @@ function BundlesSection({ preview = false }) {
       <div className="bundle-grid">
         {result.bundles.map((bundle) => {
           const variant = bundle.variants[0]
+          const cartQuantity = items.find((item) => item.slug === bundle.slug && item.variantLabel === variant.label)?.quantity || 0
+          const remaining = Math.max(0, variant.stock - cartQuantity)
           const photographed = [...new Set(bundle.items.map((item) => item.slug))].map((slug) => products.find((product) => product.slug === slug)).filter((product) => product?.images?.[0]).slice(0, 2)
           return (
             <article key={bundle.slug} id={preview ? undefined : bundle.slug} className={`bundle-card product-${bundle.accent}`}>
@@ -61,10 +63,11 @@ function BundlesSection({ preview = false }) {
                 </ul>
                 <div className="bundle-price"><strong>{formatLKR(variant.price)}</strong>{bundle.savings > 0 && <span>Bought separately: <del>{formatLKR(bundle.regularPrice)}</del></span>}</div>
                 <p className="bundle-stock">{variant.stock > 0 ? `${variant.stock} bundles available` : 'Currently out of stock'}</p>
-                <button type="button" className="btn btn-primary btn-large" disabled={variant.stock <= 0} onClick={() => {
+                {cartQuantity > 0 && variant.stock > 0 && <p className="bundle-cart-stock" role="status">{remaining > 0 ? `${cartQuantity} already in your cart. You can add up to ${remaining} more.` : 'All available units of this bundle are already in your cart.'}</p>}
+                <button type="button" className="btn btn-primary btn-large" disabled={remaining === 0} onClick={() => {
                   addItem(bundle, variant)
                   setFeedback(`${bundle.name} added to your cart.`)
-                }}>{variant.stock > 0 ? 'Add bundle to cart' : 'Out of stock'}</button>
+                }}>{variant.stock <= 0 ? 'Out of stock' : remaining === 0 ? 'Already in your cart' : 'Add bundle to cart'}</button>
               </div>
             </article>
           )
