@@ -230,3 +230,9 @@ Desktop/mobile scenarios edit a stock-addition draft, refresh changed quantities
 ### Customer order history refresh
 
 Desktop/mobile scenarios refresh a paginated, filtered, oldest-first history view and verify updated saved order details appear without changing page/filter/sort parameters or an unfinished reference input. A failed refresh leaves previously loaded orders visible with a warning; retry fetches fresh data while retaining the input. Cached results are keyed by signed-in account and query, so data from another account or filter selection is not reused as the current view. The browser suite contains 65 scenarios across two viewports (130 checks). This changes only the customer view; API ownership requirements remain in force.
+
+### Admin order payment filtering
+
+An API check combines fulfilment and paid/unpaid filters, rejects unsupported/repeated payment values, and verifies guests/customers cannot use the admin listing. The default suite contains 103 API/service and 47 frontend logic checks (150 total).
+
+Desktop/mobile scenarios filter a 23-order fixture by payment from page two, confirm pagination resets while fulfilment is retained, reload the saved view, paginate through unpaid orders, and clear filters. Another case combines paid status with different fulfilment states. Admin list fixtures use the API's 20-order page size. The browser suite contains 67 scenarios across two viewports (134 checks). Filter changes clear pending cancellation/cash confirmation state; authorization and mutation rules remain on the API.

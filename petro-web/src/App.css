@@ -2005,3 +2005,6 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .inventory-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .inventory-heading h2 { margin-bottom: 0; }
 .inventory-heading + p { margin-top: 14px; }
+
+.admin-order-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; gap: 18px; align-items: end; margin-bottom: 24px; }
+@media (max-width: 760px) { .admin-order-filters { grid-template-columns: minmax(0, 1fr); } }

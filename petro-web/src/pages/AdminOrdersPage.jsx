@@ -1,10 +1,11 @@
 import OrderTrackingEditor from '../components/OrderTrackingEditor'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
 import { formatLKR } from '../lib/format'
 import { getOrderPayment } from '../lib/payment.js'
+import { readHistoryFilters, HISTORY_STATUSES } from '../lib/orderHistory.js'
 import { canCancelOrder } from '../lib/orderActions.js'
 import { useProducts } from '../context/productContext'
 const nextStatus = { placed: 'processing', processing: 'shipped', shipped: 'delivered' }
@@ -13,8 +14,14 @@ export default function AdminOrdersPage() {
   const { reload } = useProducts()
   const [cancelId, setCancelId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
-  const [filter, setFilter] = useState({ status: '', page: 1 })
-  const [result, setResult] = useState({ orders: [], hasMore: false, loading: true, error: '' })
+  const [params, setParams] = useSearchParams()
+  const { status, payment, page } = readHistoryFilters(params)
+  const filter = { status, payment, page }
+  const queryParams = new URLSearchParams({ page: String(page) })
+  if (status) queryParams.set('status', status)
+  if (payment) queryParams.set('payment', payment)
+  const query = queryParams.toString()
+  const [result, setResult] = useState({ key: '', orders: [], hasMore: false, loading: true, error: '' })
   const [attempt, setAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState('')
@@ -22,9 +29,20 @@ export default function AdminOrdersPage() {
   const [confirmCash, setConfirmCash] = useState(null)
   useEffect(() => {
     let ignore = false
-    apiRequest(`/admin/orders?page=${filter.page}&status=${filter.status}`, { token }).then((data) => { if (!ignore) setResult({ ...data, loading: false, error: '' }) }).catch((error) => { if (!ignore) setResult({ orders: [], hasMore: false, loading: false, error: error.message }) })
+    apiRequest(`/admin/orders?${query}`, { token }).then((data) => { if (!ignore) setResult({ ...data, key: query, loading: false, error: '' }) }).catch((error) => { if (!ignore) setResult({ key: query, orders: [], hasMore: false, loading: false, error: error.message }) })
     return () => { ignore = true }
-  }, [filter, attempt, token])
+  }, [query, attempt, token])
+  const changeFilter = (key, value) => {
+    setParams((current) => {
+      const next = new URLSearchParams(current)
+      if (value === '') next.delete(key)
+      else next.set(key, String(value))
+      if (key !== 'page') next.delete('page')
+      return next
+    })
+    setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('')
+  }
+  const loading = result.loading || result.key !== query
   const refresh = () => { setResult((current) => ({ ...current, loading: true })); setAttempt((value) => value + 1) }
   const update = async (order, type, body) => {
     if (busy) return
@@ -37,9 +55,12 @@ export default function AdminOrdersPage() {
     } catch (error) { setActionError(error.message); refresh() } finally { setBusy(false) }
   }
   return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Manage orders</h1><p><Link to="/admin">Back to dashboard</Link></p><p><Link to="/admin/products">Manage products & promotions</Link></p></div>
-    <label className="form-field saved-address-picker"><span>Filter by status</span><select disabled={busy} value={filter.status} onChange={(event) => { setFilter({ status: event.target.value, page: 1 }); setResult((current) => ({ ...current, loading: true })); setConfirmCash(null) }}><option value="">All orders</option>{['placed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+    <div className="checkout-panel admin-order-filters"><label className="form-field"><span>Filter by status</span><select disabled={busy} value={filter.status} onChange={(event) => changeFilter('status', event.target.value)}><option value="">All orders</option>{HISTORY_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+      <label className="form-field"><span>Filter by payment</span><select disabled={busy} value={filter.payment} onChange={(event) => changeFilter('payment', event.target.value)}><option value="">All payments</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></label>
+      <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => { setParams({}); setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('') }}>Clear order filters</button>
+    </div>
     {actionError && <p className="form-error" role="alert">{actionError}</p>}<p role="status">{busy ? 'Updating order…' : feedback}</p>
-    {result.loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={refresh}>Try again</button></div> : <>
+    {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={refresh}>Try again</button></div> : <>
       {!result.orders.length && <p>No orders match this filter.</p>}
       <div className="order-history">{result.orders.map((order) => {
         const payment = getOrderPayment(order)
@@ -53,7 +74,7 @@ export default function AdminOrdersPage() {
           {cancelId === order._id && canCancelOrder(order) && <form className="checkout-panel cancel-order-form" onSubmit={(event) => { event.preventDefault(); update(order, 'cancel', { reason: cancelReason }) }}><fieldset disabled={busy}><legend>Confirm order cancellation</legend><p>This cancels the order and restores the reserved product and bundle stock. The order record is kept.</p><label className="form-field"><span>Cancellation reason (shown to the customer)</span><textarea rows={3} maxLength={200} required value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} /></label>{actionError && <p className="form-error" role="alert">{actionError}</p>}<div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">Confirm cancellation</button><button type="button" className="btn btn-secondary btn-large" onClick={() => setCancelId(null)}>Keep order</button></div></fieldset></form>}
           {confirmCash === order._id && <div className="order-payment"><p>Confirm that you received the full {formatLKR(order.totals.total)} in cash for this order.</p><div className="cta-row"><button type="button" disabled={busy} className="btn btn-primary btn-large" onClick={() => update(order, 'payment', { paymentStatus: 'paid' })}>Confirm cash received</button><button type="button" disabled={busy} className="btn btn-secondary btn-large" onClick={() => setConfirmCash(null)}>Cancel</button></div></div>}
         </article>
-      })}</div><div className="cta-row account-actions"><button type="button" className="btn btn-secondary btn-large" disabled={busy || filter.page === 1} onClick={() => { setFilter((current) => ({ ...current, page: current.page - 1 })); setResult((current) => ({ ...current, loading: true })) }}>Previous</button><span>Page {filter.page}</span><button type="button" className="btn btn-secondary btn-large" disabled={busy || !result.hasMore} onClick={() => { setFilter((current) => ({ ...current, page: current.page + 1 })); setResult((current) => ({ ...current, loading: true })) }}>Next</button></div>
+      })}</div><div className="cta-row account-actions"><button type="button" className="btn btn-secondary btn-large" disabled={busy || filter.page === 1} onClick={() => changeFilter('page', filter.page - 1)}>Previous</button><span>Page {filter.page}</span><button type="button" className="btn btn-secondary btn-large" disabled={busy || !result.hasMore || filter.page >= 10000} onClick={() => changeFilter('page', filter.page + 1)}>Next</button></div>
     </>}
   </section>
 }

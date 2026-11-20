@@ -16,7 +16,7 @@ before(async () => {
   process.env.JWT_SECRET = 'admin-orders-tests';
   User.findById = async (id) => ({ _id: id, role: id === 'admin' ? 'admin' : 'customer' });
   Order.findById = async (key) => key === id ? { ...order } : null;
-  Order.find = (filter) => ({ sort: () => ({ skip: () => ({ limit: async () => !filter.status || order.status === filter.status ? [order] : [] }) }) });
+  Order.find = (filter) => ({ sort: () => ({ skip: () => ({ limit: async () => Object.entries(filter).every(([key,value])=>order[key]===value) ? [order] : [] }) }) });
   Order.findOneAndUpdate = async (filter, update) => {
     if (filter._id !== id || Object.entries(filter).some(([key, value]) => order[key] !== value)) return null;
     Object.assign(order, update.$set);
@@ -90,4 +90,16 @@ test('tracking rejects a status change that happened after the initial order rea
     assert.equal((await request(`/${id}/tracking`, 'PUT', { carrier: 'Courier', number: 'REF123' })).status, 409);
     assert.equal(order.tracking, undefined);
   } finally { Order.findById = currentFind; }
+});
+
+test('admin payment filters combine with fulfilment status and reject unsupported values', async () => {
+  assert.equal((await (await request('?payment=unpaid')).json()).orders.length, 1);
+  assert.equal((await (await request('?payment=paid')).json()).orders.length, 0);
+  assert.equal((await (await request('?status=delivered&payment=unpaid')).json()).orders.length, 0);
+  order.status = 'delivered'; order.paymentStatus = 'paid';
+  assert.equal((await (await request('?status=delivered&payment=paid')).json()).orders.length, 1);
+  assert.equal((await request('?payment=pending')).status, 400);
+  assert.equal((await request('?payment=paid&payment=unpaid')).status, 400);
+  assert.equal((await request('?payment=unpaid','GET',undefined,'customer')).status, 403);
+  assert.equal((await request('?payment=unpaid','GET',undefined,null)).status, 401);
 });

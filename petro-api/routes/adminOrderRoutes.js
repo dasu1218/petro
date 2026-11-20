@@ -16,6 +16,10 @@ router.get('/', async (request, response) => {
     if (!ORDER_STATUSES.includes(request.query.status)) return response.status(400).json({ message: 'Invalid order status' });
     filter.status = request.query.status;
   }
+  if (request.query.payment !== undefined && request.query.payment !== '') {
+    if (!['paid', 'unpaid'].includes(request.query.payment)) return response.status(400).json({ message: 'Invalid payment status' });
+    filter.paymentStatus = request.query.payment;
+  }
   const orders = await Order.find(filter).sort({ createdAt: -1, _id: -1 }).skip((page - 1) * 20).limit(21);
   response.json({ orders: orders.slice(0, 20).map(publicOrder), page, hasMore: orders.length > 20 });
 });
