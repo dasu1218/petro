@@ -2001,3 +2001,7 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .wishlist-filter-options label { display: inline-flex; align-items: center; gap: 8px; color: #475569; }
 .wishlist-filter-options .btn { margin-left: auto; }
 @media (max-width: 560px) { .wishlist-filters { grid-template-columns: minmax(0, 1fr); } .wishlist-filter-options { align-items: flex-start; flex-direction: column; } .wishlist-filter-options .btn { margin-left: 0; width: 100%; } }
+
+.inventory-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.inventory-heading h2 { margin-bottom: 0; }
+.inventory-heading + p { margin-top: 14px; }
