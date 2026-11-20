@@ -92,3 +92,7 @@ Supported browsers may warn before refreshing or closing the page while there ar
 ### Retrying failed homepage changes
 
 If upload or publishing fails after the editor has loaded, the current preview and description stay in place. Read the error, then retry the upload or **Save homepage image**, or discard unpublished changes. The error no longer offers a reload that could overwrite the draft. If the initial homepage settings cannot load, editing stays unavailable and **Reload homepage image** retries that initial request.
+
+### Refreshing stock safely
+
+Use **Refresh stock** in the product's Stock management section to fetch current quantities and recent additions without discarding the quantity/note draft. If refreshing fails, the last loaded figures remain visible with a warning. Refreshing also retains an uncertain addition's request ID: review recent additions, then use **Retry same stock addition** to confirm its result without creating a new stock addition. Existing fields and submission are temporarily disabled during refresh.

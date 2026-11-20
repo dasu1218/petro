@@ -7,6 +7,11 @@ export const products = Array.from({ length: 8 }, (_, index) => ({
 export async function mockStore(page, role = null, options = {}) {
   let user = role ? { id: role === 'admin' ? 'admin-user' : 'customer-user', name: role === 'admin' ? 'Admin Tester' : 'Customer Tester', email: `${role}@example.test`, role, addresses: [], defaultAddressId: null } : null
   let cartItems = []
+  let inventoryStock = 10
+  let failInventoryReads = false
+  let restockResponseFailed = false
+  const restockRequests = []
+  const restocks = new Map()
   const reviewRequests = []
   let ownReview = options.ownReview || null
   let reviewDeleteFailed = false
@@ -101,7 +106,20 @@ export async function mockStore(page, role = null, options = {}) {
       settings.set(slug, payload); savedProducts.push({ slug, ...payload })
       return json({ message: 'Product saved' })
     }
-    if (path.startsWith('/admin/inventory/')) return json({ variants: [{ label: '250ml', stock: 10 }], history: [] })
+    if (path.startsWith('/admin/inventory/')) {
+      if (method === 'POST') {
+        const payload = route.request().postDataJSON()
+        restockRequests.push(payload)
+        if (!restocks.has(payload.requestId)) {
+          inventoryStock += payload.quantity
+          restocks.set(payload.requestId, { id: payload.requestId, ...payload, stockAfter: inventoryStock, createdAt: '2026-11-19T10:00:00Z' })
+        }
+        if (options.failFirstRestockResponse && !restockResponseFailed) { restockResponseFailed = true; return json({ message: 'Stock confirmation unavailable. Retry the same addition.' }, 503) }
+        return json({ restock: restocks.get(payload.requestId) })
+      }
+      if (failInventoryReads) return json({ message: 'Stock could not be loaded.' }, 503)
+      return json({ variants: [{ label: '250ml', stock: inventoryStock }], history: [...restocks.values()] })
+    }
     if (path.startsWith('/reviews/')) {
       reviewRequests.push(`${method} ${path}${url.search}`)
       if (path.endsWith('/mine')) return json({ review: ownReview })
@@ -118,5 +136,5 @@ export async function mockStore(page, role = null, options = {}) {
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
-  return { errors, unexpected, homepageSaves, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
+  return { errors, unexpected, restockRequests, setInventoryStock: (value) => { inventoryStock = value }, failInventoryReads: (value) => { failInventoryReads = value }, homepageSaves, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

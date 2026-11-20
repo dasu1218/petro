@@ -222,3 +222,7 @@ Desktop/mobile scenarios change sorting from page two with active fulfilment/pay
 Three logic checks cover multi-term case-insensitive search, combined stock/promotions, lowest-size price sorting, preserving input lists, bounded queries and safe defaults for unsupported URL values. The default suite now contains 102 API/service and 47 frontend logic checks (149 total).
 
 Desktop/mobile scenarios sort saved products by price, search a product URL, reload to retain selections, clear filters and combine stock/promotion filters. They verify unavailable saved entries remain removable even when no visible products match, and filtering sends no wishlist mutation requests. The browser suite contains 61 scenarios across two viewports (122 checks). Results are drawn only from the customer's existing saved list, and clearing filters does not remove saved products.
+
+### Admin inventory refresh
+
+Desktop/mobile scenarios edit a stock-addition draft, refresh changed quantities and verify the fields remain intact. A failed refresh retains the last loaded figures with a warning; a later refresh recovers. Another scenario simulates a committed restock whose response fails, refreshes to see the new stock, then retries the original request ID/payload without another stock increment or history record. These are isolated fixture transactions; real transaction/replay checks remain in the separate MongoDB integration suite. The browser suite now contains 63 scenarios across two viewports (126 checks).
