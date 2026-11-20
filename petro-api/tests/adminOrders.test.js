@@ -103,3 +103,13 @@ test('admin payment filters combine with fulfilment status and reject unsupporte
   assert.equal((await request('?payment=unpaid','GET',undefined,'customer')).status, 403);
   assert.equal((await request('?payment=unpaid','GET',undefined,null)).status, 401);
 });
+
+test('admin reference search normalizes IDs, combines filters and remains admin-only', async () => {
+  const found = await (await request(`?reference=${id.toUpperCase()}&status=placed&payment=unpaid`)).json();
+  assert.equal(found.orders.length, 1); assert.equal(found.orders[0]._id, id);
+  assert.equal((await (await request('?reference=507f1f77bcf86cd799439099')).json()).orders.length, 0);
+  assert.equal((await request('?reference=short')).status, 400);
+  assert.equal((await request(`?reference=${id}&reference=${id}`)).status, 400);
+  assert.equal((await request(`?reference=${id}`,'GET',undefined,'customer')).status, 403);
+  assert.equal((await request(`?reference=${id}`,'GET',undefined,null)).status, 401);
+});

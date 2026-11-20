@@ -1,5 +1,5 @@
 import OrderTrackingEditor from '../components/OrderTrackingEditor'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
@@ -15,13 +15,16 @@ export default function AdminOrdersPage() {
   const [cancelId, setCancelId] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
   const [params, setParams] = useSearchParams()
-  const { status, payment, page } = readHistoryFilters(params)
-  const filter = { status, payment, page }
+  const { status, payment, page, reference } = readHistoryFilters(params)
+  const filter = { status, payment, page, reference }
   const queryParams = new URLSearchParams({ page: String(page) })
   if (status) queryParams.set('status', status)
   if (payment) queryParams.set('payment', payment)
+  if (reference) queryParams.set('reference', reference)
   const query = queryParams.toString()
   const [result, setResult] = useState({ key: '', orders: [], hasMore: false, loading: true, error: '' })
+  const searchForm = useRef(null)
+  const [searchError, setSearchError] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState('')
@@ -40,7 +43,7 @@ export default function AdminOrdersPage() {
       if (key !== 'page') next.delete('page')
       return next
     })
-    setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('')
+    setSearchError(''); setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('')
   }
   const loading = result.loading || result.key !== query
   const refresh = () => { setResult((current) => ({ ...current, loading: true })); setAttempt((value) => value + 1) }
@@ -55,9 +58,12 @@ export default function AdminOrdersPage() {
     } catch (error) { setActionError(error.message); refresh() } finally { setBusy(false) }
   }
   return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">Admin</span><h1>Manage orders</h1><p><Link to="/admin">Back to dashboard</Link></p><p><Link to="/admin/products">Manage products & promotions</Link></p></div>
+    <form ref={searchForm} key={filter.reference} className="checkout-panel order-reference-search" role="search" aria-label="Find customer order" onSubmit={(event) => { event.preventDefault(); changeFilter('reference', event.currentTarget.elements.reference.value.trim().toLowerCase()) }} onInvalidCapture={() => setSearchError('Enter the full 24-character order reference from the customer confirmation.')}>
+      <label className="form-field"><span>Customer order reference</span><input type="search" name="reference" defaultValue={filter.reference} maxLength={24} pattern="[a-fA-F0-9]{24}" placeholder="Paste the full order reference" disabled={busy} aria-describedby="admin-reference-help" aria-invalid={Boolean(searchError)} onChange={() => setSearchError('')} /></label><button type="submit" className="btn btn-primary" disabled={busy}>Find order</button><p id="admin-reference-help">Search by the reference from the customer's order confirmation.</p>{searchError && <p className="form-error" role="alert">{searchError}</p>}
+    </form>
     <div className="checkout-panel admin-order-filters"><label className="form-field"><span>Filter by status</span><select disabled={busy} value={filter.status} onChange={(event) => changeFilter('status', event.target.value)}><option value="">All orders</option>{HISTORY_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
       <label className="form-field"><span>Filter by payment</span><select disabled={busy} value={filter.payment} onChange={(event) => changeFilter('payment', event.target.value)}><option value="">All payments</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></label>
-      <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => { setParams({}); setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('') }}>Clear order filters</button>
+      <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => { searchForm.current?.reset(); setSearchError(''); setParams({}); setConfirmCash(null); setCancelId(null); setCancelReason(''); setActionError(''); setFeedback('') }}>Clear order filters</button>
     </div>
     {actionError && <p className="form-error" role="alert">{actionError}</p>}<p role="status">{busy ? 'Updating order…' : feedback}</p>
     {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={refresh}>Try again</button></div> : <>

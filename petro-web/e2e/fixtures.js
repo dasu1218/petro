@@ -87,7 +87,7 @@ export async function mockStore(page, role = null, options = {}) {
     }
     if (path === '/admin/orders' && method === 'GET') {
       if (user?.role !== 'admin') return json({ message: 'Admin access required' }, 403)
-      const matching = (options.adminOrders || []).filter((order) => (!url.searchParams.get('status') || order.status === url.searchParams.get('status')) && (!url.searchParams.get('payment') || order.paymentStatus === url.searchParams.get('payment')))
+      const matching = (options.adminOrders || []).filter((order) => (!url.searchParams.get('reference') || order._id === url.searchParams.get('reference')) && (!url.searchParams.get('status') || order.status === url.searchParams.get('status')) && (!url.searchParams.get('payment') || order.paymentStatus === url.searchParams.get('payment')))
       const start = (Number(url.searchParams.get('page') || 1) - 1) * 20
       return json({ orders: matching.slice(start, start + 20), hasMore: matching.length > start + 20 })
     }

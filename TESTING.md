@@ -236,3 +236,9 @@ Desktop/mobile scenarios refresh a paginated, filtered, oldest-first history vie
 An API check combines fulfilment and paid/unpaid filters, rejects unsupported/repeated payment values, and verifies guests/customers cannot use the admin listing. The default suite contains 103 API/service and 47 frontend logic checks (150 total).
 
 Desktop/mobile scenarios filter a 23-order fixture by payment from page two, confirm pagination resets while fulfilment is retained, reload the saved view, paginate through unpaid orders, and clear filters. Another case combines paid status with different fulfilment states. Admin list fixtures use the API's 20-order page size. The browser suite contains 67 scenarios across two viewports (134 checks). Filter changes clear pending cancellation/cash confirmation state; authorization and mutation rules remain on the API.
+
+### Admin order reference lookup
+
+An API check verifies case normalization, combined reference/status/payment criteria, empty results for unknown references, malformed/repeated input rejection and admin-only authorization. Customer and admin history routes share the reference normalizer. The default suite contains 104 API/service and 47 frontend logic checks (151 total).
+
+Desktop/mobile scenarios search from page two, preserve payment/fulfilment filters, reset pagination, reload the reference view and clear it. Another case rejects short input and checks an unknown reference. The browser suite contains 69 scenarios across two viewports (138 checks).

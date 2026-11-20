@@ -1,3 +1,4 @@
+import { normalizeOrderReference } from '../services/orderHistory.js';
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { protect, admin } from '../middleware/auth.js';
@@ -20,6 +21,7 @@ router.get('/', async (request, response) => {
     if (!['paid', 'unpaid'].includes(request.query.payment)) return response.status(400).json({ message: 'Invalid payment status' });
     filter.paymentStatus = request.query.payment;
   }
+  if (request.query.reference !== undefined && request.query.reference !== '') filter._id = normalizeOrderReference(request.query.reference);
   const orders = await Order.find(filter).sort({ createdAt: -1, _id: -1 }).skip((page - 1) * 20).limit(21);
   response.json({ orders: orders.slice(0, 20).map(publicOrder), page, hasMore: orders.length > 20 });
 });
