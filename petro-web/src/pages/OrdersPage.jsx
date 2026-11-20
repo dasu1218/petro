@@ -7,21 +7,22 @@ import { formatLKR } from '../lib/format'
 import { getOrderPayment } from '../lib/payment.js'
 import { HISTORY_STATUSES, historyApiQuery, readHistoryFilters } from '../lib/orderHistory.js'
 function OrdersPage() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const [params, setParams] = useSearchParams()
   const filters = readHistoryFilters(params)
   const query = historyApiQuery(filters)
-  const [result, setResult] = useState({ key: '', orders: [], hasMore: false, error: '' })
+  const requestKey = JSON.stringify([user?.id, query])
+  const [result, setResult] = useState({ hasData: false, refreshing: false, key: '', orders: [], hasMore: false, error: '' })
   const searchForm = useRef(null)
   const [searchError, setSearchError] = useState('')
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let ignore = false
     apiRequest(`/orders/my?${query}`, { token }).then((data) => {
-      if (!ignore) setResult({ key: query, orders: data.orders, hasMore: data.hasMore, error: '' })
-    }).catch((error) => { if (!ignore) setResult({ key: query, orders: [], hasMore: false, error: error.message }) })
+      if (!ignore) setResult({ key: requestKey, orders: data.orders, hasMore: data.hasMore, error: '', hasData: true, refreshing: false })
+    }).catch((error) => { if (!ignore) setResult((current) => current.key === requestKey && current.hasData ? { ...current, error: error.message, refreshing: false } : { key: requestKey, orders: [], hasMore: false, error: error.message, hasData: false, refreshing: false }) })
     return () => { ignore = true }
-  }, [token, attempt, query])
+  }, [token, attempt, query, requestKey])
   const change = (key, value) => setParams((current) => {
     const next = new URLSearchParams(current)
     if (value === '') next.delete(key)
@@ -29,18 +30,23 @@ function OrdersPage() {
     if (key !== 'page') next.delete('page')
     return next
   })
-  const loading = result.key !== query
+  const loading = result.key !== requestKey
+  const refresh = () => { setResult((current) => ({ ...current, refreshing: true, error: '' })); setAttempt((value) => value + 1) }
   const clear = () => { searchForm.current?.reset(); setSearchError(''); setParams({}) }
-  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">My orders</span><h1>Your order history</h1><p>Browse your purchases by date and filter by fulfilment or payment status.</p></div>
+  return <section className="page-panel"><div className="page-header"><span className="eyebrow eyebrow-muted">My orders</span><h1>Your order history</h1><p>Browse your purchases by date and filter by fulfilment or payment status.</p><button type="button" className="btn btn-secondary" disabled={loading || result.refreshing} onClick={refresh}>Refresh order history</button></div>
     <form ref={searchForm} key={filters.reference} className="checkout-panel order-reference-search" role="search" aria-label="Find your order" onSubmit={(event) => { event.preventDefault(); setSearchError(''); change('reference', event.currentTarget.elements.reference.value.trim().toLowerCase()) }} onInvalidCapture={() => setSearchError('Enter the full 24-character order reference from your confirmation.')}>
       <label className="form-field"><span>Order reference</span><input type="search" name="reference" defaultValue={filters.reference} maxLength={24} pattern="[a-fA-F0-9]{24}" placeholder="Paste your full order reference" aria-describedby="order-reference-help" aria-invalid={Boolean(searchError)} onChange={() => setSearchError('')} /></label><button type="submit" className="btn btn-primary">Search orders</button><p id="order-reference-help">Find the reference on your order confirmation. Only your own orders can be shown.</p>{searchError && <p className="form-error" role="alert">{searchError}</p>}
     </form>
     <div className="checkout-panel history-filters"><label className="form-field"><span>Order status</span><select value={filters.status} onChange={(event) => change('status', event.target.value)}><option value="">All statuses</option>{HISTORY_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label><label className="form-field"><span>Payment status</span><select value={filters.payment} onChange={(event) => change('payment', event.target.value)}><option value="">All payments</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></label><label className="form-field"><span>Sort orders</span><select value={filters.sort} onChange={(event) => change('sort', event.target.value === 'newest' ? '' : event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label><button type="button" className="btn btn-secondary btn-large" onClick={clear}>Clear filters</button></div>
-    {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={() => { setResult((current) => ({ ...current, key: '' })); setAttempt((value) => value + 1) }}>Try again</button></div> : <>
+    {loading ? <p role="status">Loading orders…</p> : <>
+      {result.refreshing && <p role="status">Refreshing orders…</p>}
+      {result.error && <div role="alert"><p className="form-error">{result.error}</p>{result.hasData && <p>Showing previously loaded orders. Retry for the latest updates.</p>}<button type="button" className="btn btn-secondary btn-large" disabled={result.refreshing} onClick={refresh}>Try again</button></div>}
+      {result.hasData && <>
       <p role="status">{result.orders.length ? `${result.orders.length} orders on page ${filters.page}` : 'No orders on this page match your filters.'}</p>
       {result.orders.length === 0 && <p><button type="button" className="shop-reset" onClick={clear}>View all orders from page one</button> · <Link to="/shop">Browse products</Link></p>}
       <ul className="order-history">{result.orders.map((order) => <li key={order._id} className="checkout-panel"><Link to={`/orders/${order._id}`}>Order {order._id}</Link>{order.createdAt && <p><time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString()}</time></p>}<OrderProductPreview items={order.items} /><p>{order.status} · {getOrderPayment(order).statusLabel}</p><p>{getOrderPayment(order).methodLabel}</p><strong>{formatLKR(order.totals.total)}</strong><p><Link to={`/orders/${order._id}`}>View details and tracking</Link></p></li>)}</ul>
       <nav className="shop-pagination" aria-label="Order history pages"><button type="button" className="btn btn-secondary btn-large" disabled={filters.page === 1} onClick={() => change('page', filters.page - 1)}>Previous</button><span aria-current="page">Page {filters.page}</span><button type="button" className="btn btn-secondary btn-large" disabled={!result.hasMore || filters.page >= 10000} onClick={() => change('page', filters.page + 1)}>Next</button></nav>
+      </>}
     </>}
   </section>
 }

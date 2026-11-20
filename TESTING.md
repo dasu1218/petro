@@ -226,3 +226,7 @@ Desktop/mobile scenarios sort saved products by price, search a product URL, rel
 ### Admin inventory refresh
 
 Desktop/mobile scenarios edit a stock-addition draft, refresh changed quantities and verify the fields remain intact. A failed refresh retains the last loaded figures with a warning; a later refresh recovers. Another scenario simulates a committed restock whose response fails, refreshes to see the new stock, then retries the original request ID/payload without another stock increment or history record. These are isolated fixture transactions; real transaction/replay checks remain in the separate MongoDB integration suite. The browser suite now contains 63 scenarios across two viewports (126 checks).
+
+### Customer order history refresh
+
+Desktop/mobile scenarios refresh a paginated, filtered, oldest-first history view and verify updated saved order details appear without changing page/filter/sort parameters or an unfinished reference input. A failed refresh leaves previously loaded orders visible with a warning; retry fetches fresh data while retaining the input. Cached results are keyed by signed-in account and query, so data from another account or filter selection is not reused as the current view. The browser suite contains 65 scenarios across two viewports (130 checks). This changes only the customer view; API ownership requirements remain in force.
