@@ -54,3 +54,7 @@ Three new API tests cover validated filters, multiple pages, hasMore boundaries,
 ## Admin payment filtering
 
 `GET /api/admin/orders?status=delivered&payment=unpaid` lists delivered orders whose recorded payment status is unpaid. Optional `payment` accepts only `paid` or `unpaid`; omitted/empty payment returns all payment states. Invalid/repeated values return 400. This combines with the existing status filter and 20-order pagination and remains admin-only. The admin UI stores page/status/payment in its URL so reload and browser navigation restore the view.
+
+## Admin order reference search
+
+`GET /api/admin/orders?reference=<24-character-order-id>` filters by exact order ID and can be combined with `status` and `payment`. References are trimmed and normalized to lowercase hex; malformed or repeated values return 400. The endpoint remains admin-only. The admin search form stores the reference in the URL, resets pagination when submitted and clears it with Clear order filters.

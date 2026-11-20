@@ -1,5 +1,9 @@
 import { ORDER_STATUSES } from './orderManagement.js';
 export const HISTORY_PAGE_SIZE = 10;
+export function normalizeOrderReference(value) {
+  if (typeof value !== 'string' || !/^[a-fA-F0-9]{24}$/.test(value.trim())) throw Object.assign(new Error('Enter the full 24-character order reference'), { status: 400 });
+  return value.trim().toLowerCase();
+}
 export function orderHistoryQuery(query = {}) {
   const fail = (message) => { throw Object.assign(new Error(message), { status: 400 }); };
   const rawPage = query.page === undefined ? '1' : query.page;
@@ -16,8 +20,7 @@ export function orderHistoryQuery(query = {}) {
     filter.paymentStatus = query.payment;
   }
   if (query.reference !== undefined && query.reference !== '') {
-    if (typeof query.reference !== 'string' || !/^[a-fA-F0-9]{24}$/.test(query.reference.trim())) fail('Enter the full 24-character order reference');
-    filter._id = query.reference.trim().toLowerCase();
+    filter._id = normalizeOrderReference(query.reference);
   }
   const choice = query.sort === undefined || query.sort === '' ? 'newest' : query.sort;
   if (!['newest', 'oldest'].includes(choice)) fail('Invalid order sort');
