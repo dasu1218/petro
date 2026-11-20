@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Admin payment filters | 2026-11-20 | Combine paid/unpaid and fulfilment filters, retain page/filter selections in the URL, and reset view with Clear order filters | Admin-only API validation plus desktop/mobile persistence and 20-order pagination coverage |
 | Customer history refresh | 2026-11-20 | Refresh order history while preserving page, filters, sort and unfinished reference input; retain prior results with retry feedback if refresh fails | Desktop/mobile successful refresh and failed-refresh recovery coverage; cached results keyed by account and query |
 | Admin stock refresh | 2026-11-19 | Refresh stock without losing restock drafts or pending retry IDs; retain cached figures and show a warning after failed refreshes | Desktop/mobile draft, failure recovery and same-request retry checks |
 | Wishlist search and filters | 2026-11-19 | Search saved products by name/URL/category, sort by lowest size price or name, and filter by stock/promotions with URL persistence | Filter-only actions leave saved entries unchanged; unavailable entries retain removal controls |

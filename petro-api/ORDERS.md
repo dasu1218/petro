@@ -50,3 +50,7 @@ Three new API tests cover validated filters, multiple pages, hasMore boundaries,
 ## Customer history ordering
 
 `GET /api/orders/my?sort=oldest` returns oldest orders first. Omit `sort` or use `newest` for the existing newest-first order. Both directions sort by `createdAt` and `_id` together for stable pagination, and combine with reference/status/payment filters while retaining authenticated ownership scope. Unsupported or repeated sort values return 400.
+
+## Admin payment filtering
+
+`GET /api/admin/orders?status=delivered&payment=unpaid` lists delivered orders whose recorded payment status is unpaid. Optional `payment` accepts only `paid` or `unpaid`; omitted/empty payment returns all payment states. Invalid/repeated values return 400. This combines with the existing status filter and 20-order pagination and remains admin-only. The admin UI stores page/status/payment in its URL so reload and browser navigation restore the view.
