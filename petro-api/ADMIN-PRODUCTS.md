@@ -96,3 +96,11 @@ If upload or publishing fails after the editor has loaded, the current preview a
 ### Refreshing stock safely
 
 Use **Refresh stock** in the product's Stock management section to fetch current quantities and recent additions without discarding the quantity/note draft. If refreshing fails, the last loaded figures remain visible with a warning. Refreshing also retains an uncertain addition's request ID: review recent additions, then use **Retry same stock addition** to confirm its result without creating a new stock addition. Existing fields and submission are temporarily disabled during refresh.
+
+### Downloading recent stock additions
+
+Under **Stock management → Recent stock additions**, use **Download recent additions CSV** to export the entries currently shown for that product (up to 20). The file contains product context, addition references/dates, sizes, quantities, notes and stock recorded immediately after each addition. The summed added units relate only to those shown entries and are not a current inventory balance. Export is disabled when there are no records, an update/refresh is running, or the latest stock refresh failed. Refresh successfully before exporting after a load error.
+
+### Discarding product detail edits
+
+The Product details form marks unpublished name/description/category/badge changes and enables Save only when they differ from the last loaded or successfully saved version. **Discard product detail changes** restores that version without an API write. A successful save becomes the new baseline, including trimmed/deduplicated values returned by the API. Failed saves retain the draft for retry. These controls apply to product details; photos/prices/promotions have their own save control, and the detail draft is not stored after switching products or leaving the page.

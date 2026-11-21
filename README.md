@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Product detail draft controls | 2026-11-21 | Saved/unpublished detail indicators, disabled unchanged Save and discard-to-saved controls; retry preserves failed edits | Desktop/mobile discard, normalized-save and failure/retry checks; prior restock CSV work retained |
+| Recent restock CSV | 2026-11-21 | Export a product’s shown recent stock additions with notes, quantities and historical remaining-stock values; loading/error states disable export | Shared CSV escaping and desktop/mobile download/failure-recovery coverage; limited to the displayed recent history |
 | Admin shown-page CSV | 2026-11-21 | Download currently displayed admin orders with page/filter context, saved products, quantities, totals and payment state; empty views disable export | Shared CSV escaping and desktop/mobile file-content coverage; export scope is explicitly one shown page |
 | Admin reference search | 2026-11-20 | Find customer orders by full reference, combine with status/payment filters and retain the view on reload | Shared reference validation, admin-only API checks and desktop/mobile search/reset coverage |
 | Admin payment filters | 2026-11-20 | Combine paid/unpaid and fulfilment filters, retain page/filter selections in the URL, and reset view with Clear order filters | Admin-only API validation plus desktop/mobile persistence and 20-order pagination coverage |

@@ -248,3 +248,13 @@ Desktop/mobile scenarios search from page two, preserve payment/fulfilment filte
 Two logic checks verify that only the supplied page is exported, filter/page metadata are included, saved quantities/totals are used, CSV text is escaped and formula-like cells are neutralized, and paid orders have no COD amount due. Customer and admin downloads now share CSV formatting and browser download utilities. The default suite contains 104 API/service and 49 frontend logic checks (153 total).
 
 Desktop/mobile scenarios export page two of a 21-order admin fixture and read the downloaded file to verify page/filter context, the one visible order, historical products and totals, and exclusion of a page-one order. Empty views disable export, and a customer role cannot retain the admin export view. The browser suite contains 71 scenarios across two viewports (142 checks). The control explicitly exports only the orders currently shown and does not fetch the complete filtered history or include shipping contact fields.
+
+### Recent stock-addition CSV
+
+Two logic checks verify product context, shown-record count, total added units, preserved note punctuation and historical stock-after values, formula-safe text and an empty dataset. The default suite contains 104 API/service and 51 frontend logic checks (155 total).
+
+Desktop/mobile scenarios create a fixture restock and download the shown history, verifying its filename, product URL, note, added units and historical stock count. Another case checks empty-history disabling and failed-refresh disabling/recovery. The browser suite contains 73 scenarios across two viewports (146 checks). The export uses the existing admin inventory response, which returns up to 20 recent additions; it does not fetch the full ledger or calculate current stock from those records.
+
+### Product detail draft controls
+
+Desktop/mobile scenarios verify unchanged product details cannot be submitted, edits are marked unpublished, discarding sends no mutation request, and a normalized successful response becomes the new saved baseline. Another case fails a save, retains edited fields and enabled retry/discard controls, then retries the same data successfully. Detail fixtures now apply saved metadata to admin/public catalog responses. The browser suite contains 75 scenarios across two viewports (150 checks), including the retained restock-history export work. Drafts are local to the selected product editor; switching products or leaving the page does not persist them. Discard changes the local preview and does not write to the API.
