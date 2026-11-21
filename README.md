@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Admin shown-page CSV | 2026-11-21 | Download currently displayed admin orders with page/filter context, saved products, quantities, totals and payment state; empty views disable export | Shared CSV escaping and desktop/mobile file-content coverage; export scope is explicitly one shown page |
 | Admin reference search | 2026-11-20 | Find customer orders by full reference, combine with status/payment filters and retain the view on reload | Shared reference validation, admin-only API checks and desktop/mobile search/reset coverage |
 | Admin payment filters | 2026-11-20 | Combine paid/unpaid and fulfilment filters, retain page/filter selections in the URL, and reset view with Clear order filters | Admin-only API validation plus desktop/mobile persistence and 20-order pagination coverage |
 | Customer history refresh | 2026-11-20 | Refresh order history while preserving page, filters, sort and unfinished reference input; retain prior results with retry feedback if refresh fails | Desktop/mobile successful refresh and failed-refresh recovery coverage; cached results keyed by account and query |
