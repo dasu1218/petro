@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { mockStore } from './fixtures.js'
+const makeOrder = (index) => ({ _id: `order-${index}`, status: 'delivered', paymentMethod: 'cod', paymentStatus: 'unpaid', createdAt: '2026-11-21T00:00:00Z', totals: { subtotal: 1000, delivery: 350, total: 1350 }, items: [{ slug: 'care-product-1', name: `Saved product ${index}`, variantLabel: '250ml', quantity: 1, price: 1000 }], shippingAddress: { fullName: 'Test Customer', addressLine1: '12 Test Road', city: 'Colombo', postalCode: '00700', country: 'Sri Lanka' }, deliveryMethod: 'standard' })
+test('admin CSV downloads only the shown filtered page and includes view context', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin', { adminOrders: Array.from({ length: 21 }, (_, i) => makeOrder(i + 1)) })
+  await page.goto('/admin/orders?page=2&status=delivered&payment=unpaid')
+  await expect(page.getByText('Exports the 1 order currently shown on this page.', { exact: true })).toBeVisible()
+  const downloading = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download this page CSV', exact: true }).click()
+  const download = await downloading
+  expect(download.suggestedFilename()).toBe('petro-orders-page-2.csv')
+  const csv = await readFile(await download.path(), 'utf8')
+  expect(csv).toContain('"Page","2"')
+  expect(csv).toContain('"Order status filter","delivered"')
+  expect(csv).toContain('"Payment status filter","unpaid"')
+  expect(csv).toContain('"order-21"')
+  expect(csv).not.toContain('"order-1"')
+  expect(csv).toContain('Saved product 21')
+  expect(csv).toContain('"1000","350","1350","1350"')
+  expect(csv).not.toContain('browser-test-token')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+test('empty admin views disable export and customer accounts cannot access it', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/orders')
+  await expect(page.getByRole('button', { name: 'Download this page CSV', exact: true })).toBeDisabled()
+  monitor.setRole('customer')
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('button', { name: 'Download this page CSV', exact: true })).toHaveCount(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

@@ -242,3 +242,9 @@ Desktop/mobile scenarios filter a 23-order fixture by payment from page two, con
 An API check verifies case normalization, combined reference/status/payment criteria, empty results for unknown references, malformed/repeated input rejection and admin-only authorization. Customer and admin history routes share the reference normalizer. The default suite contains 104 API/service and 47 frontend logic checks (151 total).
 
 Desktop/mobile scenarios search from page two, preserve payment/fulfilment filters, reset pagination, reload the reference view and clear it. Another case rejects short input and checks an unknown reference. The browser suite contains 69 scenarios across two viewports (138 checks).
+
+### Admin shown-page CSV export
+
+Two logic checks verify that only the supplied page is exported, filter/page metadata are included, saved quantities/totals are used, CSV text is escaped and formula-like cells are neutralized, and paid orders have no COD amount due. Customer and admin downloads now share CSV formatting and browser download utilities. The default suite contains 104 API/service and 49 frontend logic checks (153 total).
+
+Desktop/mobile scenarios export page two of a 21-order admin fixture and read the downloaded file to verify page/filter context, the one visible order, historical products and totals, and exclusion of a page-one order. Empty views disable export, and a customer role cannot retain the admin export view. The browser suite contains 71 scenarios across two viewports (142 checks). The control explicitly exports only the orders currently shown and does not fetch the complete filtered history or include shipping contact fields.

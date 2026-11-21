@@ -58,3 +58,7 @@ Three new API tests cover validated filters, multiple pages, hasMore boundaries,
 ## Admin order reference search
 
 `GET /api/admin/orders?reference=<24-character-order-id>` filters by exact order ID and can be combined with `status` and `payment`. References are trimmed and normalized to lowercase hex; malformed or repeated values return 400. The endpoint remains admin-only. The admin search form stores the reference in the URL, resets pagination when submitted and clears it with Clear order filters.
+
+## Admin shown-page CSV
+
+On Manage orders, **Download this page CSV** exports the currently displayed page using its loaded order snapshots. The file includes page number, selected status/payment/reference filters, product summaries, quantities, totals and payment state. It excludes other pages and shipping contact fields, is disabled for an empty view or during an order update, and generates locally without a new API endpoint. The existing admin listing authorization remains unchanged.

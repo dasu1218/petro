@@ -1,3 +1,4 @@
+import AdminOrdersCsvDownload from '../components/AdminOrdersCsvDownload'
 import OrderTrackingEditor from '../components/OrderTrackingEditor'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -67,6 +68,7 @@ export default function AdminOrdersPage() {
     </div>
     {actionError && <p className="form-error" role="alert">{actionError}</p>}<p role="status">{busy ? 'Updating order…' : feedback}</p>
     {loading ? <p role="status">Loading orders…</p> : result.error ? <div><p className="form-error" role="alert">{result.error}</p><button type="button" className="btn btn-secondary btn-large" onClick={refresh}>Try again</button></div> : <>
+      <AdminOrdersCsvDownload key={query} orders={result.orders} filter={filter} disabled={busy} />
       {!result.orders.length && <p>No orders match this filter.</p>}
       <div className="order-history">{result.orders.map((order) => {
         const payment = getOrderPayment(order)
