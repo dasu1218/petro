@@ -1,3 +1,4 @@
+import RestockHistoryCsvDownload from './RestockHistoryCsvDownload'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
@@ -44,7 +45,7 @@ export default function InventoryPanel({ product, onChanged }) {
       </div></fieldset>
       {error && <p className="form-error" role="alert">{error}</p>}{pending && error && <p>Retry this same stock addition to confirm its result. Check recent additions before leaving this page.</p>}
       <p role="status">{busy ? 'Recording stock addition…' : message}</p><button type="submit" disabled={busy || loading} className="btn btn-primary btn-large">{busy ? 'Adding stock…' : pending ? 'Retry same stock addition' : 'Add stock'}</button></form>
-      <h3>Recent stock additions</h3>{!result.history.length ? <p>No stock additions recorded yet.</p> : <ul className="stock-history">{result.history.map((entry) => <li key={entry.id} className="checkout-panel"><strong>+{entry.quantity} · {entry.variantLabel}</strong><p>{entry.reason}</p><small>Stock immediately after addition: {entry.stockAfter} · {new Date(entry.createdAt).toLocaleString()}</small></li>)}</ul>}
+      <h3>Recent stock additions</h3><RestockHistoryCsvDownload product={product} history={result.history} disabled={busy || loading || Boolean(loadError)} />{!result.history.length ? <p>No stock additions recorded yet.</p> : <ul className="stock-history">{result.history.map((entry) => <li key={entry.id} className="checkout-panel"><strong>+{entry.quantity} · {entry.variantLabel}</strong><p>{entry.reason}</p><small>Stock immediately after addition: {entry.stockAfter} · {new Date(entry.createdAt).toLocaleString()}</small></li>)}</ul>}
     </>}
   </section>
 }

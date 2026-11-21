@@ -22,6 +22,9 @@ export async function mockStore(page, role = null, options = {}) {
   const orders = new Map()
   let firstOrderResponse = true
   const savedProducts = []
+  const detailsBySlug = new Map()
+  const productDetailsRequests = []
+  let detailsSaveFailed = false
   let homepage = { image: null, alt: '' }
   const homepageSaves = []
   let homepageSaveFailed = false
@@ -50,7 +53,7 @@ export async function mockStore(page, role = null, options = {}) {
       }
       return json(homepage)
     }
-    if (path === '/products' && method === 'GET') return json({ products: options.products || products, unavailableSlugs: options.unavailableSlugs || [] })
+    if (path === '/products' && method === 'GET') return json({ products: (options.products || products).map((product) => ({ ...product, ...detailsBySlug.get(product.slug) })), unavailableSlugs: options.unavailableSlugs || [] })
     if (path === '/auth/me') return user ? json({ user }) : json({ message: 'Not authorized' }, 401)
     if (path === '/bundles') return json({ bundles: options.bundles || [] })
     if (path === '/wishlist') return json({ slugs: [...savedSlugs] })
@@ -101,10 +104,19 @@ export async function mockStore(page, role = null, options = {}) {
       const order = [...orders.values()].find((entry) => path === `/orders/${entry._id}`)
       return order ? json({ order }) : json({ message: 'Order not found' }, 404)
     }
-    if (path === '/products/admin') return user?.role === 'admin' ? json({ products: products.map((product) => ({ ...product, settings: settings.get(product.slug) || null })) }) : json({ message: 'Admin access required' }, 403)
+    if (path === '/products/admin') return user?.role === 'admin' ? json({ products: products.map((product) => ({ ...product, ...detailsBySlug.get(product.slug), settings: settings.get(product.slug) || null })) }) : json({ message: 'Admin access required' }, 403)
     if (path === '/upload' && method === 'POST') {
       if (!route.request().headers()['content-type']?.includes('multipart/form-data; boundary=')) return json({ message: 'Missing multipart file boundary' }, 400)
       return json({ url: photo, originalUrl: photo, enhancedUrl: photo, publicId: 'test/photo' }, 201)
+    }
+    if (path.startsWith('/products/') && path.endsWith('/details') && method === 'PATCH') {
+      const slug = path.slice('/products/'.length, -'/details'.length)
+      const body = route.request().postDataJSON()
+      productDetailsRequests.push(body)
+      if (options.failFirstProductDetailsSave && !detailsSaveFailed) { detailsSaveFailed = true; return json({ message: 'Product details could not be saved. Try again.' }, 503) }
+      const details = { name: body.name.trim(), description: body.description.trim(), category: body.category, badges: [...new Set(body.badges.map((badge) => badge.trim()))] }
+      detailsBySlug.set(slug, details)
+      return json({ details })
     }
     if (path.startsWith('/products/') && method === 'PUT') {
       const slug = path.slice('/products/'.length)
@@ -142,5 +154,5 @@ export async function mockStore(page, role = null, options = {}) {
     return json({ message: `Unmocked test endpoint: ${method} ${path}` }, 500)
   })
   if (user) await page.addInitScript((token) => localStorage.setItem('petro_token', token), options.token || 'browser-test-token')
-  return { errors, unexpected, restockRequests, setInventoryStock: (value) => { inventoryStock = value }, failInventoryReads: (value) => { failInventoryReads = value }, homepageSaves, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
+  return { errors, unexpected, productDetailsRequests, restockRequests, setInventoryStock: (value) => { inventoryStock = value }, failInventoryReads: (value) => { failInventoryReads = value }, homepageSaves, wishlistRequests, reviewRequests, savedProducts, orderRequests, orders, setRole: (role) => { user = { ...user, role } }, setSessionUser: (next) => { user = next } }
 }

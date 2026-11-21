@@ -1,0 +1,47 @@
+import { test, expect } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { mockStore } from './fixtures.js'
+async function addStock(panel) {
+  await panel.getByRole('spinbutton', { name: 'Quantity to add', exact: true }).fill('3')
+  await panel.getByRole('textbox', { name: 'Stock addition note', exact: true }).fill('Supplier, "Monday" delivery')
+  await panel.getByRole('button', { name: 'Add stock', exact: true }).click()
+  await expect(panel.locator('.stock-history > li')).toHaveCount(1)
+}
+test('admins download shown stock additions with the original note and recorded remaining stock', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  const panel = page.getByRole('region', { name: 'Stock management', exact: true })
+  await addStock(panel)
+  await expect(panel.getByText('Exports the 1 recent addition shown below, up to 20.', { exact: true })).toBeVisible()
+  const downloading = page.waitForEvent('download')
+  await panel.getByRole('button', { name: 'Download recent additions CSV', exact: true }).click()
+  const download = await downloading
+  expect(download.suggestedFilename()).toBe('petro-restocks-care-product-1.csv')
+  const csv = await readFile(await download.path(), 'utf8')
+  expect(csv).toContain('"Product URL","care-product-1"')
+  expect(csv).toContain('"Additions exported","1"')
+  expect(csv).toContain('"Units added in shown entries","3"')
+  expect(csv).toContain('"250ml","3","Supplier, ""Monday"" delivery","13"')
+  expect(csv).not.toContain('browser-test-token')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
+test('stock history export is disabled when empty or refresh failed and recovers after reload', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  const panel = page.getByRole('region', { name: 'Stock management', exact: true })
+  const download = panel.getByRole('button', { name: 'Download recent additions CSV', exact: true })
+  await expect(download).toBeDisabled()
+  await addStock(panel)
+  await expect(download).toBeEnabled()
+  monitor.failInventoryReads(true)
+  await panel.getByRole('button', { name: 'Refresh stock', exact: true }).click()
+  await expect(panel.getByRole('alert')).toContainText('Showing the last loaded stock figures.')
+  await expect(download).toBeDisabled()
+  monitor.failInventoryReads(false)
+  await panel.getByRole('button', { name: 'Refresh stock', exact: true }).click()
+  await expect(download).toBeEnabled()
+  await expect(panel.getByRole('alert')).toHaveCount(0)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})
