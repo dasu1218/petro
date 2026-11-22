@@ -276,3 +276,7 @@ Two logic checks cover whitespace, empty entries, ordered deduplication and serv
 ### New product URL suggestions
 
 Two logic checks cover accent/punctuation normalization, empty suggestions, the 100-character limit and valid product path previews. The default suite contains 104 API/service and 61 frontend logic checks (165 total). A desktop/mobile scenario verifies explicit suggestion, editable preview, preservation of custom URLs when the name changes and invalid URL recovery (two targeted browser checks passed). The complete browser suite now contains 80 scenarios across two viewports (160 checks); the full suite was not rerun for this change. URL uniqueness remains checked by the API during creation.
+
+### Initial stock preview
+
+Three logic checks verify totals, stocked-size counts, unchanged drafts, duplicate/reserved/invalid size labels and whole stock limits. The default suite contains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario checks zero-stock guidance, changing totals, duplicate names, correction and removal. This and existing URL suggestion scenarios are covered by four targeted browser checks. The complete browser suite contains 81 scenarios across two viewports (162 checks); the full suite was not rerun for this change.

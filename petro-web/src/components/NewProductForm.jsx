@@ -1,3 +1,4 @@
+import { initialStockPreview } from '../lib/initialStock'
 import { suggestProductSlug, productPathPreview } from '../lib/productSlug'
 import { useState } from 'react'
 import { useAuth } from '../context/authContext'
@@ -9,12 +10,14 @@ export default function NewProductForm({ onCreated, onCancel }) {
   const suggestedSlug = suggestProductSlug(draft.name)
   const pathPreview = productPathPreview(draft.slug)
   const [variants, setVariants] = useState([{ label: '', price: '', stock: '0' }])
+  const stockPreview = initialStockPreview(variants)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const update = (key, value) => setDraft((current) => ({ ...current, [key]: value }))
   const submit = async (event) => {
     event.preventDefault()
     if (busy) return
+    if (stockPreview.error) { setError(stockPreview.error); return }
     setBusy(true); setError('')
     try {
       const { product } = await apiRequest('/products', { method: 'POST', token, body: {
@@ -38,6 +41,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
     <h2>Sizes and initial stock</h2>
     {variants.map((variant, index) => <div key={index} className="new-product-variant checkout-fields">{[['label','Size label'],['price','Price (LKR)'],['stock','Initial stock']].map(([key,label]) => <label className="form-field" key={key}><span>{label} {index + 1}</span><input required type={key === 'label' ? 'text' : 'number'} maxLength={key === 'label' ? 40 : undefined} min={key === 'price' ? 1 : 0} max={key === 'price' ? 10000000 : key === 'stock' ? 1000000 : undefined} step="1" value={variant[key]} onChange={(event) => setVariants((current) => current.map((entry, i) => i === index ? { ...entry, [key]: event.target.value } : entry))} /></label>)}{variants.length > 1 && <button type="button" className="shop-reset" onClick={() => setVariants((current) => current.filter((_entry, i) => i !== index))}>Remove size {index + 1}</button>}</div>)}
     <button type="button" className="btn btn-secondary btn-large" disabled={variants.length >= 10} onClick={() => setVariants((current) => [...current, { label: '', price: '', stock: '0' }])}>Add another size</button>
+    <section aria-label="Initial stock preview"><h2>Initial stock preview</h2><p role="status" className={stockPreview.error ? 'form-error' : 'checkout-note'}>{stockPreview.error || `${stockPreview.units.toLocaleString()} initial units across ${stockPreview.sizes} ${stockPreview.sizes === 1 ? 'size' : 'sizes'}; ${stockPreview.availableSizes} with stock.`}</p>{!stockPreview.error && <p>{stockPreview.units === 0 ? 'This product will be visible but sold out until you add stock.' : 'Stocked sizes will be available to buy after creation.'} Review quantities before creating the product.</p>}</section>
     <div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Creating product…' : 'Create product'}</button><button type="button" className="btn btn-secondary btn-large" onClick={onCancel}>Cancel</button></div>
   </fieldset></form>
 }
