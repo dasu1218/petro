@@ -112,3 +112,7 @@ Edit size prices and the percentage discount to see **Price preview** update wit
 ### Reviewing promotion schedules
 
 The **Schedule preview** summarizes the draft start and end in your device’s local timezone. Empty start means the promotion starts when saved; empty end means it runs until disabled. An end at or before the start blocks submission until corrected. The preview does not publish changes or report live activation; the server still checks dates and controls when saved promotions apply.
+
+### Previewing product badges
+
+In **Product details**, enter comma-separated badges to see the **Badge preview**. Spaces and empty entries are removed, and duplicate badges appear once. Use up to six entries with at most 40 characters each; invalid drafts show guidance and cannot be submitted. Clear the field to remove badges. Publishing still requires **Save product details**.

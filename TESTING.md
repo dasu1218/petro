@@ -268,3 +268,7 @@ Two browser scenarios across desktop and mobile verify live size prices and savi
 ### Promotion schedule preview
 
 Three logic checks cover disabled promotions, immediate/open-ended schedules, local date formatting and invalid/equal/reversed dates. The default suite contains 104 API/service and 57 frontend logic checks (161 total). A desktop/mobile browser scenario verifies invalid windows send no mutation, correction restores the schedule preview, and saving sends an ordered date range. This scenario and the existing price-preview scenarios passed six targeted browser checks. The complete browser suite now contains 78 scenarios across two viewports (156 checks); the full suite was not rerun for this change.
+
+### Product badge preview
+
+Two logic checks cover whitespace, empty entries, ordered deduplication and server-compatible count/length limits. The default suite contains 104 API/service and 59 frontend logic checks (163 total). A desktop/mobile browser scenario checks preview badges, invalid-value guidance, blocked submission, corrected publishing and empty badges (two targeted checks passed). The complete browser suite now contains 79 scenarios across two viewports (158 checks); the full suite was not rerun for this change.
