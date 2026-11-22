@@ -296,3 +296,7 @@ The default suite remains 168 checks. Two desktop/mobile scenarios verify edited
 ### New product size ordering
 
 The default suite remains 168 checks. A desktop/mobile scenario verifies first/last movement boundaries, moving both directions, preserving prices and quantities, submitted variant order and retaining reordered sizes after a failed creation. Run with price-preview and cancellation scenarios for eight targeted browser checks. The complete browser suite contains 86 scenarios across two viewports (172 checks); the full suite was not rerun for this change. Existing published products and historical orders are not reordered.
+
+### Undo draft size removal
+
+The default suite remains 168 checks. Two desktop/mobile scenarios verify restoration of a removed size’s name, price, stock and position without overwriting edits to remaining sizes; the undo action disappears after use, a later removal is recoverable, and restoration is disabled at ten sizes. Run with existing size-order checks for six targeted browser checks. The complete browser suite contains 88 scenarios across two viewports (176 checks); the full suite was not rerun for this change. Recovery stores only the last removal in the open form.

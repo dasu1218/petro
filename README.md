@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Undo draft size removal | 2026-11-22 | Restore the last removed new-product size with its price and stock while retaining other edits | Desktop/mobile restoration, position, remaining edits and ten-size limit checks |
 | New product size order | 2026-11-22 | Move draft sizes up/down while retaining each price and stock quantity | Desktop/mobile boundaries, reorder payload, failure preservation and existing draft/price checks |
 | New product draft cancellation | 2026-11-22 | Cancel edited drafts with keep-editing/discard choices; untouched forms close immediately | Desktop/mobile draft retention, focus, Escape, explicit discard and size-only changes |
 | New product price preview | 2026-11-22 | Review all draft size prices before creation with shared whole-LKR validation and mobile table scrolling | Desktop/mobile size edits, additions/removals, invalid-price recovery and existing promotion preview checks |

@@ -140,3 +140,7 @@ If you have edited a new product, **Cancel** opens inline choices: **Keep editin
 ### Ordering sizes before creation
 
 Use **Move size up** and **Move size down** in the new-product form to arrange sizes in the order customers should see them. Each move carries the size’s price and initial stock together. The first size cannot move up, and the last cannot move down. The order is published after successful creation; this does not reorder sizes of existing products or historical orders.
+
+### Restoring a removed draft size
+
+After removing a size in **Add new product**, choose **Undo remove size** to restore its label, price and stock at its previous position (or the end if that position no longer exists). Edits to other sizes are retained. Only the latest removal is kept, and recovery lasts only while the form stays open. Undo is unavailable when ten sizes are already present. Normal duplicate-size validation still applies after restoration.
