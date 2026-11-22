@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Promotion schedule preview | 2026-11-22 | Review local start/end times before publishing; reject reversed or equal date ranges before sending | Logic checks and desktop/mobile invalid-window recovery and successful save |
 | Promotion price preview | 2026-11-22 | Live draft regular prices, discounted prices and savings by size; invalid values show guidance | Whole-LKR rounding tests and desktop/mobile previews; publishing still requires Save product |
 | Product detail draft controls | 2026-11-21 | Saved/unpublished detail indicators, disabled unchanged Save and discard-to-saved controls; retry preserves failed edits | Desktop/mobile discard, normalized-save and failure/retry checks; prior restock CSV work retained |
 | Recent restock CSV | 2026-11-21 | Export a product’s shown recent stock additions with notes, quantities and historical remaining-stock values; loading/error states disable export | Shared CSV escaping and desktop/mobile download/failure-recovery coverage; limited to the displayed recent history |
