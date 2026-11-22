@@ -1,0 +1,22 @@
+import { test, expect } from '@playwright/test'
+import { mockStore } from './fixtures.js'
+test('new product stock summary updates across adding, correcting and removing sizes', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  await page.getByRole('button', { name: 'Add new product', exact: true }).click()
+  const preview = page.getByRole('region', { name: 'Initial stock preview' })
+  await page.getByRole('textbox', { name: 'Size label 1', exact: true }).fill('Small')
+  await expect(preview).toContainText('visible but sold out')
+  await page.getByRole('spinbutton', { name: 'Initial stock 1', exact: true }).fill('5')
+  await expect(preview).toContainText('5 initial units across 1 size; 1 with stock')
+  await page.getByRole('button', { name: 'Add another size', exact: true }).click()
+  await page.getByRole('textbox', { name: 'Size label 2', exact: true }).fill('small')
+  await expect(preview).toContainText('use a unique size name')
+  await page.getByRole('textbox', { name: 'Size label 2', exact: true }).fill('Large')
+  await page.getByRole('spinbutton', { name: 'Initial stock 2', exact: true }).fill('3')
+  await expect(preview).toContainText('8 initial units across 2 sizes; 2 with stock')
+  await page.getByRole('button', { name: 'Remove size 2', exact: true }).click()
+  await expect(preview).toContainText('5 initial units')
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

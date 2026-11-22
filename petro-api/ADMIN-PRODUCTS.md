@@ -116,3 +116,15 @@ The **Schedule preview** summarizes the draft start and end in your device’s l
 ### Previewing product badges
 
 In **Product details**, enter comma-separated badges to see the **Badge preview**. Spaces and empty entries are removed, and duplicate badges appear once. Use up to six entries with at most 40 characters each; invalid drafts show guidance and cannot be submitted. Clear the field to remove badges. Publishing still requires **Save product details**.
+
+### Suggesting a new product URL
+
+In **Add new product**, enter a name and choose **Suggest URL from name** to fill the URL field. You can edit the suggestion and review the product path before creating. Changing the name alone preserves your current URL. Suggestions use lowercase letters, numbers and hyphens, with a maximum of 100 characters. Availability is checked during creation; the URL stays fixed afterward.
+
+### Reviewing initial stock
+
+The new-product form summarizes total initial units and how many sizes have stock. Zero stock leaves the created product visible but sold out. Size names must be unique ignoring case and surrounding spaces; **Care bundle** is reserved. Each initial quantity must be a whole number between 0 and 1,000,000. Correct any preview guidance before creating. The summary is a local draft; inventory changes only after successful creation.
+
+### Badges when creating products
+
+The new-product form now offers the same badge preview and limits as product editing: at most six comma-separated entries, each up to 40 characters. Empty entries are removed, surrounding spaces trimmed and duplicates published once. Invalid badges block creation until corrected. Clearing the field creates a product without badges. A failed creation retains your draft for correction or retry.
