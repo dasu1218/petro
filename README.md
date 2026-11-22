@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Promotion price preview | 2026-11-22 | Live draft regular prices, discounted prices and savings by size; invalid values show guidance | Whole-LKR rounding tests and desktop/mobile previews; publishing still requires Save product |
 | Product detail draft controls | 2026-11-21 | Saved/unpublished detail indicators, disabled unchanged Save and discard-to-saved controls; retry preserves failed edits | Desktop/mobile discard, normalized-save and failure/retry checks; prior restock CSV work retained |
 | Recent restock CSV | 2026-11-21 | Export a product’s shown recent stock additions with notes, quantities and historical remaining-stock values; loading/error states disable export | Shared CSV escaping and desktop/mobile download/failure-recovery coverage; limited to the displayed recent history |
 | Admin shown-page CSV | 2026-11-21 | Download currently displayed admin orders with page/filter context, saved products, quantities, totals and payment state; empty views disable export | Shared CSV escaping and desktop/mobile file-content coverage; export scope is explicitly one shown page |

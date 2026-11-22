@@ -258,3 +258,9 @@ Desktop/mobile scenarios create a fixture restock and download the shown history
 ### Product detail draft controls
 
 Desktop/mobile scenarios verify unchanged product details cannot be submitted, edits are marked unpublished, discarding sends no mutation request, and a normalized successful response becomes the new saved baseline. Another case fails a save, retains edited fields and enabled retry/discard controls, then retries the same data successfully. Detail fixtures now apply saved metadata to admin/public catalog responses. The browser suite contains 75 scenarios across two viewports (150 checks), including the retained restock-history export work. Drafts are local to the selected product editor; switching products or leaving the page does not persist them. Discard changes the local preview and does not write to the API.
+
+### Draft product and promotion price preview
+
+Three frontend logic checks cover whole-LKR discount rounding, the minimum price of LKR 1, disabled promotions, input immutability and invalid price/discount values. The default suite contains 104 API/service and 54 frontend logic checks (158 total).
+
+Two browser scenarios across desktop and mobile verify live size prices and savings, toggling discounts, invalid-value recovery, no automatic save requests and contained mobile table scrolling. The browser suite contains 77 scenarios across two viewports (154 checks). The preview shows prices while the discount is active; scheduled dates remain controlled by the server, and publishing requires Save product.
