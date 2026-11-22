@@ -280,3 +280,7 @@ Two logic checks cover accent/punctuation normalization, empty suggestions, the 
 ### Initial stock preview
 
 Three logic checks verify totals, stocked-size counts, unchanged drafts, duplicate/reserved/invalid size labels and whole stock limits. The default suite contains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario checks zero-stock guidance, changing totals, duplicate names, correction and removal. This and existing URL suggestion scenarios are covered by four targeted browser checks. The complete browser suite contains 81 scenarios across two viewports (162 checks); the full suite was not rerun for this change.
+
+### New product badge validation
+
+The creation form reuses the tested badge parser from product editing. The default suite remains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario fills a valid product draft, verifies oversized and excessive badges send no creation request, corrects badges and checks the trimmed/deduplicated payload, then verifies a failed creation preserves the draft. It also checks clearing badges. Run together with existing product-badge and initial-stock previews for six targeted checks. The complete browser suite contains 82 scenarios across two viewports (164 checks); the full suite was not rerun for this change.

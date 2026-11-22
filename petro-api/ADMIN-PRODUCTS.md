@@ -124,3 +124,7 @@ In **Add new product**, enter a name and choose **Suggest URL from name** to fil
 ### Reviewing initial stock
 
 The new-product form summarizes total initial units and how many sizes have stock. Zero stock leaves the created product visible but sold out. Size names must be unique ignoring case and surrounding spaces; **Care bundle** is reserved. Each initial quantity must be a whole number between 0 and 1,000,000. Correct any preview guidance before creating. The summary is a local draft; inventory changes only after successful creation.
+
+### Badges when creating products
+
+The new-product form now offers the same badge preview and limits as product editing: at most six comma-separated entries, each up to 40 characters. Empty entries are removed, surrounding spaces trimmed and duplicates published once. Invalid badges block creation until corrected. Clearing the field creates a product without badges. A failed creation retains your draft for correction or retry.
