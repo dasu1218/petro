@@ -288,3 +288,7 @@ The creation form reuses the tested badge parser from product editing. The defau
 ### New product price preview
 
 The creation form reuses the tested price-preview helper and table; publication guidance says Create product. The default suite remains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario checks placeholder and edited size labels, temporary duplicate labels, multiple prices, fractional-price recovery, removing a size and mobile overflow. Run with existing promotion preview and new-product badge scenarios for eight targeted checks. The complete browser suite contains 83 scenarios across two viewports (166 checks); the full suite was not rerun for this change.
+
+### New product draft cancellation
+
+The default suite remains 168 checks. Two desktop/mobile scenarios verify edited drafts survive Cancel and Keep editing, Escape restores focus to Cancel, explicit discard opens a fresh form, untouched forms close directly and size-only changes are protected. Run with new-product badge recovery for six targeted browser checks. The complete browser suite contains 85 scenarios across two viewports (170 checks); the full suite was not rerun for this change. This confirmation covers the form’s Cancel button; drafts are not persisted after leaving the page.

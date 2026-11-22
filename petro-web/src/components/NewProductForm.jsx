@@ -2,17 +2,24 @@ import ProductPricePreview from './ProductPricePreview'
 import { productBadges } from '../lib/productBadges'
 import { initialStockPreview } from '../lib/initialStock'
 import { suggestProductSlug, productPathPreview } from '../lib/productSlug'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/authContext'
 import { apiRequest } from '../lib/api'
 const categories = [['skin-care','Skin Care'], ['digestion','Digestion'], ['flea-tick','Flea & Tick'], ['nutrition','Nutrition'], ['bundles','Bundles']]
 export default function NewProductForm({ onCreated, onCancel }) {
   const { token } = useAuth()
   const [draft, setDraft] = useState({ name: '', slug: '', description: '', category: 'skin-care', badges: '' })
+  const [initialDraft] = useState(draft)
+  const cancelButton = useRef(null)
+  const keepEditingButton = useRef(null)
+  const [confirmCancel, setConfirmCancel] = useState(false)
+  useEffect(() => { if (confirmCancel) keepEditingButton.current?.focus() }, [confirmCancel])
+  const keepEditing = () => { setConfirmCancel(false); cancelButton.current?.focus() }
   const badgePreview = productBadges(draft.badges)
   const suggestedSlug = suggestProductSlug(draft.name)
   const pathPreview = productPathPreview(draft.slug)
   const [variants, setVariants] = useState([{ label: '', price: '', stock: '0' }])
+  const dirty = JSON.stringify(draft) !== JSON.stringify(initialDraft) || variants.length !== 1 || variants[0].label !== '' || variants[0].price !== '' || String(variants[0].stock) !== '0'
   const stockPreview = initialStockPreview(variants)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -22,6 +29,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
     if (busy) return
     if (badgePreview.error) { setError(badgePreview.error); return }
     if (stockPreview.error) { setError(stockPreview.error); return }
+    setConfirmCancel(false)
     setBusy(true); setError('')
     try {
       const { product } = await apiRequest('/products', { method: 'POST', token, body: {
@@ -31,7 +39,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
       onCreated(product)
     } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
-  return <form className="checkout-form product-settings-editor" onSubmit={submit}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
+  return <form className="checkout-form product-settings-editor new-product-form" onSubmit={submit}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
     <p>Products appear in the shop as soon as they are created. Use zero stock if you are not ready to sell yet. You can upload photos and set promotions after creating the product.</p>
     {error && <p role="alert" className="form-error">{error}</p>}
     <div className="checkout-fields">
@@ -48,6 +56,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
     <button type="button" className="btn btn-secondary btn-large" disabled={variants.length >= 10} onClick={() => setVariants((current) => [...current, { label: '', price: '', stock: '0' }])}>Add another size</button>
     <ProductPricePreview prices={variants.map((variant, index) => ({ label: variant.label.trim() || `Size ${index + 1}`, price: variant.price }))} promotion={{ enabled: false }} publishAction="Create product" />
     <section aria-label="Initial stock preview"><h2>Initial stock preview</h2><p role="status" className={stockPreview.error ? 'form-error' : 'checkout-note'}>{stockPreview.error || `${stockPreview.units.toLocaleString()} initial units across ${stockPreview.sizes} ${stockPreview.sizes === 1 ? 'size' : 'sizes'}; ${stockPreview.availableSizes} with stock.`}</p>{!stockPreview.error && <p>{stockPreview.units === 0 ? 'This product will be visible but sold out until you add stock.' : 'Stocked sizes will be available to buy after creation.'} Review quantities before creating the product.</p>}</section>
-    <div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Creating product…' : 'Create product'}</button><button type="button" className="btn btn-secondary btn-large" onClick={onCancel}>Cancel</button></div>
+    <div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Creating product…' : 'Create product'}</button><button type="button" className="btn btn-secondary btn-large" ref={cancelButton} onClick={() => { if (dirty) setConfirmCancel(true); else onCancel() }}>Cancel</button></div>
+    {confirmCancel && <section className="checkout-panel" aria-label="Discard new product draft" onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); keepEditing() } }}><h2>Discard this product draft?</h2><p>Your entered details, sizes, prices and stock will be lost.</p><div className="cta-row account-actions"><button ref={keepEditingButton} type="button" className="btn btn-secondary" onClick={keepEditing}>Keep editing</button><button type="button" className="btn btn-primary" onClick={onCancel}>Discard draft</button></div></section>}
   </fieldset></form>
 }
