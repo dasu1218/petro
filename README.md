@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| New product size order | 2026-11-22 | Move draft sizes up/down while retaining each price and stock quantity | Desktop/mobile boundaries, reorder payload, failure preservation and existing draft/price checks |
+| New product draft cancellation | 2026-11-22 | Cancel edited drafts with keep-editing/discard choices; untouched forms close immediately | Desktop/mobile draft retention, focus, Escape, explicit discard and size-only changes |
 | New product price preview | 2026-11-22 | Review all draft size prices before creation with shared whole-LKR validation and mobile table scrolling | Desktop/mobile size edits, additions/removals, invalid-price recovery and existing promotion preview checks |
 | New product badge validation | 2026-11-22 | Live badge preview during creation with shared limits and normalized submission | Desktop/mobile invalid-submit blocking, corrected payload and failed-creation draft preservation |
 | Initial stock preview | 2026-11-22 | Review total units and stocked sizes before creating; catch duplicate/reserved names and invalid quantities | Logic checks and desktop/mobile add, correct and remove size scenarios |

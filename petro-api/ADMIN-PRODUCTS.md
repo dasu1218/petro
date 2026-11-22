@@ -132,3 +132,11 @@ The new-product form now offers the same badge preview and limits as product edi
 ### Reviewing new product prices
 
 The new-product form now shows **Price preview** for all draft sizes. It updates as you edit, add or remove sizes. Enter whole LKR prices between 1 and 10,000,000 to see the table; invalid or missing prices show guidance. New products start with regular prices, so savings are zero. Create the product to publish; photos and promotions can be added afterward.
+
+### Cancelling a new product draft
+
+If you have edited a new product, **Cancel** opens inline choices: **Keep editing** retains all values; **Discard draft** closes the form without creating a product. Escape also keeps the draft and returns focus to Cancel. An untouched form closes immediately. Drafts remain local to the open form and are not saved after leaving the page.
+
+### Ordering sizes before creation
+
+Use **Move size up** and **Move size down** in the new-product form to arrange sizes in the order customers should see them. Each move carries the size’s price and initial stock together. The first size cannot move up, and the last cannot move down. The order is published after successful creation; this does not reorder sizes of existing products or historical orders.
