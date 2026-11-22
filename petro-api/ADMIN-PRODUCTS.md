@@ -108,3 +108,7 @@ The Product details form marks unpublished name/description/category/badge chang
 ### Previewing prices before saving
 
 Edit size prices and the percentage discount to see **Price preview** update with regular prices, preview prices and savings. Invalid prices or discounts show guidance in place of the table. Discounts use the storefront’s whole-LKR rounding and minimum price of LKR 1. With a promotion enabled, this previews prices while that discount is active; the chosen dates still determine when it runs. Changes are published only after **Save product** succeeds.
+
+### Reviewing promotion schedules
+
+The **Schedule preview** summarizes the draft start and end in your device’s local timezone. Empty start means the promotion starts when saved; empty end means it runs until disabled. An end at or before the start blocks submission until corrected. The preview does not publish changes or report live activation; the server still checks dates and controls when saved promotions apply.

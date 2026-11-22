@@ -264,3 +264,7 @@ Desktop/mobile scenarios verify unchanged product details cannot be submitted, e
 Three frontend logic checks cover whole-LKR discount rounding, the minimum price of LKR 1, disabled promotions, input immutability and invalid price/discount values. The default suite contains 104 API/service and 54 frontend logic checks (158 total).
 
 Two browser scenarios across desktop and mobile verify live size prices and savings, toggling discounts, invalid-value recovery, no automatic save requests and contained mobile table scrolling. The browser suite contains 77 scenarios across two viewports (154 checks). The preview shows prices while the discount is active; scheduled dates remain controlled by the server, and publishing requires Save product.
+
+### Promotion schedule preview
+
+Three logic checks cover disabled promotions, immediate/open-ended schedules, local date formatting and invalid/equal/reversed dates. The default suite contains 104 API/service and 57 frontend logic checks (161 total). A desktop/mobile browser scenario verifies invalid windows send no mutation, correction restores the schedule preview, and saving sends an ordered date range. This scenario and the existing price-preview scenarios passed six targeted browser checks. The complete browser suite now contains 78 scenarios across two viewports (156 checks); the full suite was not rerun for this change.

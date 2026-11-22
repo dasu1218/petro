@@ -1,3 +1,4 @@
+import { promotionSchedule } from '../lib/promotionSchedule'
 import ProductPricePreview from '../components/ProductPricePreview'
 import { Link, useSearchParams } from 'react-router-dom'
 import HomepageImageEditor from '../components/HomepageImageEditor'
@@ -22,6 +23,7 @@ function ProductEditor({ product, onSaved }) {
   const [prices, setPrices] = useState(product.variants.map((variant) => ({ label: variant.label, price: product.settings?.prices.find((entry) => entry.label === variant.label)?.price ?? variant.price })))
   const storedPromo = product.settings?.promotion
   const [promotion, setPromotion] = useState({ enabled: storedPromo?.enabled || false, label: storedPromo?.label || '', percent: storedPromo?.percent || 10, startsAt: localDate(storedPromo?.startsAt), endsAt: localDate(storedPromo?.endsAt) })
+  const schedule = promotionSchedule(promotion)
   const [busy, setBusy] = useState(false)
   const [uploadProgress, setUploadProgress] = useState('')
   const [error, setError] = useState('')
@@ -46,6 +48,7 @@ function ProductEditor({ product, onSaved }) {
   }
   const save = async (event) => {
     event.preventDefault()
+    if (schedule.error) { setError(schedule.error); setMessage(''); return }
     setBusy(true); setError(''); setMessage('')
     try {
       await apiRequest(`/products/${product.slug}`, { method: 'PUT', token, body: {
@@ -70,6 +73,7 @@ function ProductEditor({ product, onSaved }) {
       <h2>Prices (LKR)</h2><div className="checkout-fields">{prices.map((variant, index) => <label className="form-field" key={variant.label}><span>{variant.label}</span><input type="number" min="1" max="10000000" step="1" required value={variant.price} onChange={(event) => setPrices((current) => current.map((entry, i) => i === index ? { ...entry, price: event.target.value } : entry))} /></label>)}</div>
       <h2>Promotion</h2><label className="default-address-toggle"><input type="checkbox" checked={promotion.enabled} onChange={(event) => setPromotion((current) => ({ ...current, enabled: event.target.checked }))} />Enable a percentage discount</label>
       {promotion.enabled && <div className="checkout-fields"><label className="form-field"><span>Promotion label</span><input required maxLength={60} value={promotion.label} onChange={(event) => setPromotion((current) => ({ ...current, label: event.target.value }))} /></label><label className="form-field"><span>Discount (%)</span><input type="number" min="1" max="90" step="1" required value={promotion.percent} onChange={(event) => setPromotion((current) => ({ ...current, percent: event.target.value }))} /></label>{['startsAt', 'endsAt'].map((key) => <label key={key} className="form-field"><span>{key === 'startsAt' ? 'Start time (optional)' : 'End time (optional)'}</span><input type="datetime-local" value={promotion[key]} onChange={(event) => setPromotion((current) => ({ ...current, [key]: event.target.value }))} /></label>)}<p className="checkout-note checkout-field-wide">Times use your device’s local timezone. Leave both times empty to start immediately and run until disabled. Discounts apply to individual products; bundle prices stay fixed.</p></div>}
+      <section className="promotion-schedule" aria-label="Promotion schedule preview"><h3>Schedule preview</h3><p role="status" className={schedule.error ? 'form-error' : 'checkout-note'}>{schedule.error || schedule.message}</p></section>
       <ProductPricePreview prices={prices} promotion={promotion} />
       <div className="product-save-feedback" aria-live="polite">
         {error && <p className="form-error" role="alert">{error}</p>}
