@@ -1,3 +1,4 @@
+import ProductPricePreview from './ProductPricePreview'
 import { productBadges } from '../lib/productBadges'
 import { initialStockPreview } from '../lib/initialStock'
 import { suggestProductSlug, productPathPreview } from '../lib/productSlug'
@@ -30,7 +31,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
       onCreated(product)
     } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
-  return <form className="checkout-form" onSubmit={submit}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
+  return <form className="checkout-form product-settings-editor" onSubmit={submit}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
     <p>Products appear in the shop as soon as they are created. Use zero stock if you are not ready to sell yet. You can upload photos and set promotions after creating the product.</p>
     {error && <p role="alert" className="form-error">{error}</p>}
     <div className="checkout-fields">
@@ -45,6 +46,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
     <h2>Sizes and initial stock</h2>
     {variants.map((variant, index) => <div key={index} className="new-product-variant checkout-fields">{[['label','Size label'],['price','Price (LKR)'],['stock','Initial stock']].map(([key,label]) => <label className="form-field" key={key}><span>{label} {index + 1}</span><input required type={key === 'label' ? 'text' : 'number'} maxLength={key === 'label' ? 40 : undefined} min={key === 'price' ? 1 : 0} max={key === 'price' ? 10000000 : key === 'stock' ? 1000000 : undefined} step="1" value={variant[key]} onChange={(event) => setVariants((current) => current.map((entry, i) => i === index ? { ...entry, [key]: event.target.value } : entry))} /></label>)}{variants.length > 1 && <button type="button" className="shop-reset" onClick={() => setVariants((current) => current.filter((_entry, i) => i !== index))}>Remove size {index + 1}</button>}</div>)}
     <button type="button" className="btn btn-secondary btn-large" disabled={variants.length >= 10} onClick={() => setVariants((current) => [...current, { label: '', price: '', stock: '0' }])}>Add another size</button>
+    <ProductPricePreview prices={variants.map((variant, index) => ({ label: variant.label.trim() || `Size ${index + 1}`, price: variant.price }))} promotion={{ enabled: false }} publishAction="Create product" />
     <section aria-label="Initial stock preview"><h2>Initial stock preview</h2><p role="status" className={stockPreview.error ? 'form-error' : 'checkout-note'}>{stockPreview.error || `${stockPreview.units.toLocaleString()} initial units across ${stockPreview.sizes} ${stockPreview.sizes === 1 ? 'size' : 'sizes'}; ${stockPreview.availableSizes} with stock.`}</p>{!stockPreview.error && <p>{stockPreview.units === 0 ? 'This product will be visible but sold out until you add stock.' : 'Stocked sizes will be available to buy after creation.'} Review quantities before creating the product.</p>}</section>
     <div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Creating product…' : 'Create product'}</button><button type="button" className="btn btn-secondary btn-large" onClick={onCancel}>Cancel</button></div>
   </fieldset></form>

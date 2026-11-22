@@ -284,3 +284,7 @@ Three logic checks verify totals, stocked-size counts, unchanged drafts, duplica
 ### New product badge validation
 
 The creation form reuses the tested badge parser from product editing. The default suite remains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario fills a valid product draft, verifies oversized and excessive badges send no creation request, corrects badges and checks the trimmed/deduplicated payload, then verifies a failed creation preserves the draft. It also checks clearing badges. Run together with existing product-badge and initial-stock previews for six targeted checks. The complete browser suite contains 82 scenarios across two viewports (164 checks); the full suite was not rerun for this change.
+
+### New product price preview
+
+The creation form reuses the tested price-preview helper and table; publication guidance says Create product. The default suite remains 104 API/service and 64 frontend logic checks (168 total). A desktop/mobile scenario checks placeholder and edited size labels, temporary duplicate labels, multiple prices, fractional-price recovery, removing a size and mobile overflow. Run with existing promotion preview and new-product badge scenarios for eight targeted checks. The complete browser suite contains 83 scenarios across two viewports (166 checks); the full suite was not rerun for this change.
