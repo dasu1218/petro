@@ -128,3 +128,7 @@ The new-product form summarizes total initial units and how many sizes have stoc
 ### Badges when creating products
 
 The new-product form now offers the same badge preview and limits as product editing: at most six comma-separated entries, each up to 40 characters. Empty entries are removed, surrounding spaces trimmed and duplicates published once. Invalid badges block creation until corrected. Clearing the field creates a product without badges. A failed creation retains your draft for correction or retry.
+
+### Reviewing new product prices
+
+The new-product form now shows **Price preview** for all draft sizes. It updates as you edit, add or remove sizes. Enter whole LKR prices between 1 and 10,000,000 to see the table; invalid or missing prices show guidance. New products start with regular prices, so savings are zero. Create the product to publish; photos and promotions can be added afterward.
