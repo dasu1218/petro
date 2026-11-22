@@ -1,3 +1,5 @@
+import { initialStockValue } from '../lib/stockValue'
+import { formatLKR } from '../lib/format'
 import ProductPricePreview from './ProductPricePreview'
 import { productBadges } from '../lib/productBadges'
 import { initialStockPreview } from '../lib/initialStock'
@@ -41,6 +43,7 @@ export default function NewProductForm({ onCreated, onCancel }) {
     ;[next[index], next[target]] = [next[target], next[index]]
     return next
   })
+  const stockValue = initialStockValue(variants)
   const stockPreview = initialStockPreview(variants)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -60,9 +63,12 @@ export default function NewProductForm({ onCreated, onCancel }) {
       onCreated(product)
     } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
-  return <form className="checkout-form product-settings-editor new-product-form" onSubmit={submit}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
+  return <form className="checkout-form product-settings-editor new-product-form" onSubmit={submit} onInvalidCapture={(event) => {
+    const input = event.target
+    const field = input.closest('label')?.querySelector('span')?.textContent || 'Product details'
+    setError(`${field}: ${input.validationMessage || 'Please check this field.'}`)
+  }}><fieldset className="checkout-panel" disabled={busy}><legend>Add a new product</legend>
     <p>Products appear in the shop as soon as they are created. Use zero stock if you are not ready to sell yet. You can upload photos and set promotions after creating the product.</p>
-    {error && <p role="alert" className="form-error">{error}</p>}
     <div className="checkout-fields">
       <label className="form-field"><span>Product name</span><input required maxLength={120} value={draft.name} onChange={(event) => update('name', event.target.value)} /></label>
       <label className="form-field"><span>Product URL name</span><input required maxLength={100} pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="gentle-pet-shampoo" value={draft.slug} onChange={(event) => update('slug', event.target.value)} /><small>Lowercase letters, numbers and hyphens. This URL stays fixed.</small></label>
@@ -78,6 +84,8 @@ export default function NewProductForm({ onCreated, onCancel }) {
     {removedSize && <section aria-label="Removed size recovery"><p role="status">Removed {removedSize.variant.label.trim() || 'unnamed size'}. You can restore the last removed size, including its price and stock.</p><button type="button" className="btn btn-secondary" disabled={variants.length >= 10} onClick={undoRemoveSize}>Undo remove size</button>{variants.length >= 10 && <p>Remove a size to make room before restoring. A product can have up to ten sizes.</p>}</section>}
     <ProductPricePreview prices={variants.map((variant, index) => ({ label: variant.label.trim() || `Size ${index + 1}`, price: variant.price }))} promotion={{ enabled: false }} publishAction="Create product" />
     <section aria-label="Initial stock preview"><h2>Initial stock preview</h2><p role="status" className={stockPreview.error ? 'form-error' : 'checkout-note'}>{stockPreview.error || `${stockPreview.units.toLocaleString()} initial units across ${stockPreview.sizes} ${stockPreview.sizes === 1 ? 'size' : 'sizes'}; ${stockPreview.availableSizes} with stock.`}</p>{!stockPreview.error && <p>{stockPreview.units === 0 ? 'This product will be visible but sold out until you add stock.' : 'Stocked sizes will be available to buy after creation.'} Review quantities before creating the product.</p>}</section>
+    <section aria-label="Initial stock retail value"><h2>Initial stock retail value</h2><p role="status">{stockValue.error || formatLKR(stockValue.value)}</p><p className="checkout-note">Regular selling price × initial units, summed across sizes. This is a draft retail value, not profit or expected revenue; it excludes discounts, delivery and costs.</p></section>
+    {error && <p role="alert" className="form-error">{error}</p>}
     <div className="cta-row account-actions"><button type="submit" className="btn btn-primary btn-large">{busy ? 'Creating product…' : 'Create product'}</button><button type="button" className="btn btn-secondary btn-large" ref={cancelButton} onClick={() => { if (dirty) setConfirmCancel(true); else onCancel() }}>Cancel</button></div>
     {confirmCancel && <section className="checkout-panel" aria-label="Discard new product draft" onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); keepEditing() } }}><h2>Discard this product draft?</h2><p>Your entered details, sizes, prices and stock will be lost.</p><div className="cta-row account-actions"><button ref={keepEditingButton} type="button" className="btn btn-secondary" onClick={keepEditing}>Keep editing</button><button type="button" className="btn btn-primary" onClick={onCancel}>Discard draft</button></div></section>}
   </fieldset></form>
