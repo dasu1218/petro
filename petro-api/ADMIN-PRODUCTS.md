@@ -116,3 +116,7 @@ The **Schedule preview** summarizes the draft start and end in your device’s l
 ### Previewing product badges
 
 In **Product details**, enter comma-separated badges to see the **Badge preview**. Spaces and empty entries are removed, and duplicate badges appear once. Use up to six entries with at most 40 characters each; invalid drafts show guidance and cannot be submitted. Clear the field to remove badges. Publishing still requires **Save product details**.
+
+### Suggesting a new product URL
+
+In **Add new product**, enter a name and choose **Suggest URL from name** to fill the URL field. You can edit the suggestion and review the product path before creating. Changing the name alone preserves your current URL. Suggestions use lowercase letters, numbers and hyphens, with a maximum of 100 characters. Availability is checked during creation; the URL stays fixed afterward.

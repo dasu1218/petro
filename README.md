@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| New product URL suggestion | 2026-11-22 | Explicit name-based URL suggestions, editable slug and valid product path preview | Normalization/length checks and desktop/mobile custom URL preservation |
 | Product badge preview | 2026-11-22 | Preview trimmed, unique badges before publishing; enforce six-badge and 40-character limits | Logic checks and desktop/mobile invalid-draft recovery and publishing |
 | Promotion schedule preview | 2026-11-22 | Review local start/end times before publishing; reject reversed or equal date ranges before sending | Logic checks and desktop/mobile invalid-window recovery and successful save |
 | Promotion price preview | 2026-11-22 | Live draft regular prices, discounted prices and savings by size; invalid values show guidance | Whole-LKR rounding tests and desktop/mobile previews; publishing still requires Save product |
