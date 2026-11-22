@@ -1,3 +1,4 @@
+import ProductPricePreview from '../components/ProductPricePreview'
 import { Link, useSearchParams } from 'react-router-dom'
 import HomepageImageEditor from '../components/HomepageImageEditor'
 import ProductAvailability from '../components/ProductAvailability'
@@ -54,7 +55,7 @@ function ProductEditor({ product, onSaved }) {
       onSaved(); setMessage('Product saved. Photos, prices, and promotions are now published.')
     } catch (failure) { setError(failure.message) } finally { setBusy(false) }
   }
-  return <form onSubmit={save} className="checkout-form" onInvalidCapture={(event) => {
+  return <form onSubmit={save} className="checkout-form product-settings-editor" onInvalidCapture={(event) => {
     const input = event.target
     const label = input.closest('label')?.querySelector('span')?.textContent || 'Product details'
     setError(`${label}: ${input.validationMessage || 'Please check this field.'}`)
@@ -69,6 +70,7 @@ function ProductEditor({ product, onSaved }) {
       <h2>Prices (LKR)</h2><div className="checkout-fields">{prices.map((variant, index) => <label className="form-field" key={variant.label}><span>{variant.label}</span><input type="number" min="1" max="10000000" step="1" required value={variant.price} onChange={(event) => setPrices((current) => current.map((entry, i) => i === index ? { ...entry, price: event.target.value } : entry))} /></label>)}</div>
       <h2>Promotion</h2><label className="default-address-toggle"><input type="checkbox" checked={promotion.enabled} onChange={(event) => setPromotion((current) => ({ ...current, enabled: event.target.checked }))} />Enable a percentage discount</label>
       {promotion.enabled && <div className="checkout-fields"><label className="form-field"><span>Promotion label</span><input required maxLength={60} value={promotion.label} onChange={(event) => setPromotion((current) => ({ ...current, label: event.target.value }))} /></label><label className="form-field"><span>Discount (%)</span><input type="number" min="1" max="90" step="1" required value={promotion.percent} onChange={(event) => setPromotion((current) => ({ ...current, percent: event.target.value }))} /></label>{['startsAt', 'endsAt'].map((key) => <label key={key} className="form-field"><span>{key === 'startsAt' ? 'Start time (optional)' : 'End time (optional)'}</span><input type="datetime-local" value={promotion[key]} onChange={(event) => setPromotion((current) => ({ ...current, [key]: event.target.value }))} /></label>)}<p className="checkout-note checkout-field-wide">Times use your device’s local timezone. Leave both times empty to start immediately and run until disabled. Discounts apply to individual products; bundle prices stay fixed.</p></div>}
+      <ProductPricePreview prices={prices} promotion={promotion} />
       <div className="product-save-feedback" aria-live="polite">
         {error && <p className="form-error" role="alert">{error}</p>}
         {busy && <p role="status">{uploadProgress || 'Saving your product… Please wait.'}</p>}

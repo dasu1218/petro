@@ -104,3 +104,7 @@ Under **Stock management → Recent stock additions**, use **Download recent add
 ### Discarding product detail edits
 
 The Product details form marks unpublished name/description/category/badge changes and enables Save only when they differ from the last loaded or successfully saved version. **Discard product detail changes** restores that version without an API write. A successful save becomes the new baseline, including trimmed/deduplicated values returned by the API. Failed saves retain the draft for retry. These controls apply to product details; photos/prices/promotions have their own save control, and the detail draft is not stored after switching products or leaving the page.
+
+### Previewing prices before saving
+
+Edit size prices and the percentage discount to see **Price preview** update with regular prices, preview prices and savings. Invalid prices or discounts show guidance in place of the table. Discounts use the storefront’s whole-LKR rounding and minimum price of LKR 1. With a promotion enabled, this previews prices while that discount is active; the chosen dates still determine when it runs. Changes are published only after **Save product** succeeds.
