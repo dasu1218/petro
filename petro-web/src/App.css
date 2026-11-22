@@ -2025,3 +2025,6 @@ input::file-selector-button { margin-right: 12px; background: #f4f7f6; border-co
 .product-price-preview th { font-size: .85rem; }
 .product-price-preview td strong { color: #166454; }
 .product-price-preview .form-error { color: #b91c1c; margin: 0; }
+
+.badge-preview-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; list-style: none; }
+.badge-preview-list li { padding: 6px 12px; border-radius: 18px; background: #f5ece6; color: #674433; overflow-wrap: anywhere; max-width: 100%; }
