@@ -292,3 +292,7 @@ The creation form reuses the tested price-preview helper and table; publication 
 ### New product draft cancellation
 
 The default suite remains 168 checks. Two desktop/mobile scenarios verify edited drafts survive Cancel and Keep editing, Escape restores focus to Cancel, explicit discard opens a fresh form, untouched forms close directly and size-only changes are protected. Run with new-product badge recovery for six targeted browser checks. The complete browser suite contains 85 scenarios across two viewports (170 checks); the full suite was not rerun for this change. This confirmation covers the form’s Cancel button; drafts are not persisted after leaving the page.
+
+### New product size ordering
+
+The default suite remains 168 checks. A desktop/mobile scenario verifies first/last movement boundaries, moving both directions, preserving prices and quantities, submitted variant order and retaining reordered sizes after a failed creation. Run with price-preview and cancellation scenarios for eight targeted browser checks. The complete browser suite contains 86 scenarios across two viewports (172 checks); the full suite was not rerun for this change. Existing published products and historical orders are not reordered.
