@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test'
+import { mockStore } from './fixtures.js'
+const warns = (page) => page.evaluate(() => {
+  const event = new Event('beforeunload', { cancelable: true })
+  window.dispatchEvent(event)
+  return event.defaultPrevented
+})
+test('new product unload protection follows draft changes and cleans up after discard', async ({ page }) => {
+  const monitor = await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  const open = page.getByRole('button', { name: 'Add new product', exact: true })
+  await open.click()
+  expect(await warns(page)).toBe(false)
+  const form = page.locator('.new-product-form')
+  const name = form.getByRole('textbox', { name: 'Product name', exact: true })
+  await name.fill('Draft shampoo')
+  await expect.poll(() => warns(page)).toBe(true)
+  await name.fill('')
+  await expect.poll(() => warns(page)).toBe(false)
+  await form.getByRole('button', { name: 'Add another size', exact: true }).click()
+  await expect.poll(() => warns(page)).toBe(true)
+  await form.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await form.getByRole('button', { name: 'Keep editing', exact: true }).click()
+  expect(await warns(page)).toBe(true)
+  await form.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await form.getByRole('button', { name: 'Discard draft', exact: true }).click()
+  await expect(form).toHaveCount(0)
+  await expect.poll(() => warns(page)).toBe(false)
+  await open.click()
+  expect(await warns(page)).toBe(false)
+  expect(monitor.errors).toEqual([])
+  expect(monitor.unexpected).toEqual([])
+})

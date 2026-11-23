@@ -296,3 +296,23 @@ The default suite remains 168 checks. Two desktop/mobile scenarios verify edited
 ### New product size ordering
 
 The default suite remains 168 checks. A desktop/mobile scenario verifies first/last movement boundaries, moving both directions, preserving prices and quantities, submitted variant order and retaining reordered sizes after a failed creation. Run with price-preview and cancellation scenarios for eight targeted browser checks. The complete browser suite contains 86 scenarios across two viewports (172 checks); the full suite was not rerun for this change. Existing published products and historical orders are not reordered.
+
+### Undo draft size removal
+
+The default suite remains 168 checks. Two desktop/mobile scenarios verify restoration of a removed size’s name, price, stock and position without overwriting edits to remaining sizes; the undo action disappears after use, a later removal is recoverable, and restoration is disabled at ten sizes. Run with existing size-order checks for six targeted browser checks. The complete browser suite contains 88 scenarios across two viewports (176 checks); the full suite was not rerun for this change. Recovery stores only the last removal in the open form.
+
+### Product creation validation feedback
+
+The default suite remains 168 checks. A desktop/mobile scenario verifies invalid URL and price fields produce a visible named-field alert, receive browser focus and send no creation request. Correcting them reaches the API, and a simulated failure replaces validation feedback while preserving values. Run with badge creation and size-order scenarios for six targeted checks. The complete browser suite contains 89 scenarios across two viewports (178 checks); the full suite was not rerun for this change. Native validation wording follows the browser locale.
+
+### Initial stock retail value
+
+Two logic checks cover summed size-price × stock values, zero stock, unchanged drafts and invalid/duplicate sizes. The default suite contains 104 API/service and 66 frontend logic checks (170 total). A desktop/mobile scenario verifies live totals across sizes, invalid-price recovery and removal. Run with retained creation-validation scenarios for four targeted checks. The complete browser suite contains 90 scenarios across two viewports (180 checks); the full suite was not rerun for this change. The preview is regular-price retail value, not profit or expected revenue.
+
+### New product refresh protection
+
+The default suite remains 170 checks. A desktop/mobile scenario dispatches cancelable beforeunload events to verify no protection for untouched drafts, protection after text/size edits, removal after reverting text and cleanup after discard/reopening. Run with cancellation scenarios for six targeted browser checks. These tests verify event registration and cancellation, not browser-specific native dialog presentation. The complete browser suite contains 91 scenarios across two viewports (182 checks); the full suite was not rerun for this change. Internal navigation is not intercepted and drafts are not persisted.
+
+### Product detail refresh protection
+
+The default suite remains 170 checks. Two desktop/mobile scenarios verify unload event cancellation for unsaved product details, cleanup after discard/successful save and protection retained after a failed save. Run with new-product refresh coverage for six targeted checks. Tests exercise event registration and cancellation rather than native browser dialog presentation. The complete browser suite contains 93 scenarios across two viewports (186 checks); the full suite was not rerun for this change. Protection uses a shared hook; internal app navigation is not blocked and drafts are not persisted.

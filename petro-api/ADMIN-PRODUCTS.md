@@ -140,3 +140,23 @@ If you have edited a new product, **Cancel** opens inline choices: **Keep editin
 ### Ordering sizes before creation
 
 Use **Move size up** and **Move size down** in the new-product form to arrange sizes in the order customers should see them. Each move carries the size’s price and initial stock together. The first size cannot move up, and the last cannot move down. The order is published after successful creation; this does not reorder sizes of existing products or historical orders.
+
+### Restoring a removed draft size
+
+After removing a size in **Add new product**, choose **Undo remove size** to restore its label, price and stock at its previous position (or the end if that position no longer exists). Edits to other sizes are retained. Only the latest removal is kept, and recovery lasts only while the form stays open. Undo is unavailable when ten sizes are already present. Normal duplicate-size validation still applies after restoration.
+
+### Creation validation feedback
+
+If **Create product** cannot submit because a field is missing or invalid, the form shows the field name and browser guidance beside the creation buttons. The browser focuses an invalid field for correction. Correct the draft and retry; API errors also appear beside these buttons, and entered values remain available.
+
+### Initial stock retail value
+
+The new-product form sums regular selling price × initial quantity for each size. This draft value updates as you edit and is hidden until size names, prices and quantities are valid. It excludes discounts, delivery and costs, and does not represent profit or expected revenue. Nothing is published until creation succeeds.
+
+### Refreshing with a new product draft
+
+Supported browsers may warn before refreshing or closing the page while a new-product draft has edits or creation is in progress. The browser controls the warning text and may require prior interaction. This protection clears for unchanged drafts or after the form closes. It does not intercept internal app navigation or store drafts after the page is closed.
+
+### Refreshing while editing product details
+
+Supported browsers may warn before refresh/close while existing-product details are unsaved or saving. Discarding or successfully saving clears this protection; failed saves keep the draft protected. This covers name, description, category and badge edits. It does not intercept internal navigation or save drafts after leaving the page.
