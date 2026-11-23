@@ -1,3 +1,4 @@
+import { useUnsavedChanges } from '../hooks/useUnsavedChanges'
 import { productBadges } from '../lib/productBadges'
 import { useState } from 'react'
 import { useAuth } from '../context/authContext'
@@ -10,6 +11,7 @@ export default function ProductDetailsEditor({ product, onSaved }) {
   const [saved, setSaved] = useState(draft)
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved)
   const [busy, setBusy] = useState(false)
+  useUnsavedChanges(dirty || busy)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const change = (key, value) => { setDraft((current) => ({ ...current, [key]: value })); setError(''); setMessage('') }

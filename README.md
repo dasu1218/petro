@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Product detail refresh protection | 2026-11-23 | Protect unsaved existing-product details during refresh/close with a shared unload hook | Desktop/mobile save, discard, failed-save retention and new-product regression checks |
 | New product refresh protection | 2026-11-22 | Register browser unload protection while a draft is edited or creation is in progress; clean up when closed | Desktop/mobile event cancellation, reverted drafts, size changes and discard cleanup |
 | Initial stock retail value | 2026-11-22 | Review regular size prices multiplied by initial quantities; invalid drafts hide the total | Logic and desktop/mobile multi-size updates, zero stock, removal and validation checks |
 | Product creation validation feedback | 2026-11-22 | Show field names and browser validation messages beside creation actions; retain API error and draft recovery | Desktop/mobile invalid URL and price focus, blocked requests and corrected submission |

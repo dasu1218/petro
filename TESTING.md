@@ -312,3 +312,7 @@ Two logic checks cover summed size-price × stock values, zero stock, unchanged 
 ### New product refresh protection
 
 The default suite remains 170 checks. A desktop/mobile scenario dispatches cancelable beforeunload events to verify no protection for untouched drafts, protection after text/size edits, removal after reverting text and cleanup after discard/reopening. Run with cancellation scenarios for six targeted browser checks. These tests verify event registration and cancellation, not browser-specific native dialog presentation. The complete browser suite contains 91 scenarios across two viewports (182 checks); the full suite was not rerun for this change. Internal navigation is not intercepted and drafts are not persisted.
+
+### Product detail refresh protection
+
+The default suite remains 170 checks. Two desktop/mobile scenarios verify unload event cancellation for unsaved product details, cleanup after discard/successful save and protection retained after a failed save. Run with new-product refresh coverage for six targeted checks. Tests exercise event registration and cancellation rather than native browser dialog presentation. The complete browser suite contains 93 scenarios across two viewports (186 checks); the full suite was not rerun for this change. Protection uses a shared hook; internal app navigation is not blocked and drafts are not persisted.

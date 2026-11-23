@@ -1,0 +1,35 @@
+import { test, expect } from '@playwright/test'
+import { mockStore } from './fixtures.js'
+const warns = (page) => page.evaluate(() => {
+  const event = new Event('beforeunload', { cancelable: true })
+  window.dispatchEvent(event)
+  return event.defaultPrevented
+})
+test('product detail unload protection clears after discard and successful save', async ({ page }) => {
+  await mockStore(page, 'admin')
+  await page.goto('/admin/products')
+  const form = page.locator('.product-details-editor')
+  const name = form.getByRole('textbox', { name: 'Product name', exact: true })
+  await expect(name).toBeVisible()
+  expect(await warns(page)).toBe(false)
+  await name.fill('Draft shampoo')
+  await expect.poll(() => warns(page)).toBe(true)
+  await form.getByRole('button', { name: 'Discard product detail changes', exact: true }).click()
+  await expect.poll(() => warns(page)).toBe(false)
+  await name.fill('Published shampoo')
+  await expect.poll(() => warns(page)).toBe(true)
+  await form.getByRole('button', { name: 'Save product details', exact: true }).click()
+  await expect(form.getByRole('button', { name: 'Save product details', exact: true })).toBeDisabled()
+  await expect.poll(() => warns(page)).toBe(false)
+})
+test('failed detail saves keep unload protection until the draft is discarded', async ({ page }) => {
+  await mockStore(page, 'admin', { failFirstProductDetailsSave: true })
+  await page.goto('/admin/products')
+  const form = page.locator('.product-details-editor')
+  await form.getByRole('textbox', { name: 'Product name', exact: true }).fill('Draft shampoo')
+  await form.getByRole('button', { name: 'Save product details', exact: true }).click()
+  await expect(form.getByRole('alert')).toBeVisible()
+  expect(await warns(page)).toBe(true)
+  await form.getByRole('button', { name: 'Discard product detail changes', exact: true }).click()
+  await expect.poll(() => warns(page)).toBe(false)
+})

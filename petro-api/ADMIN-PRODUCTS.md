@@ -156,3 +156,7 @@ The new-product form sums regular selling price × initial quantity for each siz
 ### Refreshing with a new product draft
 
 Supported browsers may warn before refreshing or closing the page while a new-product draft has edits or creation is in progress. The browser controls the warning text and may require prior interaction. This protection clears for unchanged drafts or after the form closes. It does not intercept internal app navigation or store drafts after the page is closed.
+
+### Refreshing while editing product details
+
+Supported browsers may warn before refresh/close while existing-product details are unsaved or saving. Discarding or successfully saving clears this protection; failed saves keep the draft protected. This covers name, description, category and badge edits. It does not intercept internal navigation or save drafts after leaving the page.
