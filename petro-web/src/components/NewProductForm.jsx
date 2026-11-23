@@ -46,6 +46,12 @@ export default function NewProductForm({ onCreated, onCancel }) {
   const stockValue = initialStockValue(variants)
   const stockPreview = initialStockPreview(variants)
   const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    if (!dirty && !busy) return
+    const warn = (event) => { event.preventDefault(); event.returnValue = '' }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty, busy])
   const [error, setError] = useState('')
   const update = (key, value) => setDraft((current) => ({ ...current, [key]: value }))
   const submit = async (event) => {

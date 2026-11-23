@@ -308,3 +308,7 @@ The default suite remains 168 checks. A desktop/mobile scenario verifies invalid
 ### Initial stock retail value
 
 Two logic checks cover summed size-price × stock values, zero stock, unchanged drafts and invalid/duplicate sizes. The default suite contains 104 API/service and 66 frontend logic checks (170 total). A desktop/mobile scenario verifies live totals across sizes, invalid-price recovery and removal. Run with retained creation-validation scenarios for four targeted checks. The complete browser suite contains 90 scenarios across two viewports (180 checks); the full suite was not rerun for this change. The preview is regular-price retail value, not profit or expected revenue.
+
+### New product refresh protection
+
+The default suite remains 170 checks. A desktop/mobile scenario dispatches cancelable beforeunload events to verify no protection for untouched drafts, protection after text/size edits, removal after reverting text and cleanup after discard/reopening. Run with cancellation scenarios for six targeted browser checks. These tests verify event registration and cancellation, not browser-specific native dialog presentation. The complete browser suite contains 91 scenarios across two viewports (182 checks); the full suite was not rerun for this change. Internal navigation is not intercepted and drafts are not persisted.

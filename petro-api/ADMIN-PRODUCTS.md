@@ -152,3 +152,7 @@ If **Create product** cannot submit because a field is missing or invalid, the f
 ### Initial stock retail value
 
 The new-product form sums regular selling price × initial quantity for each size. This draft value updates as you edit and is hidden until size names, prices and quantities are valid. It excludes discounts, delivery and costs, and does not represent profit or expected revenue. Nothing is published until creation succeeds.
+
+### Refreshing with a new product draft
+
+Supported browsers may warn before refreshing or closing the page while a new-product draft has edits or creation is in progress. The browser controls the warning text and may require prior interaction. This protection clears for unchanged drafts or after the form closes. It does not intercept internal app navigation or store drafts after the page is closed.
