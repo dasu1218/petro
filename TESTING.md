@@ -10,11 +10,11 @@ npm run verify
 
 `npm run verify` runs the API suite, frontend logic suite, frontend lint, and production build. Tests use Node's built-in runner; the default suite does not start MongoDB. GitHub Actions runs the same command for pull requests and pushes to main, develop, and feature branches. The workflow has not been executed on GitHub until these changes are pushed.
 
-Current result: 98 API/service tests and 39 frontend logic tests pass. API HTTP tests use ephemeral localhost ports and mocked persistence. They do not modify a real database or upload images to Cloudinary. Cryptographic authentication checks use real bcrypt comparison and JWT signing/verification. Frontend tests cover logic and request handling, not rendered browser interactions.
+Current default suite: 104 API/service tests and 66 frontend logic tests (170 total). API HTTP tests use ephemeral localhost ports and mocked persistence. They do not modify a real database or upload images to Cloudinary. Cryptographic authentication checks use real bcrypt comparison and JWT signing/verification. Frontend tests cover logic and request handling, not rendered browser interactions.
 
 Authentication coverage now includes registration normalization, role-field rejection, password omission in responses, duplicate emails, malformed input, login failures, expired tokens, wrong signing secrets, deleted users, and customer access to admin routes. Registration validates string fields and bounds passwords to 8 or more characters and 72 UTF-8 bytes to avoid accepting inputs beyond bcrypt's effective input limit.
 
-Live verification still required before release:
+Manual verification against the deployed services is still required before release (the browser suite below uses API fixtures):
 
 - Responsive layouts at 375px, 768px, and desktop widths; keyboard navigation and visible validation feedback.
 - Customer registration/login, saved addresses, wishlist switching, and review editing in a browser.
@@ -23,6 +23,10 @@ Live verification still required before release:
 - Admin fulfilment progression, stale concurrent updates, and cash collection displayed in the customer's order.
 
 Use a development database and test account for live checks. Existing seed scripts replace product/category collections; automated tests do not run seed scripts.
+
+## Combined release verification
+
+After installing both projects’ dependencies and Playwright Chromium, run `npm run verify:release` from the repository root. It runs logic tests, lint/build, deployment-checker tests, isolated MongoDB integration tests and the full desktop/mobile browser suite in sequence, stopping at the first failure. Integration tests may download a MongoDB binary on their first run and need local ports. They use an isolated temporary replica set, never the configured production database. Browser tests use API fixtures; this command does not publish or verify deployed services.
 
 ## Desktop and mobile browser smoke tests
 
@@ -316,3 +320,11 @@ The default suite remains 170 checks. A desktop/mobile scenario dispatches cance
 ### Product detail refresh protection
 
 The default suite remains 170 checks. Two desktop/mobile scenarios verify unload event cancellation for unsaved product details, cleanup after discard/successful save and protection retained after a failed save. Run with new-product refresh coverage for six targeted checks. Tests exercise event registration and cancellation rather than native browser dialog presentation. The complete browser suite contains 93 scenarios across two viewports (186 checks); the full suite was not rerun for this change. Protection uses a shared hook; internal app navigation is not blocked and drafts are not persisted.
+
+## Full launch-readiness verification — 23 November 2026
+
+Executed all three commands used by `verify:release`: `npm run verify`, `npm run test:integration` and `npm run test:e2e`. Results: 104 API/service + 66 frontend logic tests (170 total), lint and production build passed; all 9 isolated MongoDB integration tests passed; all 186 browser checks (93 scenarios across desktop/mobile) passed without retries. No application code fixes were required by this run. The combined command was added afterward using these same commands in sequence. This validates local code and fixture browser flows, not deployed Vercel/Render services, production Atlas, real Cloudinary uploads or real customer orders. Follow DEPLOYMENT.md for live verification.
+
+## Deployment checker tests — 23 November 2026
+
+`npm run test:deployment` passes four isolated tests covering expected GET requests, credential-free options, origin validation, failed health/protected-route checks, missing deep-link rewrites and unrelated HTML. These tests use injected fetch responses and never call deployed services. The suite is included in `verify:release`; the default verification remains 170 API/frontend logic checks plus lint/build. Run `npm run check:deployment -- https://FRONTEND-HOST https://API-HOST` with actual origins for a read-only live smoke check. Actual deployment was not checked in this change because live origins were not supplied. Frontend/browser/database code is unchanged, so the prior full 186 browser and nine database checks were not repeated.

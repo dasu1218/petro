@@ -5,6 +5,9 @@
     "test": "npm --prefix petro-api test && npm --prefix petro-web test",
     "verify": "npm test && npm --prefix petro-web run lint && npm --prefix petro-web run build",
     "test:e2e": "npm --prefix petro-web run test:e2e",
-    "test:integration": "npm --prefix petro-api run test:integration"
+    "test:integration": "npm --prefix petro-api run test:integration",
+    "verify:release": "npm run verify && npm run test:deployment && npm run test:integration && npm run test:e2e",
+    "check:deployment": "node scripts/check-deployment.mjs",
+    "test:deployment": "node --test scripts/check-deployment.test.mjs"
   }
 }

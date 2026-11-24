@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Read-only deployment checker | 2026-11-23 | Command checks HTTPS API readiness, guest order protection and frontend deep-link shells without creating data | Four isolated checker tests; live URLs still required for an actual hosted check |
+| Combined release verification | 2026-11-23 | One root command for logic checks, lint/build, isolated MongoDB integration and full desktop/mobile browser coverage | Deployment/testing instructions distinguish automated checks from live-service verification |
 | Product detail refresh protection | 2026-11-23 | Protect unsaved existing-product details during refresh/close with a shared unload hook | Desktop/mobile save, discard, failed-save retention and new-product regression checks |
 | New product refresh protection | 2026-11-22 | Register browser unload protection while a draft is edited or creation is in progress; clean up when closed | Desktop/mobile event cancellation, reverted drafts, size changes and discard cleanup |
 | Initial stock retail value | 2026-11-22 | Review regular size prices multiplied by initial quantities; invalid drafts hide the total | Logic and desktop/mobile multi-size updates, zero stock, removal and validation checks |
