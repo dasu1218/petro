@@ -340,3 +340,7 @@ Executed all three commands used by `verify:release`: `npm run verify`, `npm run
 ## Deployment checker CI coverage — 25 November 2026
 
 The existing GitHub Actions `verify` job now runs `npm run test:deployment` after `npm run verify`. This adds all eight isolated deployment-checker tests to push/pull-request verification without new required job names, secrets or hosted URLs. These tests use injected responses, so CI does not contact production services. Local validation: `npm run verify` and `npm run test:deployment`. The workflow itself must still run on GitHub after pushing; local command results do not establish a successful hosted Actions run. Browser/database code is unchanged and those full suites were not repeated.
+
+## Manual published-site workflow — 25 November 2026
+
+`Check published Petro` is a workflow_dispatch-only workflow with required frontend/API origin inputs. It uses Node 22, runs all eight isolated checker tests, then runs the read-only live checker. Inputs are passed through environment variables and quoted shell arguments, never inserted directly into shell code. Permissions are read-only, and no dependencies or application secrets are required. Local validation covers checker tests and YAML parsing. The workflow was not executed on GitHub and no deployed origins were supplied, so no live deployment is claimed verified. Application code is unchanged; the prior full application/browser/database suites were not repeated.

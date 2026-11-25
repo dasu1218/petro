@@ -1,0 +1,30 @@
+name: Check published Petro
+on:
+  workflow_dispatch:
+    inputs:
+      frontend_url:
+        description: 'Frontend HTTPS origin (no path or query)'
+        required: true
+        type: string
+      api_url:
+        description: 'API HTTPS origin (without /api)'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  check-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test checker using isolated responses
+        run: npm run test:deployment
+      - name: Check supplied deployment origins (read only)
+        env:
+          PETRO_FRONTEND_ORIGIN: ${{ inputs.frontend_url }}
+          PETRO_API_ORIGIN: ${{ inputs.api_url }}
+        run: npm run check:deployment -- "$PETRO_FRONTEND_ORIGIN" "$PETRO_API_ORIGIN"
