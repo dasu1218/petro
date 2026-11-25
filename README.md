@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Deployment checker CI coverage | 2026-11-25 | Run isolated deployment checker tests in the existing verification job on pushes and pull requests | Eight local checker tests; no hosted URL, credentials or new CI job required |
 | Deployment asset checks | 2026-11-24 | Read-only checks for homepage JavaScript/CSS availability, MIME types and accidental HTML fallbacks | Eight isolated deployment checker tests; previous pending CORS work retained |
 | Deployment CORS checks | 2026-11-24 | Verify the supplied frontend origin and POST preflight headers without sending credentials or placing orders | Six isolated checker tests; actual hosted origins still required |
 | Read-only deployment checker | 2026-11-23 | Command checks HTTPS API readiness, guest order protection and frontend deep-link shells without creating data | Four isolated checker tests; live URLs still required for an actual hosted check |

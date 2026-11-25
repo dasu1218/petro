@@ -23,6 +23,8 @@ jobs:
       - run: npm ci --prefix petro-api
       - run: npm ci --prefix petro-web
       - run: npm run verify
+      - name: Test deployment checker (isolated responses)
+        run: npm run test:deployment
   browser-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15

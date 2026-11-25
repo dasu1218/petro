@@ -6,6 +6,8 @@ This repository now includes hosting configuration. It has not been published, a
 
 Install both projects’ dependencies and Playwright Chromium, then run `npm run verify:release` from the repository root. This combines logic tests, lint/build, isolated database integration checks and all desktop/mobile browser tests. It does not replace the live-service checks below. Commit and push this branch. Keep actual `.env` files out of Git; `.env.example` contains placeholders only.
 
+GitHub’s existing **Verify Petro / verify** check also runs the isolated deployment-checker tests. Wait for the branch’s required checks to pass before deployment. CI tests the checker itself using injected responses; run the live command in step 4 against your actual hosts afterward.
+
 ## 2. Deploy the API on Render
 
 Connect this GitHub repository through Render's New Blueprint flow and select `render.yaml` on the branch you want to deploy. Review the service plan and account settings before creating it. The blueprint uses `petro-api` as its root, `npm ci` to build, `npm start` to run, and `/api/health` as its health check. Auto-deploy is disabled so deployment is an explicit action.

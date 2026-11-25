@@ -336,3 +336,7 @@ Executed all three commands used by `verify:release`: `npm run verify`, `npm run
 ## Deployment asset checks — 24 November 2026
 
 `npm run test:deployment` passes eight isolated tests, including missing/empty scripts, incorrect script/style MIME types, HTML fallback bodies and external asset references. The checker fetches up to 20 unique same-origin scripts/styles declared in the homepage, without credentials, query strings or redirects. It does not execute scripts or resolve dynamic imports. Pending CORS checks are retained in this branch. Default verification remains 170 API/frontend logic checks plus lint/build. No live deployment was checked; application/browser/database code is unchanged, so full browser/database suites were not repeated.
+
+## Deployment checker CI coverage — 25 November 2026
+
+The existing GitHub Actions `verify` job now runs `npm run test:deployment` after `npm run verify`. This adds all eight isolated deployment-checker tests to push/pull-request verification without new required job names, secrets or hosted URLs. These tests use injected responses, so CI does not contact production services. Local validation: `npm run verify` and `npm run test:deployment`. The workflow itself must still run on GitHub after pushing; local command results do not establish a successful hosted Actions run. Browser/database code is unchanged and those full suites were not repeated.
