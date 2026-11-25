@@ -34,7 +34,7 @@ Run the read-only smoke checker with your actual HTTPS origins (the API origin m
 npm run check:deployment -- https://YOUR-FRONTEND-HOST https://YOUR-API-HOST
 ```
 
-It requests API health, verifies unauthenticated order access returns 401, and checks the homepage/shop/account URLs serve the application shell. It fails on redirects, times out each request after 15 seconds and sends no login credentials. It does not execute JavaScript or test browser CORS, assets, login, checkout or uploads; complete the manual checks below even when it passes.
+It requests API health with the frontend Origin, checks matching CORS headers and an OPTIONS preflight for authenticated JSON order requests, verifies unauthenticated order access returns 401, and checks the homepage/shop/account URLs serve the application shell. It fails on redirects, times out each request after 15 seconds and sends no login credentials. It also fetches up to 20 same-origin homepage script/stylesheet assets and rejects failed responses, incorrect content types, empty files and HTML fallbacks. It does not execute JavaScript, resolve dynamic imports, execute real browser API requests, log in, place orders or upload photos; complete the manual checks below even when it passes.
 
 Open API `/api/health` and confirm status ok. Visit the frontend, open a product, and refresh its URL. Register/login, add to cart, and verify profile/address/wishlist persistence. With an admin account, test a photo upload and product save. Use a development/test order to check placement, inventory, order access, fulfilment, and cash collection. Follow TESTING.md for concurrency and responsive checks.
 
