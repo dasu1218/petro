@@ -396,6 +396,8 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Deployment asset checks | 2026-11-24 | Read-only checks for homepage JavaScript/CSS availability, MIME types and accidental HTML fallbacks | Eight isolated deployment checker tests; previous pending CORS work retained |
+| Deployment CORS checks | 2026-11-24 | Verify the supplied frontend origin and POST preflight headers without sending credentials or placing orders | Six isolated checker tests; actual hosted origins still required |
 | Read-only deployment checker | 2026-11-23 | Command checks HTTPS API readiness, guest order protection and frontend deep-link shells without creating data | Four isolated checker tests; live URLs still required for an actual hosted check |
 | Combined release verification | 2026-11-23 | One root command for logic checks, lint/build, isolated MongoDB integration and full desktop/mobile browser coverage | Deployment/testing instructions distinguish automated checks from live-service verification |
 | Product detail refresh protection | 2026-11-23 | Protect unsaved existing-product details during refresh/close with a shared unload hook | Desktop/mobile save, discard, failed-save retention and new-product regression checks |

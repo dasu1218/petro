@@ -328,3 +328,11 @@ Executed all three commands used by `verify:release`: `npm run verify`, `npm run
 ## Deployment checker tests — 23 November 2026
 
 `npm run test:deployment` passes four isolated tests covering expected GET requests, credential-free options, origin validation, failed health/protected-route checks, missing deep-link rewrites and unrelated HTML. These tests use injected fetch responses and never call deployed services. The suite is included in `verify:release`; the default verification remains 170 API/frontend logic checks plus lint/build. Run `npm run check:deployment -- https://FRONTEND-HOST https://API-HOST` with actual origins for a read-only live smoke check. Actual deployment was not checked in this change because live origins were not supplied. Frontend/browser/database code is unchanged, so the prior full 186 browser and nine database checks were not repeated.
+
+## Deployment CORS checks — 24 November 2026
+
+`npm run test:deployment` now passes six isolated checker tests. Added cases reject missing/wildcard/wrong origins and preflights without POST, authorization or content-type permission. The live checker sends the supplied frontend Origin on the health request and an OPTIONS order preflight; it never sends an authenticated POST. These are HTTP header checks, not a substitute for real browser requests. Default verification remains 170 API/frontend logic checks plus lint/build. No actual hosted services were checked because deployment origins were not supplied. Application/browser/database code is unchanged; the prior full browser/database suites were not repeated.
+
+## Deployment asset checks — 24 November 2026
+
+`npm run test:deployment` passes eight isolated tests, including missing/empty scripts, incorrect script/style MIME types, HTML fallback bodies and external asset references. The checker fetches up to 20 unique same-origin scripts/styles declared in the homepage, without credentials, query strings or redirects. It does not execute scripts or resolve dynamic imports. Pending CORS checks are retained in this branch. Default verification remains 170 API/frontend logic checks plus lint/build. No live deployment was checked; application/browser/database code is unchanged, so full browser/database suites were not repeated.
