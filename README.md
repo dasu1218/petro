@@ -396,6 +396,7 @@ Add one entry per day.
 
 | Day | Date | Done | Blockers / Notes |
 |---|---|---|---|
+| Guest admin deployment checks | 2026-11-28 | Check admin product/order/dashboard APIs reject guest GET requests with 401 | Eleven isolated checker tests; live customer/admin role verification still required |
 | Public catalogue deployment check | 2026-11-28 | Read-only catalogue request validates product/size data and CORS; explicitly identifies empty catalogues | Ten isolated deployment-checker tests; no live deployment run claimed |
 | Manual published-site check | 2026-11-25 | Manually run the read-only deployment checker from GitHub Actions using supplied frontend/API origins | Isolated checker tests run first; no deployment, data writes or application secrets |
 | Deployment checker CI coverage | 2026-11-25 | Run isolated deployment checker tests in the existing verification job on pushes and pull requests | Eight local checker tests; no hosted URL, credentials or new CI job required |

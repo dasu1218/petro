@@ -5,12 +5,12 @@ const config = { frontend: 'https://shop.example.test', api: 'https://api.exampl
 const shell = '<div id="root"></div><script type="module" src="/assets/app.js"></script><link rel="stylesheet" href="/assets/app.css">'
 const preflight = (headers = {}) => new Response(null, { status: 204, headers: { 'access-control-allow-origin': config.frontend, 'access-control-allow-methods': 'GET,POST', 'access-control-allow-headers': 'Authorization, Content-Type', ...headers } })
 const catalogResponse = (products = [{ slug: 'shampoo', name: 'Shampoo', variants: [{ label: '250ml', price: 1000, stock: 5 }] }]) => Response.json({ products }, { headers: { 'access-control-allow-origin': config.frontend } })
-const response = (url, options = {}) => url.endsWith('/api/products') ? catalogResponse() : url.endsWith('/assets/app.js') ? new Response('console.log(1)', { headers: { 'content-type': 'application/javascript' } }) : url.endsWith('/assets/app.css') ? new Response('body{margin:0}', { headers: { 'content-type': 'text/css' } }) : options.method === 'OPTIONS' ? preflight() : url.endsWith('/api/health') ? Response.json({ status: 'ok' }, { headers: { 'access-control-allow-origin': config.frontend } }) : url.endsWith('/api/orders') ? new Response('', { status: 401 }) : new Response(shell, { headers: { 'content-type': 'text/html' } })
+const response = (url, options = {}) => ['/api/products/admin', '/api/admin/orders', '/api/admin/dashboard'].some((path) => url.endsWith(path)) ? new Response('', { status: 401 }) : url.endsWith('/api/products') ? catalogResponse() : url.endsWith('/assets/app.js') ? new Response('console.log(1)', { headers: { 'content-type': 'application/javascript' } }) : url.endsWith('/assets/app.css') ? new Response('body{margin:0}', { headers: { 'content-type': 'text/css' } }) : options.method === 'OPTIONS' ? preflight() : url.endsWith('/api/health') ? Response.json({ status: 'ok' }, { headers: { 'access-control-allow-origin': config.frontend } }) : url.endsWith('/api/orders') ? new Response('', { status: 401 }) : new Response(shell, { headers: { 'content-type': 'text/html' } })
 test('deployment checker performs only expected read-only requests without credentials', async () => {
   const requests = []
   const checks = await checkDeployment({ ...config, fetcher: async (url, options) => { requests.push(url); assert.ok(['GET', 'OPTIONS'].includes(options.method)); assert.equal(options.redirect, 'error'); assert.equal(options.headers?.Authorization, undefined); return response(url, options) } })
-  assert.equal(checks.length, 8)
-  assert.deepEqual(requests, ['https://api.example.test/api/health', 'https://api.example.test/api/orders', 'https://api.example.test/api/products', 'https://api.example.test/api/orders', 'https://shop.example.test/', 'https://shop.example.test/shop', 'https://shop.example.test/account', 'https://shop.example.test/assets/app.js', 'https://shop.example.test/assets/app.css'])
+  assert.equal(checks.length, 9)
+  assert.deepEqual(requests, ['https://api.example.test/api/health', 'https://api.example.test/api/orders', 'https://api.example.test/api/products', 'https://api.example.test/api/orders', 'https://api.example.test/api/products/admin', 'https://api.example.test/api/admin/orders', 'https://api.example.test/api/admin/dashboard', 'https://shop.example.test/', 'https://shop.example.test/shop', 'https://shop.example.test/account', 'https://shop.example.test/assets/app.js', 'https://shop.example.test/assets/app.css'])
 })
 test('deployment checker rejects unsafe or malformed origins before requesting', async () => {
   for (const frontend of ['invalid', 'http://shop.example.test', 'https://user:secret@shop.example.test', 'https://shop.example.test/path', 'https://shop.example.test/?secret=x']) {
@@ -59,4 +59,12 @@ test('deployment checker rejects failed, malformed and inaccessible public catal
 test('deployment checker identifies empty catalog without claiming products are ready', async () => {
   const checks = await checkDeployment({ ...config, fetcher: async (url, options) => url.endsWith('/api/products') ? catalogResponse([]) : response(url, options) })
   assert.ok(checks.some((check) => check.includes('empty; add visible products before launch')))
+})
+
+test('deployment checker rejects unprotected or missing admin routes', async () => {
+  for (const path of ['/api/products/admin', '/api/admin/orders', '/api/admin/dashboard']) {
+    for (const status of [200, 404, 500]) {
+      await assert.rejects(checkDeployment({ ...config, fetcher: async (url, options) => url.endsWith(path) ? new Response('', { status }) : response(url, options) }), /Admin route.*expected 401/)
+    }
+  }
 })

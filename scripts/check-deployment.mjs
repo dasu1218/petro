@@ -35,6 +35,11 @@ export async function checkDeployment({ frontend, api, fetcher = fetch }) {
   const orders = await get(`${backend}/api/orders`)
   if (orders.status !== 401) throw new Error(`Guest order access returned HTTP ${orders.status}; expected 401`)
   checks.push('Orders require authentication')
+  for (const path of ['/api/products/admin', '/api/admin/orders', '/api/admin/dashboard']) {
+    const admin = await get(`${backend}${path}`)
+    if (admin.status !== 401) throw new Error(`Admin route ${path} returned HTTP ${admin.status} for a guest; expected 401`)
+  }
+  checks.push('Admin products, orders and dashboard require authentication')
   let homepage = ''
   for (const path of ['/', '/shop', '/account']) {
     const response = await get(`${web}${path}`)
