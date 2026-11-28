@@ -4,12 +4,13 @@ import { checkDeployment } from './check-deployment.mjs'
 const config = { frontend: 'https://shop.example.test', api: 'https://api.example.test' }
 const shell = '<div id="root"></div><script type="module" src="/assets/app.js"></script><link rel="stylesheet" href="/assets/app.css">'
 const preflight = (headers = {}) => new Response(null, { status: 204, headers: { 'access-control-allow-origin': config.frontend, 'access-control-allow-methods': 'GET,POST', 'access-control-allow-headers': 'Authorization, Content-Type', ...headers } })
-const response = (url, options = {}) => url.endsWith('/assets/app.js') ? new Response('console.log(1)', { headers: { 'content-type': 'application/javascript' } }) : url.endsWith('/assets/app.css') ? new Response('body{margin:0}', { headers: { 'content-type': 'text/css' } }) : options.method === 'OPTIONS' ? preflight() : url.endsWith('/api/health') ? Response.json({ status: 'ok' }, { headers: { 'access-control-allow-origin': config.frontend } }) : url.endsWith('/api/orders') ? new Response('', { status: 401 }) : new Response(shell, { headers: { 'content-type': 'text/html' } })
+const catalogResponse = (products = [{ slug: 'shampoo', name: 'Shampoo', variants: [{ label: '250ml', price: 1000, stock: 5 }] }]) => Response.json({ products }, { headers: { 'access-control-allow-origin': config.frontend } })
+const response = (url, options = {}) => url.endsWith('/api/products') ? catalogResponse() : url.endsWith('/assets/app.js') ? new Response('console.log(1)', { headers: { 'content-type': 'application/javascript' } }) : url.endsWith('/assets/app.css') ? new Response('body{margin:0}', { headers: { 'content-type': 'text/css' } }) : options.method === 'OPTIONS' ? preflight() : url.endsWith('/api/health') ? Response.json({ status: 'ok' }, { headers: { 'access-control-allow-origin': config.frontend } }) : url.endsWith('/api/orders') ? new Response('', { status: 401 }) : new Response(shell, { headers: { 'content-type': 'text/html' } })
 test('deployment checker performs only expected read-only requests without credentials', async () => {
   const requests = []
   const checks = await checkDeployment({ ...config, fetcher: async (url, options) => { requests.push(url); assert.ok(['GET', 'OPTIONS'].includes(options.method)); assert.equal(options.redirect, 'error'); assert.equal(options.headers?.Authorization, undefined); return response(url, options) } })
-  assert.equal(checks.length, 7)
-  assert.deepEqual(requests, ['https://api.example.test/api/health', 'https://api.example.test/api/orders', 'https://api.example.test/api/orders', 'https://shop.example.test/', 'https://shop.example.test/shop', 'https://shop.example.test/account', 'https://shop.example.test/assets/app.js', 'https://shop.example.test/assets/app.css'])
+  assert.equal(checks.length, 8)
+  assert.deepEqual(requests, ['https://api.example.test/api/health', 'https://api.example.test/api/orders', 'https://api.example.test/api/products', 'https://api.example.test/api/orders', 'https://shop.example.test/', 'https://shop.example.test/shop', 'https://shop.example.test/account', 'https://shop.example.test/assets/app.js', 'https://shop.example.test/assets/app.css'])
 })
 test('deployment checker rejects unsafe or malformed origins before requesting', async () => {
   for (const frontend of ['invalid', 'http://shop.example.test', 'https://user:secret@shop.example.test', 'https://shop.example.test/path', 'https://shop.example.test/?secret=x']) {
@@ -47,4 +48,15 @@ test('deployment checker rejects missing assets and SPA HTML fallback responses'
 test('deployment checker rejects invalid stylesheet MIME and external asset requests', async () => {
   await assert.rejects(checkDeployment({ ...config, fetcher: async (url, options) => url.endsWith('/assets/app.css') ? new Response('oops', { headers: { 'content-type': 'text/plain' } }) : response(url, options) }), /content type/)
   await assert.rejects(checkDeployment({ ...config, fetcher: async (url, options) => url === config.frontend + '/' ? new Response(shell.replace('/assets/app.js', 'https://external.example.test/app.js'), { headers: { 'content-type': 'text/html' } }) : response(url, options) }), /supplied origin/)
+})
+
+test('deployment checker rejects failed, malformed and inaccessible public catalogs', async () => {
+  const invalid = [new Response('', { status: 503 }), new Response('html'), Response.json({ products: [] }), catalogResponse(null), catalogResponse([{ slug: 'bad', name: 'Bad', variants: [] }]), catalogResponse([{ slug: 'bad', name: 'Bad', variants: [{ label: 'Small', price: -1, stock: 1 }] }])]
+  for (const catalog of invalid) {
+    await assert.rejects(checkDeployment({ ...config, fetcher: async (url, options) => url.endsWith('/api/products') ? catalog : response(url, options) }), /catalog/)
+  }
+})
+test('deployment checker identifies empty catalog without claiming products are ready', async () => {
+  const checks = await checkDeployment({ ...config, fetcher: async (url, options) => url.endsWith('/api/products') ? catalogResponse([]) : response(url, options) })
+  assert.ok(checks.some((check) => check.includes('empty; add visible products before launch')))
 })

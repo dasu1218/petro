@@ -25,6 +25,13 @@ export async function checkDeployment({ frontend, api, fetcher = fetch }) {
   const tokens = (header) => (preflight.headers.get(header) || '').split(',').map((value) => value.trim().toLowerCase())
   if (!preflight.ok || !allowsOrigin(preflight) || !tokens('access-control-allow-methods').includes('post') || !['authorization', 'content-type'].every((header) => tokens('access-control-allow-headers').includes(header))) throw new Error('API CORS preflight must allow frontend POST requests with authorization and content-type')
   checks.push('API CORS allows frontend authenticated JSON requests')
+  const catalog = await get(`${backend}/api/products`, { Origin: web })
+  if (!catalog.ok) throw new Error(`Public catalog returned HTTP ${catalog.status}`)
+  if (!allowsOrigin(catalog)) throw new Error('Public catalog CORS does not allow the supplied frontend origin')
+  let products
+  try { products = (await catalog.json()).products } catch { throw new Error('Public catalog did not return valid JSON') }
+  if (!Array.isArray(products) || products.some((product) => !product || typeof product.slug !== 'string' || !product.slug.trim() || typeof product.name !== 'string' || !product.name.trim() || !Array.isArray(product.variants) || !product.variants.length || product.variants.some((variant) => !variant || typeof variant.label !== 'string' || !variant.label.trim() || !Number.isSafeInteger(variant.price) || variant.price < 1 || !Number.isSafeInteger(variant.stock) || variant.stock < 0))) throw new Error('Public catalog contains invalid product or size data')
+  checks.push(products.length ? 'Public catalog returns valid product sizes, prices and stock' : 'Public catalog is reachable but empty; add visible products before launch')
   const orders = await get(`${backend}/api/orders`)
   if (orders.status !== 401) throw new Error(`Guest order access returned HTTP ${orders.status}; expected 401`)
   checks.push('Orders require authentication')
